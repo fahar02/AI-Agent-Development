@@ -1,0 +1,491 @@
+================================================================================
+         SYSTEM DESIGN — COMPLETE MASTERY ROADMAP
+         From Zero to Expert | Sequential Step-by-Step Plan
+================================================================================
+
+TOTAL ESTIMATED TIME: 6–12 Months (depending on pace)
+GOAL: Be able to design any large-scale distributed system confidently
+
+================================================================================
+PHASE 1 — FOUNDATIONS (Weeks 1–3)
+   "Understand the language before you speak it"
+================================================================================
+
+STEP 1: Understand What System Design Is
+-----------------------------------------
+- System design = the process of defining the architecture, components,
+  modules, interfaces, and data flow for a system to satisfy requirements.
+- Two types:
+    a) High-Level Design (HLD) → Architecture, components, APIs, databases
+    b) Low-Level Design (LLD) → Class diagrams, DB schema, code-level design
+- Why it matters: Every real-world product (Google, Netflix, Uber) is built on
+  solid system design decisions.
+
+Resources:
+  - Book: "Designing Data-Intensive Applications" by Martin Kleppmann (Bible)
+  - YouTube: Gaurav Sen - System Design playlist
+  - YouTube: ByteByteGo channel by Alex Xu
+
+--------------------------------------------------------------------------------
+
+STEP 2: Master Networking Basics
+----------------------------------
+Topics to cover:
+  [ ] HTTP / HTTPS — how requests and responses work
+  [ ] DNS — how domain names are resolved to IPs
+  [ ] TCP vs UDP — connection-oriented vs connectionless
+  [ ] REST API — stateless communication, HTTP methods (GET, POST, PUT, DELETE)
+  [ ] WebSockets — real-time bi-directional communication
+  [ ] CDN (Content Delivery Network) — serving static assets at edge locations
+  [ ] Latency vs Throughput vs Bandwidth
+
+Practice:
+  - Use Postman to send HTTP requests
+  - Read how DNS resolution works end-to-end
+
+--------------------------------------------------------------------------------
+
+STEP 3: Learn Core Database Concepts
+--------------------------------------
+Topics:
+  [ ] SQL vs NoSQL — when to use which
+        SQL     → Relational, ACID, structured (PostgreSQL, MySQL)
+        NoSQL   → Flexible, BASE, unstructured (MongoDB, Cassandra, DynamoDB)
+  [ ] Indexing — speeds up reads, slows writes
+  [ ] Normalization vs Denormalization
+  [ ] ACID properties (Atomicity, Consistency, Isolation, Durability)
+  [ ] CAP Theorem — Consistency, Availability, Partition Tolerance (pick 2)
+  [ ] Transactions and Locking
+
+Resources:
+  - "Database Internals" by Alex Petrov
+  - CMU Database YouTube lectures
+
+================================================================================
+PHASE 2 — CORE SYSTEM DESIGN CONCEPTS (Weeks 4–8)
+   "Learn the building blocks every system is made from"
+================================================================================
+
+STEP 4: Scalability Concepts
+------------------------------
+  [ ] Vertical Scaling  → Bigger machine (CPU, RAM)
+  [ ] Horizontal Scaling → More machines (scale-out)
+  [ ] Load Balancing
+        - Round Robin, Least Connections, IP Hash strategies
+        - Tools: NGINX, HAProxy, AWS ELB
+  [ ] Stateless vs Stateful services
+  [ ] Session management across servers (sticky sessions, shared cache)
+
+--------------------------------------------------------------------------------
+
+STEP 5: Caching (Very Important!)
+-----------------------------------
+  [ ] What is caching and WHY it's critical (reduces DB load, low latency)
+  [ ] Cache Strategies:
+        - Cache-aside (Lazy loading)
+        - Write-through
+        - Write-back (Write-behind)
+        - Read-through
+  [ ] Eviction Policies: LRU, LFU, FIFO
+  [ ] Cache Invalidation (hardest problem in CS!)
+  [ ] Tools: Redis, Memcached
+  [ ] CDN as a caching layer for static assets
+
+Practice:
+  - Implement a simple LRU cache in Python/Java from scratch
+
+--------------------------------------------------------------------------------
+
+STEP 6: Message Queues & Async Processing
+-------------------------------------------
+  [ ] Why async? — Decoupling producers and consumers
+  [ ] Message Queue vs Event Streaming
+        MQ     → RabbitMQ, ActiveMQ (point-to-point)
+        Stream → Apache Kafka, AWS Kinesis (pub/sub, replay)
+  [ ] Use cases:
+        - Email notifications
+        - Order processing
+        - Log ingestion pipelines
+  [ ] Dead Letter Queues (DLQ) — handling failed messages
+  [ ] Kafka concepts: topics, partitions, consumer groups, offsets
+
+--------------------------------------------------------------------------------
+
+STEP 7: Database Deep Dive
+---------------------------
+  [ ] Replication
+        - Master-Slave (Primary-Replica) → read replicas
+        - Master-Master → both nodes accept writes
+  [ ] Sharding (Partitioning)
+        - Horizontal sharding — split rows across servers
+        - Sharding strategies: Range, Hash, Directory
+        - Hotspot problem and consistent hashing
+  [ ] Consistent Hashing — used in distributed caches and DBs
+        (Visualize: nodes on a ring, data mapped to nearest node)
+  [ ] Database Proxies: PgBouncer, ProxySQL
+  [ ] NewSQL alternatives: CockroachDB, Spanner
+
+--------------------------------------------------------------------------------
+
+STEP 8: Consistent Hashing (Master This!)
+-------------------------------------------
+  [ ] Problem: When you add/remove a server, all keys remap → thundering herd
+  [ ] Solution: Consistent Hashing places servers and keys on a hash ring
+  [ ] Virtual Nodes (vnodes) → distribute load more evenly
+  [ ] Used in: Amazon DynamoDB, Apache Cassandra, Memcached
+
+Practice:
+  - Implement consistent hashing in code
+
+--------------------------------------------------------------------------------
+
+STEP 9: API Design & Gateway
+------------------------------
+  [ ] REST API best practices
+        - Resource naming (/users/{id})
+        - Versioning (/api/v1/)
+        - Idempotency (PUT, DELETE)
+        - Status codes (200, 201, 400, 401, 403, 404, 500)
+  [ ] gRPC — high performance, Protocol Buffers, for internal services
+  [ ] GraphQL — flexible queries, single endpoint, used at Facebook/GitHub
+  [ ] API Gateway — single entry point, rate limiting, auth, routing
+        Tools: Kong, AWS API Gateway, NGINX
+
+================================================================================
+PHASE 3 — ADVANCED DISTRIBUTED SYSTEMS (Weeks 9–16)
+   "Think like a senior engineer designing at scale"
+================================================================================
+
+STEP 10: Distributed Systems Concepts
+---------------------------------------
+  [ ] CAP Theorem (revisit deeply)
+  [ ] PACELC Theorem — extension of CAP
+  [ ] Eventual Consistency vs Strong Consistency
+  [ ] Vector Clocks — ordering events in distributed systems
+  [ ] Consensus Algorithms:
+        - Paxos (theoretical foundation)
+        - Raft (used in etcd, CockroachDB) — easier to understand than Paxos
+  [ ] Leader Election — Zookeeper, etcd
+  [ ] Two-Phase Commit (2PC) — distributed transactions
+
+Resources:
+  - "Designing Data-Intensive Applications" — Chapters 8 & 9
+  - MIT 6.824 Distributed Systems course (free on YouTube)
+
+--------------------------------------------------------------------------------
+
+STEP 11: Microservices Architecture
+-------------------------------------
+  [ ] Monolith vs Microservices — tradeoffs (not always better to split!)
+  [ ] Decomposition patterns:
+        - By business domain (Domain-Driven Design)
+        - By subdomain (bounded contexts)
+  [ ] Inter-service communication:
+        - Synchronous: REST, gRPC
+        - Asynchronous: Message Queues (Kafka, RabbitMQ)
+  [ ] Service Discovery: Consul, Eureka, Kubernetes DNS
+  [ ] Circuit Breaker Pattern — Hystrix, Resilience4j
+  [ ] Saga Pattern — distributed transactions in microservices
+        - Choreography-based
+        - Orchestration-based
+  [ ] API Gateway in microservices
+
+--------------------------------------------------------------------------------
+
+STEP 12: Distributed Caching & Storage
+----------------------------------------
+  [ ] Distributed Cache: Redis Cluster, Memcached
+  [ ] Object Storage: AWS S3, Google Cloud Storage
+        - Use for: images, videos, backups, large blobs
+        - Pre-signed URLs for secure access
+  [ ] Block Storage: AWS EBS — for databases, OS disks
+  [ ] File Storage: AWS EFS, NFS — shared file systems
+  [ ] Blob Storage vs Object Storage
+
+--------------------------------------------------------------------------------
+
+STEP 13: Search Systems
+------------------------
+  [ ] Full-Text Search: Elasticsearch, Apache Solr
+  [ ] Inverted Index — how search engines index documents
+  [ ] Relevance Ranking: TF-IDF, BM25
+  [ ] Typeahead/Autocomplete design
+  [ ] Fuzzy search and typo tolerance
+
+--------------------------------------------------------------------------------
+
+STEP 14: Rate Limiting & Throttling
+-------------------------------------
+  [ ] Why? — prevent abuse, protect backend
+  [ ] Algorithms:
+        - Fixed Window Counter   → simple but burst-prone
+        - Sliding Window Log     → accurate but memory heavy
+        - Sliding Window Counter → balance of both
+        - Token Bucket           → allows bursting (used by AWS)
+        - Leaky Bucket           → smooth output rate
+  [ ] Implementation: Redis + Lua scripts (atomic operations)
+  [ ] Rate limiting at API Gateway level
+
+--------------------------------------------------------------------------------
+
+STEP 15: Monitoring, Logging & Observability
+----------------------------------------------
+  [ ] The 3 Pillars of Observability:
+        1. Metrics   → numbers over time (CPU, latency, error rate)
+        2. Logs      → text records of events
+        3. Traces    → end-to-end request tracking across services
+  [ ] Tools:
+        Metrics  → Prometheus + Grafana
+        Logs     → ELK Stack (Elasticsearch + Logstash + Kibana)
+        Tracing  → Jaeger, Zipkin, AWS X-Ray
+  [ ] Alerting — PagerDuty, OpsGenie
+  [ ] SLI, SLO, SLA definitions
+
+================================================================================
+PHASE 4 — REAL-WORLD SYSTEM DESIGN PRACTICE (Weeks 17–24)
+   "Apply everything by designing real systems"
+================================================================================
+
+STEP 16: Design Classic Systems (Do These In Order!)
+------------------------------------------------------
+
+  [BEGINNER]
+  1. Design a URL Shortener (like TinyURL / bit.ly)
+     - Key concepts: hashing, DB design, redirects, analytics
+     - Scale: 100M URLs, 10B redirects/day
+
+  2. Design a Pastebin
+     - Key concepts: object storage, expiry, unique IDs
+
+  3. Design a Rate Limiter
+     - Key concepts: token bucket, Redis, distributed counters
+
+  [INTERMEDIATE]
+  4. Design Instagram / Photo Sharing App
+     - Key concepts: CDN, object storage, feed generation, notifications
+
+  5. Design Twitter / Newsfeed System
+     - Key concepts: fanout (push vs pull), timelines, sharding
+     - Push model vs Pull model for feed
+
+  6. Design WhatsApp / Chat Messaging System
+     - Key concepts: WebSockets, message queues, delivery receipts,
+       end-to-end encryption, group chats
+
+  7. Design YouTube / Video Streaming
+     - Key concepts: video encoding, CDN, chunked uploads, adaptive bitrate
+
+  [ADVANCED]
+  8. Design Uber / Ride Sharing
+     - Key concepts: geospatial indexing, real-time location tracking,
+       driver matching, surge pricing
+
+  9. Design Google Search
+     - Key concepts: web crawler, indexing pipeline, ranking, caching
+
+  10. Design Google Drive / Dropbox
+      - Key concepts: chunked file upload, delta sync, conflict resolution,
+        permissions, versioning
+
+  11. Design Netflix
+      - Key concepts: CDN, recommendation engine, A/B testing,
+        video encoding pipeline, chaos engineering
+
+  12. Design a Distributed Key-Value Store (like DynamoDB)
+      - Key concepts: consistent hashing, replication, quorum reads/writes,
+        gossip protocol, vector clocks
+
+--------------------------------------------------------------------------------
+
+STEP 17: System Design Interview Framework
+-------------------------------------------
+Use this structured approach for every design problem:
+
+  FRAMEWORK (45-minute interview):
+
+  1. CLARIFY REQUIREMENTS (5 min)
+     - Functional requirements: what must the system do?
+     - Non-functional: scale, availability, consistency, latency
+     - Ask: DAU/MAU? Read-heavy or write-heavy? Global or regional?
+
+  2. CAPACITY ESTIMATION (5 min)
+     - Traffic: QPS (queries per second)
+     - Storage: bytes per record × number of records
+     - Bandwidth: data transferred per second
+     - Memory: cache sizing
+
+     Quick math cheat sheet:
+       1M requests/day  ≈  12 req/sec
+       1B requests/day  ≈  11,500 req/sec
+       1KB per record × 1B records = 1TB storage
+
+  3. HIGH-LEVEL DESIGN (10 min)
+     - Draw the main components: Client → LB → App Servers → DB/Cache
+     - Define APIs
+     - Choose SQL vs NoSQL
+
+  4. DEEP DIVE (20 min)
+     - Bottlenecks? → Add caching, sharding, replication
+     - Single points of failure? → Add redundancy
+     - Data consistency? → Define consistency model
+     - Hot partitions? → Consistent hashing, key design
+
+  5. WRAP UP (5 min)
+     - Monitoring & alerting
+     - Failure scenarios and mitigation
+     - Future improvements
+
+================================================================================
+PHASE 5 — MASTERY & SPECIALIZATION (Months 7–12)
+   "Go deep on specific areas and stay current"
+================================================================================
+
+STEP 18: Deep Dive Into Specific Areas
+----------------------------------------
+Choose 2-3 based on your career interest:
+
+  A) Data Engineering & Pipelines
+     - Batch processing: Apache Spark, Hadoop
+     - Stream processing: Apache Flink, Kafka Streams
+     - Data warehouses: Snowflake, BigQuery, Redshift
+     - Lambda Architecture vs Kappa Architecture
+
+  B) Cloud Architecture (AWS / GCP / Azure)
+     - Managed services: RDS, ElastiCache, SQS, SNS, Lambda
+     - Serverless Architecture — Functions as a Service
+     - Multi-region deployments
+     - Cost optimization strategies
+
+  C) Security & Auth Systems
+     - Authentication: Sessions, JWT, OAuth 2.0, OpenID Connect
+     - Zero Trust Architecture
+     - Encryption at rest and in transit
+     - Secret management: Vault, AWS Secrets Manager
+
+  D) ML Systems Design
+     - Feature stores, model serving, A/B testing
+     - Online vs offline ML systems
+     - Real-time inference pipelines
+
+--------------------------------------------------------------------------------
+
+STEP 19: Study Existing Systems (Engineering Blogs)
+-----------------------------------------------------
+Read "How we built X" posts from real companies:
+
+  Company      | Blog
+  -------------|----------------------------------------
+  Netflix      | netflixtechblog.com
+  Uber         | eng.uber.com
+  Airbnb       | medium.com/airbnb-engineering
+  Discord      | discord.com/blog (engineering)
+  Dropbox      | dropbox.tech
+  LinkedIn     | engineering.linkedin.com
+  Meta         | engineering.fb.com
+  Twitter/X    | blog.twitter.com/engineering
+  Cloudflare   | blog.cloudflare.com
+  DoorDash     | doordash.engineering
+
+  Recommended posts to start with:
+  - "How Discord Stores Billions of Messages"
+  - "Uber's Real-Time Push Platform"
+  - "Netflix's Chaos Monkey"
+  - "Dropbox's Magic Pocket"
+
+--------------------------------------------------------------------------------
+
+STEP 20: Mock Interviews & Community
+--------------------------------------
+  [ ] Do 2–3 mock system design interviews per week
+  [ ] Use: Pramp, Interviewing.io, or practice with peers
+  [ ] Join communities:
+        - r/systemdesign (Reddit)
+        - "Grokking the System Design Interview" (Educative.io)
+        - Quastor newsletter
+        - ByteByteGo newsletter
+
+================================================================================
+RECOMMENDED BOOKS (In Order)
+================================================================================
+
+  1. "System Design Interview" Vol 1 & 2 — Alex Xu       ← START HERE
+  2. "Designing Data-Intensive Applications" — Kleppmann  ← Most important book
+  3. "Database Internals" — Alex Petrov
+  4. "Building Microservices" — Sam Newman
+  5. "Clean Architecture" — Robert C. Martin
+  6. "Site Reliability Engineering" — Google (free online)
+
+================================================================================
+RECOMMENDED YOUTUBE CHANNELS
+================================================================================
+
+  - ByteByteGo         → Visual system design explanations (BEST)
+  - Gaurav Sen         → Beginner-friendly concepts
+  - TechDummies Narendra → Detailed system designs
+  - Hussein Nasser     → Networking & backend deep dives
+  - Jordan has no Life → CS fundamentals & system design
+  - Arpit Bhayani      → Deep technical internals
+
+================================================================================
+SKILL CHECKLIST — Track Your Progress
+================================================================================
+
+  BEGINNER
+  [ ] I know what API, DNS, CDN, Load Balancer mean
+  [ ] I can explain SQL vs NoSQL trade-offs
+  [ ] I can design a URL shortener
+  [ ] I understand caching and eviction policies
+  [ ] I know what vertical/horizontal scaling means
+
+  INTERMEDIATE
+  [ ] I can explain Consistent Hashing with an example
+  [ ] I can design a Twitter feed or Instagram
+  [ ] I can explain CAP theorem and give real examples
+  [ ] I understand message queues and when to use Kafka
+  [ ] I can do back-of-the-envelope capacity estimation
+
+  ADVANCED
+  [ ] I can design a distributed key-value store
+  [ ] I understand Raft / Paxos consensus
+  [ ] I can design systems for 100M+ users
+  [ ] I can talk about tradeoffs (consistency vs availability, etc.)
+  [ ] I can lead a 45-minute system design interview confidently
+
+  MASTER
+  [ ] I have read all recommended books
+  [ ] I have designed 12+ systems end-to-end
+  [ ] I can read engineering blogs and understand architecture decisions
+  [ ] I can mentor others in system design
+  [ ] I can architect real production systems at my company
+
+================================================================================
+DAILY STUDY SCHEDULE (Suggested)
+================================================================================
+
+  MON: Read 1 chapter from "Designing Data-Intensive Applications"
+  TUE: Watch 2 ByteByteGo videos + take notes
+  WED: Design 1 system end-to-end (draw diagram, explain trade-offs)
+  THU: Read 1 engineering blog post from a real company
+  FRI: Code a mini implementation (LRU cache, consistent hashing, etc.)
+  SAT: Do 1 mock interview (Pramp / peer practice)
+  SUN: Review notes, update this checklist, plan next week
+
+================================================================================
+KEY PRINCIPLES TO ALWAYS REMEMBER
+================================================================================
+
+  1. "There is no perfect system — only trade-offs."
+  2. Always ask WHY before HOW.
+  3. Start simple. Add complexity only when needed.
+  4. Bottlenecks are usually: DB, network, or single points of failure.
+  5. Caching solves 80% of performance problems.
+  6. Design for failure — assume everything will break.
+  7. Measure first, optimize second. ("Premature optimization is the root of all evil")
+  8. Prefer async over sync wherever possible for scalability.
+  9. Data >> Opinion. Let load testing guide decisions.
+  10. A great system design explanation is 50% communication, 50% knowledge.
+
+================================================================================
+         Good Luck! Consistency beats intensity. Study every day.
+                    You WILL become a System Design Master.
+================================================================================

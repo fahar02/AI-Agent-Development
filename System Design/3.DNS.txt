@@ -1,0 +1,179 @@
+
+================================================================================
+  DNS — DOMAIN NAME SYSTEM
+  The phonebook of the internet: Mapping names to numbers
+================================================================================
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 0 ◆ WHAT IS DNS?
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+▸ Simple
+  Humans remember names (Google.com), computers remember numbers (142.251.46.206).
+  DNS is the translator that turns those names into numbers.
+
+  Think of it like the "Contacts" app on your phone:
+  - You click on "Mom."
+  - Your phone looks up "Mom" and finds the number "555-1212."
+  - The call is made using the number, not the name.
+
+▸ Technical
+  DNS is a hierarchical and decentralized naming system for computers,
+  services, or other resources connected to the internet. It translates
+  human-readable domain names into the numerical IP addresses needed
+  for locating and identifying computer services and devices with the
+  underlying network protocols.
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 1 ◆ THE FOUR TYPES OF DNS SERVERS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+When you type a URL, your request goes through these four servers:
+
+1. DNS RECURSIVE RESOLVER
+────────────────────────────────────────────────────────────────────────────────
+▸ Simple
+  The "Librarian." This is the first stop. It's usually provided by your ISP
+  (like Comcast or AT&T) or a public service like Google (8.8.8.8).
+  Its job is to go talk to the other servers to find the answer for you.
+
+2. ROOT NAME SERVER
+────────────────────────────────────────────────────────────────────────────────
+▸ Simple
+  The "Index." It doesn't know the answer, but it knows where all the
+  top-level extensions (.com, .org, .net) are.
+
+3. TLD (Top-Level Domain) NAME SERVER
+────────────────────────────────────────────────────────────────────────────────
+▸ Simple
+  The "Category shelf." It knows about all domains ending in a specific
+  extension. The .com TLD server knows about every website ending in ".com."
+
+4. AUTHORITATIVE NAME SERVER
+────────────────────────────────────────────────────────────────────────────────
+▸ Simple
+  The "Dictionary." This is the final stop. This server actually holds
+   the official record for the website. If it says "Google.com is at
+  142.251.46.206," then that is the truth.
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 2 ◆ THE DNS LOOKUP PROCESS (Step-by-Step)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. You type "example.com" into your browser.
+2. Browser checks its own cache. (Found? Stop.)
+3. Browser asks the OS. OS checks the "hosts" file. (Found? Stop.)
+4. OS asks the Recursive Resolver (the Librarian).
+5. Librarian asks the Root Server: "Where is example.com?"
+   - Root says: "I don't know, but go ask the .com TLD server."
+6. Librarian asks the .com TLD Server: "Where is example.com?"
+   - TLD says: "I don't know, but go ask the Authoritative Server at 'ns1.example.com'."
+7. Librarian asks the Authoritative Server: "Where is example.com?"
+   - Authoritative says: "I have it! The IP is 93.184.216.34."
+8. Librarian runs back to your browser with the IP.
+9. Browser makes the connection and loads the site.
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 3 ◆ DNS RECORD TYPES (The Language of DNS)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ┌─────┬──────────────────┬──────────────────────────────────────────────────┐
+  │ Type│ Name             │ Purpose                                         │
+  ├─────┼──────────────────┼──────────────────────────────────────────────────┤
+  │  A  │ Address          │ Maps a domain to an IPv4 address.               │
+  │ AAAA│ Quad-A           │ Maps a domain to an IPv6 address.               │
+  │CNAME│ Canonical Name   │ Maps one domain to another (alias).             │
+  │ MX  │ Mail Exchange    │ Directs email to a specific mail server.        │
+  │ TXT │ Text             │ Stores notes, used for verification (SPF, DKIM).│
+  │ NS  │ Name Server      │ Lists which servers are authoritative for zone. │
+  │ SOA │ Start Authority  │ Contains admin info about the domain/zone.       │
+  │ PTR │ Pointer          │ Reverse lookup: Maps an IP back to a name.      │
+  └─────┴──────────────────┴──────────────────────────────────────────────────┘
+
+▸ CNAME vs. A Record (Intermediate)
+  - An A Record maps to an IP (google.com → 1.2.3.4).
+  - A CNAME maps to a name (blog.google.com → servers.google.com).
+  - Important: You cannot have a CNAME for a root domain (e.g., example.com).
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 4 ◆ TTL (TIME TO LIVE) & CACHING
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+▸ Simple
+  TTL is the "expiration date" on a DNS record.
+  It tells a server: "You can remember this answer for 3600 seconds. After
+  that, throw it away and ask me again."
+
+▸ Why TTL Matters (Intermediate)
+  - High TTL (e.g., 24 hours): Good for performance (fewer lookups), but
+    bad if you need to change your IP quickly (everyone will have the old
+    one cached).
+  - Low TTL (e.g., 60 seconds): Good if you are moving servers or doing
+    maintenance, but adds weight to the network.
+
+▸ Propagation (The "Wait" time)
+  When you change a DNS record, it doesn't change instantly for everyone.
+  It takes time for the "Old" records to expire out of every cache in the
+  world. This is called "DNS Propagation."
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 5 ◆ ADVANCED DNS CONCEPTS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. ANYCAST DNS
+────────────────────────────────────────────────────────────────────────────────
+  Big providers like Cloudflare or Google use Anycast. This means they
+  advertise the SAME IP address from hundreds of data centers around the world.
+  Routing automatically sends your request to the data center closest to you.
+  Reduces latency and prevents DDoS attacks.
+
+2. DNSSEC (DNS Security Extensions)
+────────────────────────────────────────────────────────────────────────────────
+  Standard DNS is not secure; attackers can give you "fake" IPs (DNS Poisoning).
+  DNSSEC adds a digital signature to DNS records. It's like putting a "wax
+  seal" on an envelope to prove that the info inside hasn't been tampered with.
+
+3. DoH (DNS over HTTPS) and DoT (DNS over TLS)
+────────────────────────────────────────────────────────────────────────────────
+  Normally, DNS requests are sent in plain text (anyone on your Wi-Fi can see
+  what sites you visit). DoH and DoT encrypt your DNS requests inside a
+  secure tunnel so your ISP or hackers can't spy on your browsing habits.
+
+4. EDNS (Extension Mechanisms for DNS)
+────────────────────────────────────────────────────────────────────────────────
+  Allows DNS to carry larger packets and includes the user's subnet info.
+  This helps CDNs (like Netflix) know exactly where you are so they can
+  send you to a video server in your same city.
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 6 ◆ QUICK REFERENCE & COMMANDS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+▸ Performance Tips:
+  - Use a fast public resolver: 1.1.1.1 (Cloudflare) or 8.8.8.8 (Google).
+  - Set a lower TTL before a big server migration.
+  - Use a Content Delivery Network (CDN) to handle DNS at the "edge."
+
+▸ Useful Tools:
+  - nslookup [domain]  → Basic DNS check.
+  - dig [domain]       → Detailed DNS info (Standard on Linux/Mac).
+  - whois [domain]     → See who owns the domain and what servers they use.
+  - flushdns           → (Windows: ipconfig /flushdns) Clears your local cache.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SUMMARY — THE MENTAL MODEL
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  DNS is a detective story.
+  The computer doesn't know where to go, so it asks a Librarian (Resolver).
+  The Librarian asks the Boss (Root), who points to the Manager (TLD),
+  who points to the File Cabinet (Authoritative Server).
+  Once the IP address is found, the connection is made.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

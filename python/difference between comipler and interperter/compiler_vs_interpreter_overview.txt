@@ -1,0 +1,118 @@
+================================================================================
+           COMPILER VS INTERPRETER - COMPLETE LEARNING GUIDE
+================================================================================
+
+                        Welcome to Programming Basics!
+
+This learning series will help you understand two fundamental concepts in 
+programming: Compilers and Interpreters.
+
+--------------------------------------------------------------------------------
+                            WHAT YOU WILL LEARN
+--------------------------------------------------------------------------------
+
+This guide is divided into separate files, each covering a specific topic:
+
+1. what_is_compiler.txt
+   - Understanding what a compiler is
+   - Real-life analogies to make it simple
+   - Basic concepts explained for beginners
+
+2. what_is_interpreter.txt
+   - Understanding what an interpreter is
+   - How it differs from a compiler
+   - Simple explanations with examples
+
+3. key_differences.txt
+   - Side-by-side comparison
+   - Clear differences explained
+   - Comparison table for quick reference
+
+4. how_they_work.txt
+   - Step-by-step internal working
+   - Flow diagrams (ASCII format)
+   - Detailed execution process
+
+5. real_world_examples.txt
+   - Languages that use compilers (C, C++, Java)
+   - Languages that use interpreters (Python, JavaScript)
+   - Practical code examples
+
+6. pros_and_cons.txt
+   - Advantages of compilers
+   - Advantages of interpreters
+   - Disadvantages of each
+   - When each approach is better
+
+7. when_to_use.txt
+   - Practical guidance on choosing
+   - Use cases for compilers
+   - Use cases for interpreters
+   - Decision-making tips
+
+8. summary_and_revision.txt
+   - Quick summary of all concepts
+   - Revision checklist
+   - Key points to remember
+
+--------------------------------------------------------------------------------
+                          HOW TO USE THIS GUIDE
+--------------------------------------------------------------------------------
+
+STEP 1: Start with the basics
+        Read "what_is_compiler.txt" and "what_is_interpreter.txt" first
+
+STEP 2: Understand the differences
+        Move to "key_differences.txt" to see how they compare
+
+STEP 3: Learn how they work
+        Study "how_they_work.txt" for detailed internal processes
+
+STEP 4: See real examples
+        Check "real_world_examples.txt" for practical understanding
+
+STEP 5: Understand pros and cons
+        Read "pros_and_cons.txt" to know strengths and weaknesses
+
+STEP 6: Learn when to use what
+        Study "when_to_use.txt" for practical decision-making
+
+STEP 7: Revise and remember
+        Use "summary_and_revision.txt" for quick revision
+
+--------------------------------------------------------------------------------
+                          LEARNING TIPS
+--------------------------------------------------------------------------------
+
+- Take your time with each file
+- Don't rush through the concepts
+- Try to relate examples to real life
+- Revisit files if something is unclear
+- Use the summary file for quick reviews
+- Practice with simple code examples
+
+--------------------------------------------------------------------------------
+                          PREREQUISITES
+--------------------------------------------------------------------------------
+
+NONE! This guide assumes you are a complete beginner.
+
+You don't need to know:
+- Advanced programming
+- Computer architecture
+- Operating systems
+- Any specific programming language
+
+All technical terms will be explained in simple language.
+
+--------------------------------------------------------------------------------
+                          READY TO START?
+--------------------------------------------------------------------------------
+
+Begin your learning journey with "what_is_compiler.txt"
+
+Happy Learning!
+
+================================================================================
+                              END OF OVERVIEW
+================================================================================

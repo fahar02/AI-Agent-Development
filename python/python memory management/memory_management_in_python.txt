@@ -1,0 +1,1631 @@
+================================================================================
+                    MEMORY MANAGEMENT IN PYTHON
+              A Complete Guide from Basics to Advanced
+================================================================================
+
+================================================================================
+1. INTRODUCTION TO MEMORY MANAGEMENT
+================================================================================
+
+What is Memory Management?
+--------------------------
+Memory management is the process of controlling and coordinating how a computer
+application accesses computer memory. In simple terms, it is about how Python
+stores data in memory, keeps track of it, and removes it when no longer needed.
+
+Think of memory like a large warehouse:
+- You need space to store items (data/objects)
+- You need to know where each item is located (memory addresses)
+- You need to clean up when items are no longer needed (garbage collection)
+
+Why is Memory Management Important?
+------------------------------------
+1. Performance: Efficient memory usage makes programs run faster
+2. Resource Optimization: Prevents memory wastage
+3. Stability: Prevents memory leaks and crashes
+4. Scalability: Allows programs to handle larger datasets
+
+How Python Manages Memory?
+---------------------------
+Python uses AUTOMATIC memory management, which means:
+- You do not need to manually allocate memory (like in C/C++)
+- You do not need to manually free memory
+- Python handles everything behind the scenes
+
+Python uses two main techniques:
+1. Reference Counting
+2. Garbage Collection
+
+
+================================================================================
+2. VARIABLES AND MEMORY (REFERENCES)
+================================================================================
+
+Understanding Variables in Python
+----------------------------------
+In Python, variables are NOT containers that store values. Instead, they are
+REFERENCES (or labels) that point to objects in memory.
+
+Real-World Analogy:
+Think of a house (object) and its address (reference). Multiple people can
+know the same address and visit the same house. Similarly, multiple variables
+can reference the same object in memory.
+
+Example 1: Simple Assignment
+-----------------------------
+Code:
+    x = 10
+
+What happens in memory:
+1. Python creates an integer object with value 10 in memory
+2. Variable 'x' becomes a reference pointing to this object
+3. The object gets a reference count of 1
+
+Memory Representation:
+    
+    Variable         Memory Address        Object
+    --------         --------------        ------
+    x       -------> 0x7f8b2c3d4e10 ----> [10]
+
+
+Example 2: Multiple References
+-------------------------------
+Code:
+    x = 10
+    y = x
+
+What happens:
+1. 'x' points to integer object 10
+2. 'y' also points to the SAME object (not a copy)
+3. Reference count becomes 2
+
+Memory Representation:
+
+    Variable         Memory Address        Object
+    --------         --------------        ------
+    x       -------> 0x7f8b2c3d4e10 ----> [10]
+    y       -------> 0x7f8b2c3d4e10        ^
+                                           |
+                                    (Same object)
+
+
+Example 3: Reassignment
+-----------------------
+Code:
+    x = 10
+    y = x
+    x = 20
+
+What happens:
+1. 'x' now points to a NEW object with value 20
+2. 'y' still points to the original object 10
+3. Object 10 has reference count 1
+4. Object 20 has reference count 1
+
+Memory Representation:
+
+    Variable         Memory Address        Object
+    --------         --------------        ------
+    x       -------> 0x7f8b2c3d4f20 ----> [20]
+    y       -------> 0x7f8b2c3d4e10 ----> [10]
+
+
+Checking Object Identity
+-------------------------
+You can check if two variables point to the same object using 'id()' function
+and 'is' operator.
+
+Code:
+    x = 10
+    y = x
+    print(id(x))      # Example: 140234567890
+    print(id(y))      # Example: 140234567890 (same)
+    print(x is y)     # True (same object)
+    
+    x = 20
+    print(x is y)     # False (different objects now)
+
+
+================================================================================
+3. MEMORY ALLOCATION (STACK VS HEAP)
+================================================================================
+
+Python uses two types of memory:
+1. Stack Memory
+2. Heap Memory
+
+Stack Memory
+------------
+- Stores function calls and local variable REFERENCES
+- Follows LIFO (Last In First Out) principle
+- Automatically managed
+- Fast access
+- Limited size
+- Stores primitive data and references
+
+Heap Memory
+-----------
+- Stores actual OBJECTS and data structures
+- Dynamically allocated
+- Managed by Python Memory Manager
+- Slower than stack
+- Larger size
+- Stores all Python objects (lists, dictionaries, custom objects, etc.)
+
+
+STACK vs HEAP DIAGRAM
+----------------------
+
+    +------------------+              +---------------------------+
+    |   STACK MEMORY   |              |      HEAP MEMORY          |
+    +------------------+              +---------------------------+
+    |                  |              |                           |
+    | Function Calls   |              |   Python Objects:         |
+    | Local Variables  |              |   - Integers              |
+    | References       |    -------->  |   - Strings               |
+    |                  |   (points to) |   - Lists                 |
+    | Example:         |              |   - Dictionaries          |
+    | x (reference)    |              |   - Custom Objects        |
+    | y (reference)    |              |   - Functions             |
+    |                  |              |                           |
+    +------------------+              +---------------------------+
+    
+    Fast Access                       Slower Access
+    Limited Size                      Large Size
+    Auto-managed                      Managed by Python MM
+
+
+Example: Stack and Heap in Action
+----------------------------------
+Code:
+    def calculate():
+        a = 10              # Reference 'a' on stack
+        b = [1, 2, 3]       # Reference 'b' on stack
+        return a + len(b)
+    
+    result = calculate()
+
+Memory Layout:
+
+STACK (during function execution):
+    +-------------------+
+    | calculate() frame |
+    | a -> (ref)        |----> HEAP: Integer object 10
+    | b -> (ref)        |----> HEAP: List object [1, 2, 3]
+    +-------------------+
+    | main frame        |
+    | result -> (ref)   |----> HEAP: Integer object 13
+    +-------------------+
+
+After function returns:
+- Stack frame for calculate() is removed
+- If no other references exist, heap objects may be garbage collected
+
+
+================================================================================
+4. PYTHON MEMORY MODEL
+================================================================================
+
+Python Memory Architecture Overview
+------------------------------------
+
+    +-------------------------------------------------------+
+    |              PYTHON PROGRAM (Your Code)               |
+    +-------------------------------------------------------+
+                            |
+                            v
+    +-------------------------------------------------------+
+    |           PYTHON INTERPRETER (CPython)                |
+    +-------------------------------------------------------+
+                            |
+                            v
+    +-------------------------------------------------------+
+    |      PYTHON VIRTUAL MACHINE (PVM)                     |
+    |  - Executes bytecode                                  |
+    |  - Manages execution flow                             |
+    +-------------------------------------------------------+
+                            |
+                            v
+    +-------------------------------------------------------+
+    |         PYTHON MEMORY MANAGER                         |
+    |  +------------------------------------------------+   |
+    |  |  Reference Counting System                     |   |
+    |  +------------------------------------------------+   |
+    |  |  Garbage Collector (Cycle Detection)           |   |
+    |  +------------------------------------------------+   |
+    +-------------------------------------------------------+
+                            |
+                            v
+    +-------------------------------------------------------+
+    |              PRIVATE HEAP (Python Objects)            |
+    |  +------------------------------------------------+   |
+    |  |  Object-Specific Allocators                    |   |
+    |  |  - Integer objects                             |   |
+    |  |  - String objects                              |   |
+    |  |  - List objects                                |   |
+    |  |  - Dictionary objects                          |   |
+    |  +------------------------------------------------+   |
+    |  |  Memory Pools (Small objects < 512 bytes)      |   |
+    |  +------------------------------------------------+   |
+    |  |  Arenas (Large memory blocks)                  |   |
+    |  +------------------------------------------------+   |
+    +-------------------------------------------------------+
+                            |
+                            v
+    +-------------------------------------------------------+
+    |         OPERATING SYSTEM MEMORY (RAM)                 |
+    +-------------------------------------------------------+
+
+
+Layers Explained:
+-----------------
+
+Layer 1: Python Program
+- Your source code written in Python
+
+Layer 2: Python Interpreter
+- Converts your code to bytecode
+- CPython is the standard implementation
+
+Layer 3: Python Virtual Machine (PVM)
+- Executes the bytecode
+- Manages program execution
+
+Layer 4: Python Memory Manager
+- Handles all memory operations
+- Uses reference counting and garbage collection
+
+Layer 5: Private Heap
+- Where all Python objects live
+- Organized into pools and arenas for efficiency
+
+Layer 6: Operating System
+- Provides actual RAM to Python
+
+
+================================================================================
+5. REFERENCE COUNTING
+================================================================================
+
+What is Reference Counting?
+----------------------------
+Reference counting is Python's primary method of memory management. Every
+object in Python has a counter that tracks how many references point to it.
+
+When reference count reaches ZERO, the object is immediately deleted.
+
+Real-World Analogy:
+Think of a shared document. As long as someone is using it (reference count > 0),
+it stays. When nobody needs it anymore (reference count = 0), it gets deleted.
+
+
+Reference Count Operations
+---------------------------
+
+Operations that INCREASE reference count:
+1. Assignment: x = obj
+2. Passing to function: func(obj)
+3. Adding to container: list.append(obj)
+
+Operations that DECREASE reference count:
+1. Reassignment: x = other_obj
+2. Deleting reference: del x
+3. Going out of scope: function returns
+4. Removing from container: list.remove(obj)
+
+
+REFERENCE COUNTING FLOW DIAGRAM
+--------------------------------
+
+    Object Creation
+         |
+         v
+    +------------------+
+    | Object Created   |
+    | Ref Count = 1    |
+    +------------------+
+         |
+         v
+    +------------------+
+    | New Reference    |
+    | Ref Count += 1   |
+    +------------------+
+         |
+         v
+    +------------------+
+    | Object in Use    |
+    | Ref Count >= 1   |
+    +------------------+
+         |
+         v
+    +------------------+
+    | Reference Removed|
+    | Ref Count -= 1   |
+    +------------------+
+         |
+         v
+    +------------------+
+    | Ref Count = 0?   |
+    +------------------+
+         |
+         +---> YES ---> Object Deleted (Memory Freed)
+         |
+         +---> NO ----> Object Remains in Memory
+
+
+Example: Reference Counting in Action
+--------------------------------------
+Code:
+    import sys
+    
+    # Create object
+    x = [1, 2, 3]
+    print(sys.getrefcount(x))  # Output: 2 (x + temporary ref in function)
+    
+    # Add reference
+    y = x
+    print(sys.getrefcount(x))  # Output: 3
+    
+    # Add to list
+    z = [x]
+    print(sys.getrefcount(x))  # Output: 4
+    
+    # Remove reference
+    del y
+    print(sys.getrefcount(x))  # Output: 3
+    
+    # Remove from list
+    z.clear()
+    print(sys.getrefcount(x))  # Output: 2
+
+
+Step-by-Step Memory Behavior:
+------------------------------
+
+Step 1: x = [1, 2, 3]
+    Object: [1, 2, 3]
+    References: x
+    Count: 1
+
+Step 2: y = x
+    Object: [1, 2, 3]
+    References: x, y
+    Count: 2
+
+Step 3: z = [x]
+    Object: [1, 2, 3]
+    References: x, y, z[0]
+    Count: 3
+
+Step 4: del y
+    Object: [1, 2, 3]
+    References: x, z[0]
+    Count: 2
+
+Step 5: z.clear()
+    Object: [1, 2, 3]
+    References: x
+    Count: 1
+
+
+Advantages of Reference Counting:
+----------------------------------
+1. Immediate cleanup when count reaches zero
+2. Simple and predictable
+3. No pause in program execution
+
+Disadvantages of Reference Counting:
+-------------------------------------
+1. Cannot handle circular references
+2. Overhead of maintaining counters
+3. Not thread-safe without additional mechanisms
+
+
+================================================================================
+6. GARBAGE COLLECTION
+================================================================================
+
+Why Garbage Collection?
+------------------------
+Reference counting cannot handle CIRCULAR REFERENCES, where two or more objects
+reference each other, creating a cycle. Even when no external references exist,
+their reference counts never reach zero.
+
+Example of Circular Reference Problem:
+---------------------------------------
+Code:
+    class Node:
+        def __init__(self, value):
+            self.value = value
+            self.next = None
+    
+    # Create circular reference
+    node1 = Node(1)
+    node2 = Node(2)
+    node1.next = node2
+    node2.next = node1  # Circular reference!
+    
+    # Delete external references
+    del node1
+    del node2
+    
+    # Objects still in memory because they reference each other!
+
+
+CIRCULAR REFERENCE DIAGRAM
+---------------------------
+
+    Before deletion:
+    
+    node1 -----> [Node(1)] -----> next
+                    ^                |
+                    |                |
+                    |                v
+    node2 -----> [Node(2)] <----- next
+    
+    
+    After del node1, del node2:
+    
+    External references removed, but cycle remains:
+    
+                 [Node(1)] -----> next
+                    ^                |
+                    |                |
+                    |                v
+                 [Node(2)] <----- next
+    
+    Reference counts: Node(1) = 1, Node(2) = 1
+    But NO external access! This is a MEMORY LEAK without GC.
+
+
+Python's Garbage Collector
+---------------------------
+Python uses a GENERATIONAL GARBAGE COLLECTOR to detect and clean up circular
+references.
+
+How it Works:
+1. Periodically scans for object cycles
+2. Uses generational approach (3 generations)
+3. Focuses on container objects (lists, dicts, classes, etc.)
+
+Generational Garbage Collection Concept:
+-----------------------------------------
+Python divides objects into 3 generations based on survival:
+
+Generation 0: Newly created objects (checked frequently)
+Generation 1: Objects that survived one GC cycle (checked less often)
+Generation 2: Objects that survived multiple cycles (checked rarely)
+
+Reasoning: Objects that survive longer are likely to survive even longer.
+
+
+GENERATIONAL GC DIAGRAM
+------------------------
+
+    +------------------+     Survived     +------------------+
+    |  Generation 0    | --------------> |  Generation 1    |
+    |  (Young Objects) |                  |  (Middle-aged)   |
+    +------------------+                  +------------------+
+           |                                      |
+           |                                      | Survived
+           |                                      v
+           |                              +------------------+
+           |                              |  Generation 2    |
+           |                              |  (Old Objects)   |
+           |                              +------------------+
+           |
+           v
+    Garbage Collected
+    (if unreachable)
+
+
+GC Cycle Detection Process:
+----------------------------
+
+Step 1: Mark Phase
+- Start from root objects (globals, stack)
+- Mark all reachable objects
+
+Step 2: Sweep Phase
+- Find unmarked objects (unreachable)
+- These are garbage, even if ref count > 0
+
+Step 3: Cleanup
+- Delete unreachable objects
+- Free memory
+
+
+Working with Garbage Collector
+-------------------------------
+Code:
+    import gc
+    
+    # Check if GC is enabled
+    print(gc.isenabled())  # True
+    
+    # Get GC thresholds (gen0, gen1, gen2)
+    print(gc.get_threshold())  # (700, 10, 10)
+    
+    # Manually trigger garbage collection
+    gc.collect()
+    
+    # Disable automatic GC (not recommended)
+    gc.disable()
+    
+    # Enable GC
+    gc.enable()
+    
+    # Get statistics
+    print(gc.get_stats())
+
+
+Example: Detecting Circular References
+---------------------------------------
+Code:
+    import gc
+    
+    class Node:
+        def __init__(self, value):
+            self.value = value
+            self.ref = None
+    
+    # Create cycle
+    a = Node(1)
+    b = Node(2)
+    a.ref = b
+    b.ref = a
+    
+    # Check objects before deletion
+    print(len(gc.get_objects()))
+    
+    # Delete references
+    del a
+    del b
+    
+    # Force garbage collection
+    collected = gc.collect()
+    print(f"Collected {collected} objects")
+
+
+When Does GC Run?
+-----------------
+1. Automatically when threshold is reached
+2. Manually when gc.collect() is called
+3. When program exits
+
+
+================================================================================
+7. MEMORY OPTIMIZATION TECHNIQUES
+================================================================================
+
+1. Use Generators Instead of Lists
+-----------------------------------
+Lists store all elements in memory. Generators produce items on-the-fly.
+
+Bad (High Memory):
+    numbers = [x * 2 for x in range(1000000)]  # Creates entire list
+
+Good (Low Memory):
+    numbers = (x * 2 for x in range(1000000))  # Generator expression
+
+
+2. Delete Unused Objects
+-------------------------
+Explicitly delete large objects when done.
+
+Code:
+    large_data = [0] * 10000000
+    # Use large_data
+    del large_data  # Free memory immediately
+
+
+3. Use __slots__ in Classes
+----------------------------
+By default, Python uses a dictionary to store instance attributes, which
+consumes extra memory. __slots__ uses a fixed structure.
+
+Without __slots__:
+    class Point:
+        def __init__(self, x, y):
+            self.x = x
+            self.y = y
+
+With __slots__ (Memory Efficient):
+    class Point:
+        __slots__ = ['x', 'y']
+        def __init__(self, x, y):
+            self.x = x
+            self.y = y
+
+Memory Savings: About 40-50% per instance!
+
+
+4. Use Appropriate Data Structures
+-----------------------------------
+- Use tuples instead of lists for fixed data (tuples use less memory)
+- Use sets for membership testing (faster and memory efficient)
+- Use deque for queue operations instead of lists
+
+
+5. Avoid Global Variables
+--------------------------
+Global variables persist throughout program lifetime. Use local variables
+when possible.
+
+
+6. Use Context Managers
+------------------------
+Ensure resources are properly released.
+
+Code:
+    with open('file.txt', 'r') as f:
+        data = f.read()
+    # File automatically closed, memory freed
+
+
+7. Profile Memory Usage
+------------------------
+Use memory profiling tools to identify memory hogs.
+
+Code:
+    from memory_profiler import profile
+    
+    @profile
+    def my_function():
+        a = [1] * 1000000
+        b = [2] * 2000000
+        return a + b
+
+
+================================================================================
+8. INTERNING AND CACHING
+================================================================================
+
+What is Interning?
+------------------
+Interning is a memory optimization technique where Python reuses immutable
+objects instead of creating duplicates.
+
+String Interning
+----------------
+Python automatically interns small strings and identifiers.
+
+Example:
+    a = "hello"
+    b = "hello"
+    print(a is b)  # True (same object in memory)
+    
+    x = "hello world with spaces"
+    y = "hello world with spaces"
+    print(x is y)  # False (not automatically interned)
+
+Why?
+- Small strings and identifiers are commonly reused
+- Saves memory and speeds up comparisons
+
+
+Integer Caching
+----------------
+Python caches small integers (-5 to 256) by default.
+
+Example:
+    a = 10
+    b = 10
+    print(a is b)  # True (same cached object)
+    
+    x = 1000
+    y = 1000
+    print(x is y)  # False (different objects)
+
+Why?
+- Small integers are frequently used
+- Caching improves performance
+
+
+Manual Interning
+----------------
+You can manually intern strings using sys.intern()
+
+Code:
+    import sys
+    
+    a = sys.intern("hello world with spaces")
+    b = sys.intern("hello world with spaces")
+    print(a is b)  # True (now same object)
+
+
+Benefits of Interning:
+-----------------------
+1. Reduced memory usage
+2. Faster equality comparisons (can use 'is' instead of '==')
+3. Better performance for dictionary lookups
+
+
+Caveats:
+--------
+1. Only works with immutable objects
+2. Interned objects persist until program ends
+3. Don't intern large or temporary strings
+
+
+================================================================================
+9. DEEP VS SHALLOW COPY
+================================================================================
+
+Understanding Object Copying
+-----------------------------
+When working with mutable objects, understanding copy behavior is crucial
+for memory management.
+
+Assignment (No Copy)
+--------------------
+Assignment creates a new reference, NOT a new object.
+
+Code:
+    original = [1, 2, 3]
+    reference = original
+    reference.append(4)
+    print(original)  # [1, 2, 3, 4] - Modified!
+
+
+Shallow Copy
+------------
+Creates a new object, but references to nested objects are shared.
+
+Code:
+    import copy
+    
+    original = [1, 2, [3, 4]]
+    shallow = copy.copy(original)
+    # OR: shallow = original.copy()
+    # OR: shallow = list(original)
+    
+    shallow.append(5)
+    print(original)  # [1, 2, [3, 4]] - Not affected
+    
+    shallow[2].append(5)
+    print(original)  # [1, 2, [3, 4, 5]] - Affected!
+
+
+SHALLOW COPY DIAGRAM
+--------------------
+
+    Original List                    Shallow Copy
+    +------------+                   +------------+
+    | [1, 2, *]  |                   | [1, 2, *]  |
+    +------------+                   +------------+
+          |                                |
+          |                                |
+          +---------> [3, 4] <-------------+
+                    (Shared nested object)
+
+
+Deep Copy
+---------
+Creates a completely independent copy, including all nested objects.
+
+Code:
+    import copy
+    
+    original = [1, 2, [3, 4]]
+    deep = copy.deepcopy(original)
+    
+    deep.append(5)
+    print(original)  # [1, 2, [3, 4]] - Not affected
+    
+    deep[2].append(5)
+    print(original)  # [1, 2, [3, 4]] - Still not affected!
+
+
+DEEP COPY DIAGRAM
+-----------------
+
+    Original List                    Deep Copy
+    +------------+                   +------------+
+    | [1, 2, *]  |                   | [1, 2, *]  |
+    +------------+                   +------------+
+          |                                |
+          v                                v
+       [3, 4]                           [3, 4]
+    (Original nested)                (Copied nested)
+
+
+When to Use What?
+-----------------
+
+Use Assignment when:
+- You want multiple names for the same object
+- Memory efficiency is critical
+
+Use Shallow Copy when:
+- You need a new container
+- Nested objects can be shared safely
+- Performance matters (faster than deep copy)
+
+Use Deep Copy when:
+- You need complete independence
+- Modifying nested objects should not affect original
+- Memory overhead is acceptable
+
+
+Memory Implications:
+--------------------
+Assignment: No extra memory (same object)
+Shallow Copy: Memory for new container only
+Deep Copy: Memory for entire object tree (most expensive)
+
+
+================================================================================
+10. PYTHON VIRTUAL MACHINE (PVM) AND MEMORY
+================================================================================
+
+PVM Memory Interaction
+----------------------
+The Python Virtual Machine executes bytecode and interacts closely with
+memory management.
+
+Execution Flow:
+---------------
+
+    Source Code (.py)
+         |
+         v
+    Bytecode (.pyc)
+         |
+         v
+    Python Virtual Machine
+         |
+         v
+    Memory Operations
+    (Allocate, Reference, Deallocate)
+
+
+How PVM Uses Memory:
+--------------------
+
+1. Code Objects
+   - Stores compiled bytecode
+   - Kept in memory during execution
+
+2. Frame Objects
+   - Created for each function call
+   - Stored on call stack
+   - Contains local variables and execution state
+
+3. Object Creation
+   - PVM requests memory from Memory Manager
+   - Objects created in heap
+
+4. Reference Management
+   - PVM updates reference counts
+   - Triggers garbage collection when needed
+
+
+Frame Object Structure:
+-----------------------
+
+    +-------------------------+
+    |     Frame Object        |
+    +-------------------------+
+    | Code Object (bytecode)  |
+    | Global Namespace        |
+    | Local Namespace         |
+    | Previous Frame (link)   |
+    | Instruction Pointer     |
+    +-------------------------+
+
+
+Memory During Function Call:
+-----------------------------
+
+Code:
+    def outer():
+        x = 10
+        def inner():
+            y = 20
+            return x + y
+        return inner()
+
+Call Stack (Stack Memory):
+    +------------------+
+    | inner() frame    |
+    | y = 20           |
+    +------------------+
+    | outer() frame    |
+    | x = 10           |
+    +------------------+
+    | main frame       |
+    +------------------+
+
+Heap Memory:
+    Integer object: 10
+    Integer object: 20
+    Integer object: 30 (result)
+
+
+================================================================================
+11. DEBUGGING MEMORY ISSUES
+================================================================================
+
+Common Memory Problems
+----------------------
+1. Memory Leaks
+2. High Memory Usage
+3. Circular References
+4. Unclosed Resources
+
+
+Tools for Memory Debugging
+---------------------------
+
+1. sys Module
+-------------
+Code:
+    import sys
+    
+    # Get object size
+    x = [1, 2, 3]
+    print(sys.getsizeof(x))  # Bytes
+    
+    # Get reference count
+    print(sys.getrefcount(x))
+
+
+2. gc Module
+------------
+Code:
+    import gc
+    
+    # Find all objects
+    all_objects = gc.get_objects()
+    
+    # Find objects referring to target
+    target = [1, 2, 3]
+    referrers = gc.get_referrers(target)
+    
+    # Find objects referenced by target
+    referents = gc.get_referents(target)
+
+
+3. tracemalloc Module
+---------------------
+Code:
+    import tracemalloc
+    
+    # Start tracing
+    tracemalloc.start()
+    
+    # Your code here
+    data = [0] * 1000000
+    
+    # Get current memory usage
+    current, peak = tracemalloc.get_traced_memory()
+    print(f"Current: {current / 1024 / 1024:.2f} MB")
+    print(f"Peak: {peak / 1024 / 1024:.2f} MB")
+    
+    # Stop tracing
+    tracemalloc.stop()
+
+
+4. memory_profiler
+------------------
+Code:
+    from memory_profiler import profile
+    
+    @profile
+    def memory_intensive():
+        a = [1] * (10 ** 6)
+        b = [2] * (2 * 10 ** 7)
+        del b
+        return a
+
+
+Detecting Memory Leaks
+-----------------------
+
+Example: Finding Leak
+---------------------
+Code:
+    import gc
+    import sys
+    
+    class LeakyClass:
+        def __init__(self):
+            self.data = [0] * 1000
+    
+    # Create and delete objects
+    objects_before = len(gc.get_objects())
+    
+    for i in range(1000):
+        obj = LeakyClass()
+        # Forgot to delete or reference kept somewhere
+    
+    gc.collect()
+    objects_after = len(gc.get_objects())
+    
+    print(f"Leaked objects: {objects_after - objects_before}")
+
+
+Best Practices for Debugging:
+------------------------------
+1. Use context managers for resources
+2. Explicitly delete large objects
+3. Monitor memory during development
+4. Profile before optimizing
+5. Check for circular references
+6. Use weak references when appropriate
+
+
+Weak References
+---------------
+Weak references allow referencing objects without increasing reference count.
+
+Code:
+    import weakref
+    
+    class MyClass:
+        pass
+    
+    obj = MyClass()
+    weak_ref = weakref.ref(obj)
+    
+    print(weak_ref())  # Access object
+    
+    del obj
+    print(weak_ref())  # None (object deleted)
+
+
+================================================================================
+12. ADVANCED INTERNALS (CPython Allocator, Pools, Arenas)
+================================================================================
+
+CPython Memory Architecture
+----------------------------
+CPython uses a sophisticated multi-layered memory management system.
+
+
+COMPLETE MEMORY HIERARCHY
+--------------------------
+
+    Layer 0: Operating System Allocator (malloc/free)
+                        |
+                        v
+    Layer 1: Python Raw Memory Allocator (PyMem_RawMalloc)
+                        |
+                        v
+    Layer 2: Python Memory Allocator (PyMem_Malloc)
+                        |
+                        v
+    Layer 3: Object Allocator (PyObject_Malloc)
+                        |
+                        v
+    +-----------------------------------------------+
+    |          Object-Specific Allocators           |
+    |  - Integer allocator                          |
+    |  - Float allocator                            |
+    |  - List allocator                             |
+    |  - Dict allocator                             |
+    +-----------------------------------------------+
+                        |
+                        v
+    +-----------------------------------------------+
+    |              PYMALLOC                         |
+    |  (For objects < 512 bytes)                    |
+    |                                               |
+    |  +----------------------------------------+   |
+    |  |           ARENAS                       |   |
+    |  |  (256 KB blocks from OS)               |   |
+    |  |                                        |   |
+    |  |  +----------------------------------+  |   |
+    |  |  |         POOLS                    |  |   |
+    |  |  |  (4 KB blocks)                   |  |   |
+    |  |  |                                  |  |   |
+    |  |  |  +--------------------------+    |  |   |
+    |  |  |  |      BLOCKS              |    |  |   |
+    |  |  |  |  (8, 16, 24... bytes)    |    |  |   |
+    |  |  |  +--------------------------+    |  |   |
+    |  |  +----------------------------------+  |   |
+    |  +----------------------------------------+   |
+    +-----------------------------------------------+
+
+
+Arenas
+------
+- Largest unit in pymalloc
+- Size: 256 KB (262,144 bytes)
+- Obtained directly from OS
+- Contains multiple pools
+- Can be returned to OS when empty
+
+
+Pools
+-----
+- Size: 4 KB (4,096 bytes)
+- Contains blocks of same size
+- Each pool dedicated to one size class
+- 64 pools per arena
+
+
+Blocks
+------
+- Actual memory given to objects
+- Size classes: 8, 16, 24, 32, 40, 48, 56, 64, 72, 80... up to 512 bytes
+- Aligned to 8-byte boundaries
+
+
+DETAILED ARENA STRUCTURE
+-------------------------
+
+    ARENA (256 KB)
+    +----------------------------------------------------------+
+    | Pool 0 (4KB) | Pool 1 (4KB) | Pool 2 (4KB) | ... | Pool 63 |
+    +----------------------------------------------------------+
+           |
+           v
+    POOL (4 KB) - Size Class: 24 bytes
+    +----------------------------------------------------------+
+    | Block | Block | Block | Block | ... | (170 blocks of 24 bytes)
+    +----------------------------------------------------------+
+
+
+Size Classes and Efficiency
+----------------------------
+Python rounds up object sizes to nearest size class.
+
+Examples:
+- 10 bytes requested -> 16 bytes allocated (6 bytes wasted)
+- 25 bytes requested -> 32 bytes allocated (7 bytes wasted)
+- 100 bytes requested -> 104 bytes allocated (4 bytes wasted)
+
+
+Memory Allocation Process
+--------------------------
+
+Step 1: Request for memory (e.g., 40 bytes)
+Step 2: Check appropriate pool (40-byte blocks)
+Step 3: If pool has free block -> Allocate
+Step 4: If pool full -> Check other pools
+Step 5: If no pools -> Allocate new pool from arena
+Step 6: If no arena -> Request new arena from OS
+
+
+Pool States
+-----------
+1. FULL: All blocks allocated
+2. USED: Some blocks allocated, some free
+3. EMPTY: No blocks allocated
+
+
+Arena Management
+----------------
+- Arenas are linked in a list
+- Empty arenas can be returned to OS
+- Helps prevent memory fragmentation
+
+
+Object-Specific Optimizations
+------------------------------
+
+1. Integer Objects
+   - Small integers (-5 to 256) are cached
+   - Reused instead of recreated
+
+2. String Objects
+   - Interning for identifiers
+   - Shared storage for identical strings
+
+3. List Objects
+   - Over-allocate to reduce resizing
+   - Growth pattern: 0, 4, 8, 16, 25, 35, 46, 58, 72, 88...
+
+4. Dictionary Objects
+   - Hash tables with dynamic resizing
+   - Load factor maintained around 2/3
+
+
+Memory Fragmentation
+---------------------
+Problem: Free memory exists but not contiguous.
+
+Python's Solutions:
+1. Size classes reduce fragmentation
+2. Pools group same-size objects
+3. Arenas can be freed completely
+4. Compaction not needed (unlike some languages)
+
+
+Viewing Memory Internals
+-------------------------
+Code:
+    import sys
+    
+    # Check memory allocator
+    print(sys.implementation.name)  # cpython
+    
+    # Object memory details
+    x = [1, 2, 3]
+    print(sys.getsizeof(x))  # Includes overhead
+
+
+Advanced: Custom Allocators
+----------------------------
+You can implement custom memory allocators for specific needs.
+
+Code:
+    import sys
+    
+    # Get current allocator
+    allocator = sys.getallocator()
+    
+    # Set custom allocator (advanced use)
+    # sys.setallocator(...)
+
+
+Performance Implications
+-------------------------
+1. Small objects (< 512 bytes): Very fast (pymalloc)
+2. Large objects (>= 512 bytes): Slower (direct malloc)
+3. Many small allocations: Efficient due to pooling
+4. Frequent allocation/deallocation: Optimized by reuse
+
+
+================================================================================
+COMMON MISTAKES AND HOW TO AVOID THEM
+================================================================================
+
+Mistake 1: Keeping References Unintentionally
+----------------------------------------------
+Problem:
+    cache = []
+    def process_data(data):
+        cache.append(data)  # Keeps growing!
+        # Process data
+
+Solution:
+    Use weak references or clear cache periodically
+
+
+Mistake 2: Not Closing Files
+-----------------------------
+Problem:
+    f = open('file.txt')
+    data = f.read()
+    # File not closed, memory not freed
+
+Solution:
+    with open('file.txt') as f:
+        data = f.read()
+
+
+Mistake 3: Creating Circular References
+----------------------------------------
+Problem:
+    class Node:
+        def __init__(self):
+            self.ref = self  # Circular!
+
+Solution:
+    Use weak references or break cycles explicitly
+
+
+Mistake 4: Using Mutable Default Arguments
+-------------------------------------------
+Problem:
+    def add_item(item, list=[]):
+        list.append(item)
+        return list
+    # Same list reused across calls!
+
+Solution:
+    def add_item(item, list=None):
+        if list is None:
+            list = []
+        list.append(item)
+        return list
+
+
+Mistake 5: Not Deleting Large Objects
+--------------------------------------
+Problem:
+    huge_data = load_huge_file()
+    process(huge_data)
+    # huge_data still in memory
+
+Solution:
+    huge_data = load_huge_file()
+    process(huge_data)
+    del huge_data
+
+
+Mistake 6: Copying When Not Needed
+-----------------------------------
+Problem:
+    def process(data):
+        data_copy = data.copy()  # Unnecessary copy
+        return sum(data_copy)
+
+Solution:
+    def process(data):
+        return sum(data)  # No copy needed
+
+
+Mistake 7: Using Lists for Large Datasets
+------------------------------------------
+Problem:
+    data = [x for x in range(10000000)]  # All in memory
+
+Solution:
+    data = (x for x in range(10000000))  # Generator
+
+
+================================================================================
+PERFORMANCE TIPS
+================================================================================
+
+1. Use Built-in Functions
+   - Built-ins are implemented in C (faster)
+   - Example: Use sum() instead of manual loop
+
+2. List Comprehensions vs Loops
+   - List comprehensions are faster
+   - Example: [x*2 for x in range(100)] vs loop
+
+3. Avoid Global Variables
+   - Local variable access is faster
+   - Less memory overhead
+
+4. Use Local Variables in Loops
+   - Cache frequently accessed attributes
+   
+   Slow:
+       for item in items:
+           result.append(item.process())
+   
+   Fast:
+       append = result.append
+       for item in items:
+           append(item.process())
+
+5. Use __slots__ for Classes
+   - Reduces memory by 40-50%
+   - Faster attribute access
+
+6. Choose Right Data Structure
+   - Lists: Sequential access
+   - Sets: Membership testing
+   - Dicts: Key-value lookup
+   - Deque: Queue operations
+
+7. Reuse Objects When Possible
+   - Don't create unnecessary objects
+   - Modify in-place when safe
+
+8. Use Generators for Large Data
+   - Process data on-the-fly
+   - Minimal memory footprint
+
+
+================================================================================
+INTERVIEW KEY POINTS
+================================================================================
+
+Question 1: How does Python manage memory?
+-------------------------------------------
+Answer:
+- Automatic memory management
+- Reference counting for immediate cleanup
+- Garbage collection for circular references
+- Private heap for all objects
+- Pymalloc for small objects (< 512 bytes)
+
+
+Question 2: What is reference counting?
+----------------------------------------
+Answer:
+- Each object has a counter tracking references
+- Counter increases on new reference
+- Counter decreases when reference removed
+- Object deleted when count reaches zero
+- Cannot handle circular references alone
+
+
+Question 3: What is garbage collection in Python?
+--------------------------------------------------
+Answer:
+- Detects and cleans circular references
+- Uses generational approach (3 generations)
+- Generation 0: Young objects (frequent checks)
+- Generation 1: Middle-aged (less frequent)
+- Generation 2: Old objects (rare checks)
+- Can be controlled via gc module
+
+
+Question 4: Stack vs Heap memory?
+----------------------------------
+Answer:
+Stack:
+- Stores function calls and references
+- Fast, automatic, limited size
+- LIFO structure
+
+Heap:
+- Stores actual Python objects
+- Larger, slower, managed by Python
+- All objects live here
+
+
+Question 5: What are memory leaks in Python?
+---------------------------------------------
+Answer:
+- Memory not freed when no longer needed
+- Common causes:
+  * Circular references (rare with GC)
+  * Global variables holding references
+  * Unclosed resources (files, connections)
+  * Cache without size limit
+- Detection: tracemalloc, memory_profiler
+
+
+Question 6: Deep copy vs Shallow copy?
+---------------------------------------
+Answer:
+Shallow:
+- Copies container, shares nested objects
+- Fast, less memory
+- Use: copy.copy() or list.copy()
+
+Deep:
+- Copies everything recursively
+- Slow, more memory
+- Use: copy.deepcopy()
+
+
+Question 7: What is interning?
+-------------------------------
+Answer:
+- Reusing immutable objects
+- Python automatically interns:
+  * Small integers (-5 to 256)
+  * Small strings and identifiers
+- Manual: sys.intern()
+- Benefits: Memory savings, faster comparisons
+
+
+Question 8: How to optimize memory usage?
+------------------------------------------
+Answer:
+- Use generators instead of lists
+- Delete unused objects (del)
+- Use __slots__ in classes
+- Choose appropriate data structures
+- Avoid global variables
+- Use context managers
+- Profile and measure
+
+
+================================================================================
+SUMMARY
+================================================================================
+
+Key Concepts Covered:
+---------------------
+
+1. Memory Management Basics
+   - Automatic management in Python
+   - No manual allocation/deallocation needed
+
+2. Variables and References
+   - Variables are references, not containers
+   - Multiple variables can reference same object
+
+3. Stack vs Heap
+   - Stack: Function calls, references
+   - Heap: Actual objects
+
+4. Python Memory Architecture
+   - Layered approach
+   - Private heap for objects
+   - Pymalloc for efficiency
+
+5. Reference Counting
+   - Primary memory management technique
+   - Immediate cleanup when count = 0
+   - Cannot handle cycles
+
+6. Garbage Collection
+   - Handles circular references
+   - Generational approach
+   - Automatic and manual control
+
+7. Memory Optimization
+   - Generators, __slots__, proper data structures
+   - Delete unused objects
+   - Profile before optimizing
+
+8. Interning and Caching
+   - Reuses immutable objects
+   - Small integers and strings cached
+   - Memory and performance benefits
+
+9. Copying Objects
+   - Assignment: No copy
+   - Shallow: New container, shared nested
+   - Deep: Complete independence
+
+10. Advanced Internals
+    - Arenas (256 KB)
+    - Pools (4 KB)
+    - Blocks (8-512 bytes)
+    - Size classes for efficiency
+
+
+================================================================================
+REVISION CHECKLIST
+================================================================================
+
+Basics:
+[ ] Understand that variables are references
+[ ] Know difference between stack and heap
+[ ] Explain Python memory architecture
+[ ] Describe reference counting mechanism
+
+Intermediate:
+[ ] Explain garbage collection and generations
+[ ] Understand circular reference problem
+[ ] Know when to use shallow vs deep copy
+[ ] Explain interning and caching
+[ ] Use memory profiling tools
+
+Advanced:
+[ ] Understand pymalloc architecture
+[ ] Explain arenas, pools, and blocks
+[ ] Know object-specific optimizations
+[ ] Implement memory optimization techniques
+[ ] Debug memory leaks
+
+Practical:
+[ ] Use generators for large datasets
+[ ] Implement __slots__ in classes
+[ ] Use context managers for resources
+[ ] Profile memory usage
+[ ] Choose appropriate data structures
+[ ] Avoid common memory mistakes
+
+Tools to Master:
+[ ] sys.getsizeof()
+[ ] sys.getrefcount()
+[ ] gc module (collect, get_objects, etc.)
+[ ] tracemalloc module
+[ ] memory_profiler
+[ ] weakref module
+
+
+================================================================================
+FINAL THOUGHTS
+================================================================================
+
+Memory management in Python is mostly automatic, but understanding how it works
+helps you:
+
+1. Write more efficient code
+2. Debug memory issues
+3. Optimize performance
+4. Avoid common pitfalls
+5. Make informed design decisions
+
+Remember:
+- Python handles most memory management for you
+- Reference counting + garbage collection work together
+- Profile before optimizing
+- Use appropriate tools for debugging
+- Follow best practices for clean code
+
+Keep practicing and experimenting with memory concepts. Use profiling tools
+to understand real-world behavior. Memory management mastery comes with
+experience and continuous learning.
+
+Happy coding!
+
+================================================================================
+                            END OF DOCUMENT
+================================================================================

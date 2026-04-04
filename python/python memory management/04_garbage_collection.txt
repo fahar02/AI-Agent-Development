@@ -1,0 +1,1397 @@
+================================================================================
+                    PYTHON GARBAGE COLLECTION
+================================================================================
+
+TABLE OF CONTENTS
+-----------------
+1. Introduction to Garbage Collection
+2. Reference Counting (Primary Mechanism)
+3. Cyclic Garbage Collection (Secondary Mechanism)
+4. Generational Garbage Collection
+5. How Reference Counting Works
+6. How Cyclic GC Works
+7. Detailed Examples with Real Code
+8. GC Performance and Tuning
+9. Common Issues and Solutions
+10. Quick Summary
+
+
+================================================================================
+1. INTRODUCTION TO GARBAGE COLLECTION
+================================================================================
+
+What is Garbage Collection?
+----------------------------
+
+Garbage Collection (GC) is the automatic process of freeing memory that is
+no longer needed by your program.
+
+Simple Analogy:
+---------------
+
+Think of your program as a house:
+- You buy things (create objects)
+- You use them (reference objects)
+- When you're done, you throw them away (delete objects)
+
+Without GC:
+    - You must manually take out the trash
+    - Forget once → trash piles up (memory leak)
+    - Take out too early → might still need it (crash)
+
+With GC:
+    - Automatic trash collection service
+    - Removes trash when you're done with it
+    - You don't have to think about it
+
+
+Why Garbage Collection?
+------------------------
+
+1. Convenience:
+   - Don't manually free memory
+   - Less code to write
+   - Focus on logic, not memory management
+
+2. Safety:
+   - Prevents use-after-free bugs
+   - Prevents double-free errors
+   - Reduces crashes
+
+3. Productivity:
+   - Faster development
+   - Fewer memory-related bugs
+   - Easier to maintain code
+
+
+Python's Two-Tier GC System:
+-----------------------------
+
+Python uses TWO complementary mechanisms:
+
+    Tier 1: Reference Counting
+        - Primary mechanism
+        - Immediate deallocation
+        - Handles 95% of cases
+        - Fast and predictable
+        - Cannot handle cycles
+    
+    Tier 2: Cyclic Garbage Collector
+        - Secondary mechanism
+        - Periodic scanning
+        - Handles reference cycles
+        - Slower but thorough
+        - Runs automatically
+
+
+Visual Overview:
+
+    [Object Created]
+            |
+            v
+    [Reference Counting]
+            |
+            +---> Refcount = 0? --YES--> [Deallocate Immediately]
+            |
+            NO
+            |
+            v
+    [Object Still Alive]
+            |
+            v
+    [Cyclic GC Runs Periodically]
+            |
+            +---> In cycle? --YES--> [Break Cycle & Deallocate]
+            |
+            NO
+            |
+            v
+    [Object Remains Alive]
+
+
+================================================================================
+2. REFERENCE COUNTING (PRIMARY MECHANISM)
+================================================================================
+
+What is Reference Counting?
+----------------------------
+
+Every Python object has a counter that tracks how many references point to it.
+
+Object Structure:
+    +------------------+
+    | Reference Count  |  ← Incremented/decremented automatically
+    | Type Pointer     |
+    | Object Data      |
+    +------------------+
+
+When refcount reaches 0 → Object is immediately freed.
+
+
+How References are Created:
+----------------------------
+
+1. Assignment:
+    x = [1, 2, 3]  # Creates list, refcount = 1
+
+2. Passing to Function:
+    def func(lst):
+        pass
+    func(x)  # refcount temporarily increases
+
+3. Adding to Container:
+    my_list = [x]  # refcount increases
+
+4. Aliasing:
+    y = x  # refcount increases
+
+
+How References are Removed:
+----------------------------
+
+1. Deletion:
+    del x  # refcount decreases
+
+2. Reassignment:
+    x = None  # refcount of old value decreases
+
+3. Going Out of Scope:
+    def func():
+        x = [1, 2, 3]  # refcount = 1
+    # Function ends, x goes out of scope, refcount = 0
+
+4. Removing from Container:
+    my_list.remove(x)  # refcount decreases
+
+
+Reference Count Example:
+-------------------------
+
+    # Step 1: Create object
+    x = [1, 2, 3]
+    # Object created, refcount = 1
+    
+    # Step 2: Create another reference
+    y = x
+    # Same object, refcount = 2
+    
+    # Step 3: Add to list
+    my_list = [x]
+    # Same object, refcount = 3
+    
+    # Step 4: Delete one reference
+    del x
+    # refcount = 2 (still alive!)
+    
+    # Step 5: Delete another reference
+    del y
+    # refcount = 1 (still in my_list)
+    
+    # Step 6: Clear list
+    my_list.clear()
+    # refcount = 0 → Object is IMMEDIATELY freed!
+
+
+Checking Reference Count:
+--------------------------
+
+Python provides sys.getrefcount():
+
+    import sys
+    
+    x = [1, 2, 3]
+    print(sys.getrefcount(x))  # Output: 2
+    # Why 2? One for x, one for getrefcount parameter!
+    
+    y = x
+    print(sys.getrefcount(x))  # Output: 3
+    # One for x, one for y, one for getrefcount
+    
+    del y
+    print(sys.getrefcount(x))  # Output: 2
+
+
+Advantages of Reference Counting:
+----------------------------------
+
+1. Immediate Deallocation:
+   - Memory freed as soon as refcount = 0
+   - No waiting for GC to run
+   - Predictable behavior
+
+2. Deterministic:
+   - Know exactly when objects are freed
+   - Useful for resource management (files, locks)
+
+3. Low Overhead:
+   - Simple increment/decrement operations
+   - No need to scan all objects
+
+4. Works with __del__:
+   - Destructors called immediately
+   - Cleanup happens promptly
+
+
+Disadvantages of Reference Counting:
+-------------------------------------
+
+1. Cannot Handle Cycles:
+   - Objects referencing each other
+   - Refcount never reaches 0
+   - Memory leak without cyclic GC
+
+2. Overhead on Every Operation:
+   - Every assignment updates refcount
+   - Every deletion updates refcount
+   - Cache line bouncing in multithreading
+
+3. Not Thread-Safe Alone:
+   - Needs locks (GIL in Python)
+   - Limits parallelism
+
+
+================================================================================
+3. CYCLIC GARBAGE COLLECTION (SECONDARY MECHANISM)
+================================================================================
+
+What is a Reference Cycle?
+---------------------------
+
+A reference cycle occurs when objects reference each other, creating a loop.
+
+Simple Cycle:
+    A → B
+    ↑   ↓
+    +---+
+
+    A references B
+    B references A
+    Both have refcount >= 1
+    But nothing else references them!
+
+
+Example of a Cycle:
+-------------------
+
+    # Create cycle
+    a = []
+    b = []
+    a.append(b)  # a references b
+    b.append(a)  # b references a
+    
+    # Reference counts:
+    # a: refcount = 2 (variable 'a' + b[0])
+    # b: refcount = 2 (variable 'b' + a[0])
+    
+    # Delete variables
+    del a
+    del b
+    
+    # Reference counts:
+    # a: refcount = 1 (b[0] still references it)
+    # b: refcount = 1 (a[0] still references it)
+    
+    # Problem: Both objects are unreachable but refcount > 0!
+    # Reference counting alone cannot free them!
+
+
+Why Cycles are a Problem:
+--------------------------
+
+Without cyclic GC:
+    - Cycles never get freed
+    - Memory leak
+    - Long-running programs accumulate garbage
+    - Eventually run out of memory
+
+
+Common Sources of Cycles:
+--------------------------
+
+1. Data Structures:
+    - Doubly-linked lists
+    - Trees with parent pointers
+    - Graphs
+
+2. Callbacks:
+    - Object has callback that references the object
+    
+    class Widget:
+        def __init__(self):
+            self.callback = self.on_click  # Cycle!
+        
+        def on_click(self):
+            pass
+
+3. Exception Handling:
+    - Exception objects reference stack frames
+    - Stack frames reference local variables
+    - Local variables might reference exception
+
+4. Closures:
+    - Function references outer scope
+    - Outer scope references function
+
+
+How Cyclic GC Solves This:
+---------------------------
+
+The cyclic garbage collector:
+1. Periodically scans for cycles
+2. Identifies unreachable objects in cycles
+3. Breaks the cycles
+4. Frees the objects
+
+
+================================================================================
+4. GENERATIONAL GARBAGE COLLECTION
+================================================================================
+
+What is Generational GC?
+-------------------------
+
+Generational GC is based on the observation:
+    "Most objects die young"
+
+In typical programs:
+    - 90% of objects are short-lived (temporary variables)
+    - 10% of objects are long-lived (global data, caches)
+
+
+The Generational Hypothesis:
+-----------------------------
+
+    If an object survives one GC cycle,
+    it's likely to survive many more.
+
+Therefore:
+    - Check young objects frequently (likely garbage)
+    - Check old objects rarely (likely still needed)
+
+
+Python's Three Generations:
+----------------------------
+
+    Generation 0 (Youngest):
+        - Newly created objects
+        - Checked most frequently
+        - Most objects die here
+    
+    Generation 1 (Middle-aged):
+        - Objects that survived Gen 0 collection
+        - Checked less frequently
+        - Some objects die here
+    
+    Generation 2 (Oldest):
+        - Objects that survived Gen 1 collection
+        - Checked least frequently
+        - Few objects die here
+
+
+Visual Representation:
+
+    [Object Created]
+            |
+            v
+    +----------------+
+    | Generation 0   |  ← Most frequent GC
+    | (Young)        |
+    +----------------+
+            |
+            | Survived GC
+            v
+    +----------------+
+    | Generation 1   |  ← Less frequent GC
+    | (Middle-aged)  |
+    +----------------+
+            |
+            | Survived GC
+            v
+    +----------------+
+    | Generation 2   |  ← Least frequent GC
+    | (Old)          |
+    +----------------+
+
+
+GC Thresholds:
+--------------
+
+Python uses thresholds to trigger GC:
+
+    Default Thresholds:
+        Generation 0: 700 objects
+        Generation 1: 10 collections
+        Generation 2: 10 collections
+
+What this means:
+    - Gen 0 GC runs after 700 new objects created
+    - Gen 1 GC runs after 10 Gen 0 collections
+    - Gen 2 GC runs after 10 Gen 1 collections
+
+
+Checking Thresholds:
+--------------------
+
+    import gc
+    
+    print(gc.get_threshold())
+    # Output: (700, 10, 10)
+
+
+Modifying Thresholds:
+---------------------
+
+    import gc
+    
+    # Set new thresholds
+    gc.set_threshold(1000, 15, 15)
+    
+    # More objects before Gen 0 GC
+    # More Gen 0 collections before Gen 1 GC
+    # More Gen 1 collections before Gen 2 GC
+
+
+Generation Statistics:
+----------------------
+
+    import gc
+    
+    print(gc.get_count())
+    # Output: (421, 3, 1)
+    # 421 objects in Gen 0
+    # 3 Gen 0 collections since last Gen 1
+    # 1 Gen 1 collection since last Gen 2
+
+
+================================================================================
+5. HOW REFERENCE COUNTING WORKS
+================================================================================
+
+Internal Implementation
+-----------------------
+
+Every Python object has this structure (simplified):
+
+    typedef struct {
+        Py_ssize_t ob_refcnt;  ← Reference count
+        PyTypeObject *ob_type;  ← Type information
+        // Object data follows
+    } PyObject;
+
+
+Increment Reference (Py_INCREF):
+---------------------------------
+
+    void Py_INCREF(PyObject *obj) {
+        obj->ob_refcnt++;
+    }
+
+When called:
+    - Assignment: y = x
+    - Function call: func(x)
+    - Container addition: list.append(x)
+
+
+Decrement Reference (Py_DECREF):
+---------------------------------
+
+    void Py_DECREF(PyObject *obj) {
+        obj->ob_refcnt--;
+        if (obj->ob_refcnt == 0) {
+            // Free the object
+            obj->ob_type->tp_dealloc(obj);
+        }
+    }
+
+When called:
+    - Deletion: del x
+    - Reassignment: x = something_else
+    - Scope exit: function returns
+    - Container removal: list.remove(x)
+
+
+Detailed Example with Trace:
+-----------------------------
+
+Python Code:
+    x = [1, 2, 3]
+    y = x
+    del x
+
+Behind the Scenes:
+
+    Step 1: x = [1, 2, 3]
+        - Allocate list object
+        - ob_refcnt = 1
+        - x points to object
+    
+    Step 2: y = x
+        - Py_INCREF(object)
+        - ob_refcnt = 2
+        - y points to same object
+    
+    Step 3: del x
+        - Py_DECREF(object)
+        - ob_refcnt = 1
+        - x no longer points to object
+        - Object still alive (y still references it)
+
+
+Deallocation Chain:
+-------------------
+
+When refcount reaches 0:
+
+    Step 1: Py_DECREF detects refcount = 0
+    
+    Step 2: Call object's destructor (tp_dealloc)
+    
+    Step 3: Destructor decrements refcounts of contained objects
+        Example: List decrements refcount of each item
+    
+    Step 4: Free object's memory
+        - If small object: return to pymalloc pool
+        - If large object: call free()
+    
+    Step 5: Contained objects might reach refcount = 0
+        - Recursive deallocation
+        - Chain reaction
+
+
+Example of Deallocation Chain:
+
+    x = [[1, 2], [3, 4]]
+    del x
+    
+    Deallocation sequence:
+        1. Outer list refcount = 0
+        2. Outer list's tp_dealloc called
+        3. Decrements refcount of [1, 2]
+        4. [1, 2] refcount = 0
+        5. [1, 2]'s tp_dealloc called
+        6. Decrements refcount of 1 and 2
+        7. Integers 1 and 2 (cached, not freed)
+        8. Free [1, 2]
+        9. Decrements refcount of [3, 4]
+        10. [3, 4] refcount = 0
+        11. [3, 4]'s tp_dealloc called
+        12. Decrements refcount of 3 and 4
+        13. Free [3, 4]
+        14. Free outer list
+
+
+================================================================================
+6. HOW CYCLIC GC WORKS
+================================================================================
+
+The Algorithm (Simplified)
+--------------------------
+
+Python uses a mark-and-sweep algorithm for cycle detection:
+
+    Phase 1: Mark (Find Reachable Objects)
+        1. Start with "root" objects (globals, stack)
+        2. Mark them as reachable
+        3. Recursively mark all objects they reference
+        4. Continue until no new objects marked
+    
+    Phase 2: Sweep (Collect Unreachable Objects)
+        1. Scan all tracked objects
+        2. Objects not marked = unreachable
+        3. Break cycles by clearing references
+        4. Free unreachable objects
+
+
+Detailed Algorithm:
+-------------------
+
+Step 1: Subtract Internal References
+    For each object in generation:
+        - Create temporary refcount (gc_refs)
+        - gc_refs = ob_refcnt
+        - For each object it references:
+            - Decrement that object's gc_refs
+    
+    Result: gc_refs = external references only
+
+Step 2: Find Roots
+    Objects with gc_refs > 0 are reachable from outside
+    These are "roots"
+
+Step 3: Mark Reachable
+    Starting from roots:
+        - Mark object as reachable
+        - Recursively mark all objects it references
+
+Step 4: Collect Unreachable
+    Objects not marked = unreachable
+    Break cycles and free them
+
+
+Visual Example:
+
+    Objects:
+        A (refcount=2, gc_refs=2)
+        B (refcount=2, gc_refs=2)
+        C (refcount=1, gc_refs=1)
+    
+    References:
+        A → B (A references B)
+        B → A (B references A)
+        C → A (C references A)
+        External → C (External reference to C)
+    
+    Step 1: Subtract internal references
+        A: gc_refs = 2 - 1 (from B) = 1
+        B: gc_refs = 2 - 1 (from A) = 1
+        C: gc_refs = 1 - 0 = 1
+    
+    Wait, all have gc_refs > 0!
+    
+    Let's remove external reference to C:
+        del external_ref_to_C
+    
+    Now:
+        A: refcount=2, gc_refs=2
+        B: refcount=2, gc_refs=2
+        C: refcount=1, gc_refs=1
+    
+    After subtracting internal references:
+        A: gc_refs = 2 - 1 (from B) - 1 (from C) = 0
+        B: gc_refs = 2 - 1 (from A) = 1
+        C: gc_refs = 1 - 1 (from A) = 0
+    
+    Hmm, this is complex. Let me simplify:
+    
+    If A, B, C form a cycle with no external references:
+        All gc_refs = 0 after subtracting internal refs
+        All are unreachable
+        GC collects all of them
+
+
+Cycle Detection Example:
+-------------------------
+
+    # Create cycle
+    a = []
+    b = []
+    a.append(b)
+    b.append(a)
+    
+    # Delete external references
+    del a, b
+    
+    GC Process:
+        1. Find a and b in Gen 0
+        2. Calculate gc_refs:
+            a: refcount=1 (from b[0]), gc_refs=1
+            b: refcount=1 (from a[0]), gc_refs=1
+        3. Subtract internal references:
+            a: gc_refs = 1 - 1 (from b) = 0
+            b: gc_refs = 1 - 1 (from a) = 0
+        4. Both have gc_refs=0 → unreachable!
+        5. Break cycle: clear a and b
+        6. Free both objects
+
+
+What Objects are Tracked?
+--------------------------
+
+Only container objects are tracked by GC:
+    - Lists
+    - Dictionaries
+    - Sets
+    - Tuples (if they contain mutable objects)
+    - Classes
+    - Instances
+
+Not tracked:
+    - Integers
+    - Floats
+    - Strings
+    - Immutable tuples (containing only immutables)
+
+Why?
+    - Non-containers can't create cycles
+    - No point tracking them
+    - Reduces GC overhead
+
+
+Checking if Object is Tracked:
+-------------------------------
+
+    import gc
+    
+    print(gc.is_tracked([1, 2, 3]))  # True (list)
+    print(gc.is_tracked(123))         # False (int)
+    print(gc.is_tracked("hello"))     # False (string)
+    print(gc.is_tracked((1, 2)))      # False (immutable tuple)
+    print(gc.is_tracked(([], [])))    # True (tuple with mutables)
+
+
+================================================================================
+7. DETAILED EXAMPLES WITH REAL CODE
+================================================================================
+
+Example 1: Simple Reference Counting
+-------------------------------------
+
+    import sys
+    
+    # Create object
+    x = [1, 2, 3]
+    print(sys.getrefcount(x) - 1)  # 1 (subtract getrefcount's ref)
+    
+    # Add reference
+    y = x
+    print(sys.getrefcount(x) - 1)  # 2
+    
+    # Add to container
+    my_list = [x]
+    print(sys.getrefcount(x) - 1)  # 3
+    
+    # Remove reference
+    del y
+    print(sys.getrefcount(x) - 1)  # 2
+    
+    # Remove from container
+    my_list.clear()
+    print(sys.getrefcount(x) - 1)  # 1
+    
+    # Delete last reference
+    del x
+    # Object is immediately freed!
+
+
+Example 2: Creating and Detecting a Cycle
+------------------------------------------
+
+    import gc
+    
+    # Disable automatic GC to see the effect
+    gc.disable()
+    
+    # Check initial garbage
+    print("Before cycle:", len(gc.garbage))  # 0
+    
+    # Create cycle
+    class Node:
+        def __init__(self):
+            self.ref = None
+    
+    a = Node()
+    b = Node()
+    a.ref = b  # a → b
+    b.ref = a  # b → a
+    
+    # Delete external references
+    del a, b
+    
+    # Objects are now unreachable but not freed (GC disabled)
+    print("After del:", gc.collect())  # Runs GC, returns number collected
+    # Output: 2 (collected a and b)
+    
+    # Re-enable GC
+    gc.enable()
+
+
+Example 3: Generational GC in Action
+-------------------------------------
+
+    import gc
+    
+    # Get current counts
+    print("Initial:", gc.get_count())
+    # Output: (0, 0, 0) or similar
+    
+    # Create many objects (trigger Gen 0 GC)
+    for i in range(1000):
+        x = [i]
+    
+    print("After 1000 objects:", gc.get_count())
+    # Output: (something, 1, 0) - Gen 0 GC ran
+    
+    # Create more objects
+    for i in range(10000):
+        x = [i]
+    
+    print("After 11000 objects:", gc.get_count())
+    # Output: (something, something, 1) - Gen 1 GC ran
+
+
+Example 4: Memory Leak Without Cyclic GC
+-----------------------------------------
+
+    import gc
+    import sys
+    
+    # Disable GC
+    gc.disable()
+    
+    # Create cycles
+    for i in range(1000):
+        a = []
+        b = []
+        a.append(b)
+        b.append(a)
+        # Cycle created, but GC disabled
+    
+    # Check memory (cycles not collected)
+    print("Cycles created, GC disabled")
+    print("Garbage count:", len(gc.get_objects()))
+    
+    # Run GC manually
+    collected = gc.collect()
+    print(f"Collected {collected} objects")
+    
+    # Re-enable GC
+    gc.enable()
+
+
+Example 5: __del__ Method and GC
+---------------------------------
+
+    import gc
+    
+    class Resource:
+        def __init__(self, name):
+            self.name = name
+            print(f"{self.name} created")
+        
+        def __del__(self):
+            print(f"{self.name} destroyed")
+    
+    # Reference counting: immediate destruction
+    r1 = Resource("R1")
+    del r1
+    # Output: R1 destroyed (immediately)
+    
+    # Cycle: delayed destruction
+    r2 = Resource("R2")
+    r3 = Resource("R3")
+    r2.ref = r3
+    r3.ref = r2
+    del r2, r3
+    # No output yet (cycle prevents refcount from reaching 0)
+    
+    # Force GC
+    gc.collect()
+    # Output: R2 destroyed, R3 destroyed
+
+
+Example 6: Weak References (Avoiding Cycles)
+---------------------------------------------
+
+    import weakref
+    
+    class Node:
+        def __init__(self, name):
+            self.name = name
+            self.children = []
+            self.parent = None  # Will be weak reference
+        
+        def add_child(self, child):
+            self.children.append(child)
+            # Use weak reference to avoid cycle
+            child.parent = weakref.ref(self)
+    
+    # Create tree
+    root = Node("root")
+    child1 = Node("child1")
+    child2 = Node("child2")
+    
+    root.add_child(child1)
+    root.add_child(child2)
+    
+    # No cycle! parent is weak reference
+    # When root is deleted, children can be freed
+    del root
+    # child1 and child2 are freed (if no other references)
+
+
+Example 7: Tracking Memory Usage
+---------------------------------
+
+    import gc
+    import sys
+    
+    # Get all objects
+    all_objects = gc.get_objects()
+    print(f"Total objects: {len(all_objects)}")
+    
+    # Count by type
+    type_counts = {}
+    for obj in all_objects:
+        obj_type = type(obj).__name__
+        type_counts[obj_type] = type_counts.get(obj_type, 0) + 1
+    
+    # Show top 10
+    sorted_types = sorted(type_counts.items(), key=lambda x: x[1], reverse=True)
+    for obj_type, count in sorted_types[:10]:
+        print(f"{obj_type}: {count}")
+
+
+Example 8: GC Performance Impact
+---------------------------------
+
+    import gc
+    import time
+    
+    # Test with GC enabled
+    gc.enable()
+    start = time.time()
+    for i in range(1000000):
+        x = [i]
+    end = time.time()
+    print(f"With GC: {end - start:.3f} seconds")
+    
+    # Test with GC disabled
+    gc.disable()
+    start = time.time()
+    for i in range(1000000):
+        x = [i]
+    end = time.time()
+    print(f"Without GC: {end - start:.3f} seconds")
+    
+    # Clean up
+    gc.collect()
+    gc.enable()
+
+
+Example 9: Finding Reference Cycles
+------------------------------------
+
+    import gc
+    
+    # Create complex cycle
+    class A:
+        pass
+    
+    class B:
+        pass
+    
+    a = A()
+    b = B()
+    a.ref = b
+    b.ref = a
+    
+    # Find all referrers of a
+    print("Referrers of a:", gc.get_referrers(a))
+    # Output: [<__main__.B object>, {...}]
+    # Shows b and some internal dicts
+    
+    # Find all objects a references
+    print("Referents of a:", gc.get_referents(a))
+    # Output: [<__main__.B object>, {...}]
+
+
+Example 10: Custom GC Tuning
+-----------------------------
+
+    import gc
+    
+    # For memory-intensive application
+    # Reduce GC frequency to improve performance
+    gc.set_threshold(10000, 20, 20)
+    
+    # For memory-constrained application
+    # Increase GC frequency to free memory quickly
+    gc.set_threshold(500, 5, 5)
+    
+    # For real-time application
+    # Disable GC during critical sections
+    gc.disable()
+    # ... critical code ...
+    gc.enable()
+    gc.collect()  # Clean up after
+
+
+================================================================================
+8. GC PERFORMANCE AND TUNING
+================================================================================
+
+GC Performance Impact
+---------------------
+
+Typical overhead:
+    - Reference counting: 5-10% of execution time
+    - Cyclic GC: 1-5% of execution time (depends on frequency)
+    - Total: 6-15% overhead
+
+Breakdown:
+    - Py_INCREF/Py_DECREF: Most of the overhead
+    - Cycle detection: Occasional spikes
+    - Generation promotion: Minimal
+
+
+When GC Runs:
+-------------
+
+Gen 0 GC:
+    - After ~700 new objects
+    - Frequency: Very often (every few milliseconds in active program)
+    - Duration: 0.1-1 milliseconds
+    - Impact: Minimal
+
+Gen 1 GC:
+    - After 10 Gen 0 collections
+    - Frequency: Less often (every few seconds)
+    - Duration: 1-10 milliseconds
+    - Impact: Noticeable in real-time apps
+
+Gen 2 GC:
+    - After 10 Gen 1 collections
+    - Frequency: Rare (every few minutes)
+    - Duration: 10-100 milliseconds
+    - Impact: Can cause noticeable pause
+
+
+Tuning Strategies:
+------------------
+
+1. For High Performance (Throughput):
+    
+    # Reduce GC frequency
+    import gc
+    gc.set_threshold(10000, 20, 20)
+    
+    # Or disable during critical sections
+    gc.disable()
+    # ... performance-critical code ...
+    gc.enable()
+    gc.collect()
+
+
+2. For Low Memory Usage:
+    
+    # Increase GC frequency
+    import gc
+    gc.set_threshold(500, 5, 5)
+    
+    # Force collection periodically
+    import time
+    while True:
+        # ... do work ...
+        time.sleep(60)
+        gc.collect()
+
+
+3. For Real-Time Applications:
+    
+    # Disable automatic GC
+    import gc
+    gc.disable()
+    
+    # Manually collect during idle periods
+    def idle_callback():
+        gc.collect()
+    
+    # Register idle callback with event loop
+
+
+4. For Memory-Intensive Applications:
+    
+    # Process in batches
+    import gc
+    
+    for batch in data_batches:
+        process(batch)
+        gc.collect()  # Clean up after each batch
+
+
+Measuring GC Impact:
+--------------------
+
+    import gc
+    import time
+    
+    # Enable GC stats
+    gc.set_debug(gc.DEBUG_STATS)
+    
+    # Your code
+    for i in range(1000000):
+        x = [i]
+    
+    # Disable stats
+    gc.set_debug(0)
+    
+    # Get GC stats
+    stats = gc.get_stats()
+    for gen, stat in enumerate(stats):
+        print(f"Generation {gen}:")
+        print(f"  Collections: {stat['collections']}")
+        print(f"  Collected: {stat['collected']}")
+        print(f"  Uncollectable: {stat['uncollectable']}")
+
+
+================================================================================
+9. COMMON ISSUES AND SOLUTIONS
+================================================================================
+
+Issue 1: Memory Leaks from Cycles
+----------------------------------
+
+Problem:
+    Objects in cycles not freed
+
+Example:
+    class Node:
+        def __init__(self):
+            self.children = []
+            self.parent = None
+    
+    root = Node()
+    child = Node()
+    root.children.append(child)
+    child.parent = root  # Cycle!
+    
+    del root, child  # Not freed immediately
+
+Solution 1: Use weak references
+    import weakref
+    
+    class Node:
+        def __init__(self):
+            self.children = []
+            self.parent = None
+        
+        def set_parent(self, parent):
+            self.parent = weakref.ref(parent)
+
+Solution 2: Break cycles manually
+    root.children.clear()
+    child.parent = None
+    del root, child
+
+Solution 3: Rely on GC (automatic)
+    # Just delete, GC will clean up eventually
+    del root, child
+    # Optionally force collection
+    gc.collect()
+
+
+Issue 2: __del__ Not Called
+----------------------------
+
+Problem:
+    Objects in cycles with __del__ might not be collected
+
+Example:
+    class Resource:
+        def __del__(self):
+            print("Cleanup")
+    
+    a = Resource()
+    b = Resource()
+    a.ref = b
+    b.ref = a
+    del a, b
+    # __del__ might not be called!
+
+Why:
+    - GC can't determine safe order to call __del__
+    - Objects become "uncollectable"
+
+Solution:
+    Avoid __del__ in objects that might be in cycles
+    Use context managers instead:
+    
+    class Resource:
+        def __enter__(self):
+            return self
+        
+        def __exit__(self, *args):
+            # Cleanup here
+            pass
+    
+    with Resource() as r:
+        # Use resource
+        pass
+    # Cleanup guaranteed
+
+
+Issue 3: GC Pauses in Real-Time Apps
+-------------------------------------
+
+Problem:
+    GC causes unpredictable pauses
+
+Example:
+    # Game loop
+    while running:
+        update()
+        render()
+        # Occasional GC pause causes frame drop!
+
+Solution:
+    Disable automatic GC, collect during idle time
+    
+    import gc
+    gc.disable()
+    
+    while running:
+        update()
+        render()
+        
+        if idle_time_available():
+            gc.collect(0)  # Only Gen 0 (fast)
+
+
+Issue 4: High Memory Usage
+---------------------------
+
+Problem:
+    Program uses more memory than expected
+
+Diagnosis:
+    import gc
+    import sys
+    
+    # Find large objects
+    objects = gc.get_objects()
+    large_objects = [(sys.getsizeof(obj), type(obj)) 
+                     for obj in objects]
+    large_objects.sort(reverse=True)
+    
+    for size, obj_type in large_objects[:10]:
+        print(f"{size} bytes: {obj_type}")
+
+Solution:
+    - Delete unnecessary references
+    - Use generators instead of lists
+    - Process data in chunks
+    - Force GC: gc.collect()
+
+
+Issue 5: Slow GC Collections
+-----------------------------
+
+Problem:
+    GC takes too long
+
+Diagnosis:
+    import gc
+    import time
+    
+    start = time.time()
+    collected = gc.collect()
+    duration = time.time() - start
+    
+    print(f"Collected {collected} objects in {duration:.3f}s")
+
+Solution:
+    - Reduce number of tracked objects
+    - Avoid creating cycles
+    - Increase GC thresholds
+    - Process in smaller batches
+
+
+================================================================================
+10. QUICK SUMMARY
+================================================================================
+
+Key Concepts:
+-------------
+
+Two-Tier GC System:
+    1. Reference Counting (primary)
+        - Immediate deallocation
+        - Handles 95% of cases
+        - Cannot handle cycles
+    
+    2. Cyclic GC (secondary)
+        - Periodic scanning
+        - Handles reference cycles
+        - Generational approach
+
+Reference Counting:
+    - Every object has refcount
+    - Incremented on reference creation
+    - Decremented on reference removal
+    - Object freed when refcount = 0
+
+Cyclic GC:
+    - Detects reference cycles
+    - Uses mark-and-sweep algorithm
+    - Only tracks container objects
+    - Runs periodically
+
+Generational GC:
+    - Three generations (0, 1, 2)
+    - Gen 0: young objects, frequent GC
+    - Gen 1: middle-aged, less frequent
+    - Gen 2: old objects, rare GC
+    - Based on "most objects die young"
+
+Thresholds:
+    - Gen 0: 700 objects
+    - Gen 1: 10 Gen 0 collections
+    - Gen 2: 10 Gen 1 collections
+    - Tunable via gc.set_threshold()
+
+
+Important Functions:
+--------------------
+    gc.collect()         - Force garbage collection
+    gc.disable()         - Disable automatic GC
+    gc.enable()          - Enable automatic GC
+    gc.get_count()       - Get object counts per generation
+    gc.get_threshold()   - Get GC thresholds
+    gc.set_threshold()   - Set GC thresholds
+    gc.get_objects()     - Get all tracked objects
+    gc.is_tracked()      - Check if object is tracked
+    sys.getrefcount()    - Get reference count
+
+
+Performance:
+------------
+    - Reference counting: 5-10% overhead
+    - Cyclic GC: 1-5% overhead
+    - Gen 0 GC: 0.1-1 ms
+    - Gen 1 GC: 1-10 ms
+    - Gen 2 GC: 10-100 ms
+
+
+Best Practices:
+---------------
+    1. Let GC work automatically (default)
+    2. Avoid cycles when possible
+    3. Use weak references for back-pointers
+    4. Use context managers instead of __del__
+    5. Disable GC for performance-critical sections
+    6. Force collection after large operations
+    7. Monitor memory usage in long-running apps
+    8. Tune thresholds for specific workloads
+
+
+Common Issues:
+--------------
+    - Memory leaks from cycles (use weakref)
+    - __del__ not called (use context managers)
+    - GC pauses (disable auto GC, collect manually)
+    - High memory usage (force gc.collect())
+    - Slow collections (reduce tracked objects)
+
+
+When to Care:
+-------------
+    - Long-running applications
+    - Real-time systems
+    - Memory-constrained environments
+    - Performance-critical code
+    - Debugging memory leaks
+
+
+Important Numbers:
+------------------
+    - Default Gen 0 threshold: 700 objects
+    - Default Gen 1 threshold: 10 collections
+    - Default Gen 2 threshold: 10 collections
+    - Reference counting overhead: 5-10%
+    - GC overhead: 1-5%
+    - Typical Gen 0 GC time: 0.1-1 ms
+
+
+================================================================================
+                              END OF FILE
+================================================================================

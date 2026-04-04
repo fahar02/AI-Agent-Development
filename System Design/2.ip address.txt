@@ -1,0 +1,712 @@
+
+================================================================================
+  IP ADDRESSES — COMPLETE GUIDE
+  From "what is an IP?" to how the internet actually routes packets
+================================================================================
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 0 ◆ WHAT IS AN IP ADDRESS?
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+▸ Simple
+  An IP address is like a home address for your device on a network.
+  Just like a postal address tells the post office where to deliver a letter,
+  an IP address tells the internet where to deliver data.
+
+  Every device that communicates on a network has one:
+  → your laptop, phone, server, smart TV, router all have IPs
+
+▸ Technical
+  IP = Internet Protocol
+  An IP address is a unique numerical label assigned to each device
+  connected to a computer network that uses the Internet Protocol
+  for communication.
+
+  Two versions exist today:
+    IPv4  →  32-bit  →  older, still dominant
+    IPv6  →  128-bit →  newer, the future
+
+  Two main categories:
+    Public IP   →  visible on the internet (your home's "street address")
+    Private IP  →  only inside your local network (your room number)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 1 ◆ IPv4 (Internet Protocol Version 4)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1.1 STRUCTURE
+────────────────────────────────────────────────────────────────────────────────
+▸ Simple
+  An IPv4 address looks like this:   192.168.1.1
+  It has 4 numbers separated by dots. Each number is between 0 and 255.
+
+▸ Why 0–255?
+  Each part is called an OCTET = 8 bits of binary
+  8 bits → 2⁸ = 256 possible values → range: 0 to 255
+
+  192 . 168 . 1 . 1
+  ─────────────────────────────────────
+  11000000.10101000.00000001.00000001   ← binary form
+
+▸ Total size
+  4 octets × 8 bits = 32 bits total
+  2³² = 4,294,967,296 ≈ 4.3 billion possible addresses
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1.2 CLASSFUL ADDRESSING (THE OLD WAY)
+────────────────────────────────────────────────────────────────────────────────
+▸ Simple
+  Originally, IP addresses were split into "classes" like grades in school.
+  Your class determined how many devices (hosts) your network could have.
+
+▸ The Classes
+
+  ┌────────┬──────────────────────────────────┬────────────┬──────────────────┐
+  │ Class  │ Range                            │ Structure  │ Use              │
+  ├────────┼──────────────────────────────────┼────────────┼──────────────────┤
+  │   A    │ 1.0.0.0 – 126.255.255.255        │ N.H.H.H    │ Huge networks    │
+  │   B    │ 128.0.0.0 – 191.255.255.255      │ N.N.H.H    │ Medium networks  │
+  │   C    │ 192.0.0.0 – 223.255.255.255      │ N.N.N.H    │ Small networks   │
+  │   D    │ 224.0.0.0 – 239.255.255.255      │ —          │ Multicast only   │
+  │   E    │ 240.0.0.0 – 255.255.255.255      │ —          │ Experimental     │
+  └────────┴──────────────────────────────────┴────────────┴──────────────────┘
+  N = Network part   H = Host part
+
+  Class A: 1 network octet → 2²⁴ = 16 million hosts per network
+  Class B: 2 network octets → 2¹⁶ = 65,534 hosts per network
+  Class C: 3 network octets → 2⁸  = 254 hosts per network
+
+▸ Note: 127.x.x.x is reserved → loopback (127.0.0.1 = "this machine itself")
+
+▸ Why classful addressing failed
+  - Wasteful: a company needing 300 IPs got a Class B (65,534 IPs)
+  - The internet ran out of addresses faster than expected
+  - Replaced by CIDR in the 1990s
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1.3 SUBNET MASK
+────────────────────────────────────────────────────────────────────────────────
+▸ Simple
+  A subnet mask tells you which part of the IP is the "network" and
+  which part is the "device" (host).
+  Think of it as a highlighter — 1s highlight the network, 0s are the host.
+
+▸ Example
+  IP:          192.168.1.100
+  Subnet mask: 255.255.255.0
+
+  In binary:
+  IP:   11000000.10101000.00000001.01100100
+  Mask: 11111111.11111111.11111111.00000000
+        ──────────────────────────────────
+  The 1s cover the first 3 octets = Network = 192.168.1
+  The 0s are the last octet = Host   = 100
+
+▸ AND operation (Advanced)
+  Network address = IP AND Subnet Mask
+  192.168.1.100 AND 255.255.255.0 = 192.168.1.0  (network address)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1.4 CIDR — CLASSLESS INTER-DOMAIN ROUTING (THE MODERN WAY)
+────────────────────────────────────────────────────────────────────────────────
+▸ Simple
+  CIDR lets us define any size network — not locked to Class A/B/C.
+  Written with a "/" (slash) followed by the prefix length.
+
+  192.168.1.0/24
+               ↑
+               24 bits are network, remaining 8 bits are hosts
+
+▸ Reading CIDR notation
+  /24 → 24 bits network → 8 bits host → 2⁸ - 2 = 254 usable hosts
+  /16 → 16 bits network → 16 bits host → 2¹⁶ - 2 = 65,534 usable hosts
+  /8  → 8 bits network  → 24 bits host → ~16 million usable hosts
+  /30 → 30 bits network → 2 bits host  → 2 usable hosts (point-to-point links)
+  /32 → all 32 bits network → 0 bits host → single host (one specific device)
+
+  Why subtract 2?
+  → Network address (all host bits = 0) + Broadcast address (all host bits = 1)
+    are reserved and cannot be assigned to devices.
+
+▸ CIDR Cheat Sheet
+  ┌──────┬────────────────┬──────────────────┬──────────────┐
+  │ CIDR │ Subnet Mask    │ Usable Hosts     │ Block Size   │
+  ├──────┼────────────────┼──────────────────┼──────────────┤
+  │ /8   │ 255.0.0.0      │ 16,777,214       │ 16M          │
+  │ /16  │ 255.255.0.0    │ 65,534           │ 65K          │
+  │ /24  │ 255.255.255.0  │ 254              │ 256          │
+  │ /25  │ 255.255.255.128│ 126              │ 128          │
+  │ /26  │ 255.255.255.192│ 62               │ 64           │
+  │ /27  │ 255.255.255.224│ 30               │ 32           │
+  │ /28  │ 255.255.255.240│ 14               │ 16           │
+  │ /30  │ 255.255.255.252│ 2                │ 4            │
+  └──────┴────────────────┴──────────────────┴──────────────┘
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1.5 SUBNETTING
+────────────────────────────────────────────────────────────────────────────────
+▸ Simple
+  Subnetting = splitting one big network into smaller sub-networks.
+  Why? To organize devices, limit broadcast traffic, improve security.
+
+  Example: You have 192.168.1.0/24 (254 hosts)
+  Split into 4 subnets of 62 hosts each → use /26
+
+  Subnet 1: 192.168.1.0/26    → hosts: .1 to .62
+  Subnet 2: 192.168.1.64/26   → hosts: .65 to .126
+  Subnet 3: 192.168.1.128/26  → hosts: .129 to .190
+  Subnet 4: 192.168.1.192/26  → hosts: .193 to .254
+
+▸ Network address, Broadcast address, Usable range
+  For 192.168.1.0/24:
+    Network address:    192.168.1.0    (first IP — identifies network)
+    Broadcast address:  192.168.1.255  (last IP — sends to ALL devices)
+    Usable range:       192.168.1.1 → 192.168.1.254
+
+▸ Advanced: VLSM (Variable Length Subnet Masking)
+  Different subnets can have different sizes based on need.
+  A subnet for 100 devices gets /25, one for 10 devices gets /28.
+  More efficient use of the limited IPv4 space.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1.6 PRIVATE vs PUBLIC IP ADDRESSES
+────────────────────────────────────────────────────────────────────────────────
+▸ Simple
+  Public IP  → your home's address on the internet (assigned by ISP)
+  Private IP → address inside your home network (assigned by router)
+
+  Your phone at home has BOTH:
+  Private: 192.168.1.5  (only your router sees this)
+  Public:  103.45.67.89 (what the internet sees)
+
+▸ Private IP Ranges (RFC 1918) — these NEVER appear on the public internet
+  10.0.0.0    – 10.255.255.255    (/8)   → Class A private (16M addresses)
+  172.16.0.0  – 172.31.255.255   (/12)  → Class B private (1M addresses)
+  192.168.0.0 – 192.168.255.255  (/16)  → Class C private (65K addresses)
+
+▸ Other Special Ranges
+  127.0.0.0/8     → Loopback (127.0.0.1 = localhost = this machine)
+  169.254.0.0/16  → APIPA: auto-assigned when DHCP fails ("link-local")
+  0.0.0.0/8       → Unspecified address
+  255.255.255.255 → Limited broadcast
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1.7 NAT — NETWORK ADDRESS TRANSLATION
+────────────────────────────────────────────────────────────────────────────────
+▸ Simple
+  NAT is how your router lets multiple devices share ONE public IP.
+  Your router is the "post office" — all outgoing mail has the same
+  return address (public IP), but the router knows which device to
+  deliver the reply to.
+
+▸ How it works (step by step)
+  1. Your laptop (192.168.1.5) requests google.com
+  2. Router replaces source IP: 192.168.1.5 → 103.45.67.89 (public IP)
+  3. Router records in NAT table: port 5001 → 192.168.1.5:49000
+  4. Google receives request from 103.45.67.89:5001, sends reply back
+  5. Router receives reply, checks NAT table, forwards to 192.168.1.5
+
+▸ Types of NAT (Advanced)
+  SNAT (Source NAT)      → change source IP (most common, described above)
+  DNAT (Destination NAT) → change destination IP (used in port forwarding)
+  PAT  (Port Address Translation / NAT overload) → many IPs → one public IP
+                           using different port numbers to track each device
+
+▸ NAT problems
+  - Breaks end-to-end connectivity (remote devices can't initiate connection to you)
+  - Complicates VoIP, gaming, P2P applications
+  - NAT traversal techniques: STUN, TURN, ICE (used in WebRTC)
+  - IPv6 eliminates NAT entirely (every device gets a real public IP)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1.8 DHCP — DYNAMIC HOST CONFIGURATION PROTOCOL
+────────────────────────────────────────────────────────────────────────────────
+▸ Simple
+  DHCP automatically assigns IP addresses to devices on a network.
+  Without DHCP, you'd have to manually type an IP on every device.
+
+▸ DHCP Process (DORA)
+  D → Discover  : device broadcasts "I need an IP address!"
+  O → Offer     : DHCP server replies "here, take 192.168.1.50"
+  R → Request   : device says "yes, I'll take that one"
+  A → Acknowledge: server confirms and records the lease
+
+▸ DHCP Lease
+  IPs are lent for a time period (lease time) — e.g., 24 hours
+  After lease expires, device must renew or get a new IP
+
+▸ Advanced: DHCP Options
+  DHCP doesn't just give you an IP. It also tells you:
+  - Default gateway (your router's IP)
+  - DNS server addresses
+  - Subnet mask
+  - NTP server (time sync), domain name, next-boot server
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1.9 IPv4 EXHAUSTION
+────────────────────────────────────────────────────━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+▸ Simple
+  There are only ~4.3 billion IPv4 addresses.
+  By 2011, IANA (the global authority) ran out of free IPv4 blocks.
+  Regional registries exhausted their pools soon after.
+
+▸ Why it happened faster than expected
+  - Mobile phones (billions of devices)
+  - IoT devices (sensors, cameras, appliances)
+  - Cloud servers (each VM gets an IP)
+  - Poor original allocation (Class A waste)
+
+▸ Solutions to exhaustion
+  1. NAT         → share one IP across many devices
+  2. Private IPs → reuse same ranges inside every home/office
+  3. IPv6        → the permanent, long-term solution
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 2 ◆ IPv6 (Internet Protocol Version 6)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+2.1 STRUCTURE
+────────────────────────────────────────────────────────────────────────────────
+▸ Simple
+  IPv6 looks like this:
+  2001:0db8:85a3:0000:0000:8a2e:0370:7334
+
+  It uses hexadecimal (0-9 and a-f) and colons instead of dots.
+
+▸ Technical breakdown
+  - 128-bit address
+  - Written as 8 groups of 4 hex characters
+  - Each group = 16 bits
+  - Groups separated by colons (:)
+  - Total addresses: 2¹²⁸ = 3.4 × 10³⁸ (undecillion)
+    That's enough for every grain of sand on Earth to have trillions of IPs.
+
+▸ Address shortening rules
+  Rule 1: Drop leading zeros in any group
+    0db8 → db8
+    0000 → 0
+
+  Rule 2: Replace ONE consecutive run of all-zero groups with ::
+    2001:0db8:0000:0000:0000:0000:0370:7334
+    →  2001:db8::370:7334
+
+  You can only use :: ONCE in an address (otherwise ambiguous).
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+2.2 IPv6 ADDRESS TYPES
+────────────────────────────────────────────────────────────────────────────────
+
+▸ UNICAST — one sender, one receiver
+  Most common type. Like a direct letter to one person.
+
+  a) Global Unicast (Public)
+     Prefix: 2000::/3
+     Routable on the internet. Like a public IPv4 address.
+     Assigned by ISP.
+
+  b) Unique Local (Private)
+     Prefix: fc00::/7 (usually fd00::/8)
+     Not routable on internet. Like IPv4 private ranges.
+     Used inside organizations.
+
+  c) Link-Local
+     Prefix: fe80::/10
+     Auto-configured on every interface.
+     Scope: only within the same network segment (one hop).
+     Used for neighbor discovery and routing protocols.
+     You always have a link-local, even if you have no internet.
+
+▸ MULTICAST — one sender, many receivers
+  Prefix: ff00::/8
+  Replaces broadcast in IPv6.
+  Only subscribed devices receive the packet.
+
+  Examples:
+  ff02::1  → all nodes on local link
+  ff02::2  → all routers on local link
+  ff02::fb → mDNS (local name resolution)
+
+▸ ANYCAST — one address, many devices, nearest receives
+  Same address configured on multiple devices.
+  Packet routed to the topologically nearest one.
+  Used in: DNS root servers, CDN, load balancing.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+2.3 IPv6 ADDRESS STRUCTURE (ADVANCED)
+────────────────────────────────────────────────────────────────────────────────
+  A global unicast address is divided into 3 parts:
+
+  ┌──────────────────┬─────────────┬──────────────────────┐
+  │ Global Prefix    │ Subnet ID   │ Interface ID         │
+  │ (48 bits)        │ (16 bits)   │ (64 bits)            │
+  └──────────────────┴─────────────┴──────────────────────┘
+
+  Example:  2001:db8:abcd : 0012 : 0000:0000:0000:0001
+             ─────────────   ────   ─────────────────────
+            Global Prefix   Subnet     Interface ID (device)
+
+  Interface ID (EUI-64):
+  Can be derived from MAC address.
+  MAC: 00:1A:2B:3C:4D:5E → EUI-64 → 021A:2Bff:fe3C:4D5E
+  This means your IPv6 can self-configure without DHCP (SLAAC).
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+2.4 SLAAC — STATELESS ADDRESS AUTO-CONFIGURATION
+────────────────────────────────────────────────────────────────────────────────
+▸ Simple
+  In IPv4, you needed DHCP server to get an IP.
+  In IPv6, devices can configure their OWN global IP automatically!
+
+▸ How SLAAC works
+  1. Device generates a link-local address (fe80::...)
+  2. Sends Router Solicitation (RS) to ff02::2 (all routers)
+  3. Router replies with Router Advertisement (RA):
+     - Network prefix (e.g., 2001:db8:1::/64)
+     - Gateway (router's link-local address)
+     - Flags, MTU, lifetime
+  4. Device combines prefix + its own Interface ID = full IPv6 address
+  5. Device runs DAD (Duplicate Address Detection) to check uniqueness
+
+▸ DHCPv6 (when SLAAC is not enough)
+  Used when you want centralized control (like static DNS assignment).
+  Stateless DHCPv6: SLAAC for IP + DHCPv6 for DNS/options only
+  Stateful DHCPv6: DHCPv6 manages everything (like IPv4 DHCP)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+2.5 NDP — NEIGHBOR DISCOVERY PROTOCOL
+────────────────────────────────────────────────────────────────────────────────
+▸ Simple
+  In IPv4, ARP was used to find MAC address of an IP on local network.
+  IPv6 replaces ARP with NDP (Neighbor Discovery Protocol).
+  NDP uses ICMPv6 messages.
+
+▸ NDP functions
+  - Neighbor Solicitation (NS) / Neighbor Advertisement (NA):
+    "Who has IP 2001:db8::5?" → "I do! My MAC is aa:bb:cc..."
+  - Router Solicitation (RS) / Router Advertisement (RA):
+    Device finds its gateway and network prefix
+  - DAD (Duplicate Address Detection):
+    Before using an IP, device checks no one else has it
+  - Redirect:
+    Router tells device of a better next-hop for a destination
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+2.6 SECURITY IN IPv6
+────────────────────────────────────────────────────────────────────────────────
+▸ Simple
+  IPv6 was designed with security in mind from the start.
+  IPsec (encryption + authentication) is built-in, not optional.
+
+▸ IPsec components
+  AH  (Authentication Header)        → verifies packet hasn't been tampered
+  ESP (Encapsulating Security Payload)→ encrypts packet content
+
+▸ Privacy Extensions (RFC 4941)
+  Problem: EUI-64 embeds your MAC address in your IPv6 → you can be tracked.
+  Solution: Privacy extensions generate a random, temporary Interface ID.
+  Your device regularly changes its global IPv6 address for outgoing traffic.
+
+▸ NDP vulnerabilities (Advanced)
+  RA Spoofing: attacker sends fake Router Advertisements → hijacks traffic
+  Defense: RA Guard on switches, SEND (Secure NDP with crypto)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 3 ◆ IPv4 vs IPv6 — FULL COMPARISON
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ┌───────────────────────┬──────────────────────┬─────────────────────────────┐
+  │ Feature               │ IPv4                 │ IPv6                        │
+  ├───────────────────────┼──────────────────────┼─────────────────────────────┤
+  │ Bit length            │ 32 bits              │ 128 bits                    │
+  │ Address count         │ ~4.3 billion         │ ~3.4 × 10³⁸                 │
+  │ Notation              │ Decimal, dots        │ Hexadecimal, colons         │
+  │ Header size           │ 20-60 bytes          │ Fixed 40 bytes              │
+  │ NAT required          │ Yes (address scarcity)│ No (enough IPs for all)    │
+  │ IP configuration      │ DHCP or manual       │ SLAAC (automatic) or DHCPv6 │
+  │ ARP                   │ Yes (IPv4 uses ARP)  │ No (uses NDP/ICMPv6)        │
+  │ Broadcast             │ Yes                  │ No (uses multicast instead) │
+  │ IPsec                 │ Optional             │ Built-in support            │
+  │ Fragmentation         │ Routers + hosts      │ Hosts only                  │
+  │ Checksum in header    │ Yes                  │ No (handled by transport)   │
+  │ Quality of Service    │ ToS field            │ Traffic Class + Flow Label  │
+  └───────────────────────┴──────────────────────┴─────────────────────────────┘
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 4 ◆ HOW ROUTING WORKS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+4.1 HOW A PACKET TRAVELS ACROSS THE INTERNET
+────────────────────────────────────────────────────────────────────────────────
+▸ Simple
+  When you visit google.com, your data doesn't take a direct wire.
+  It hops through many routers, each one deciding "next step".
+
+  Your PC → Home Router → ISP Router → ... → Google's Server
+
+▸ Each router:
+  1. Receives a packet
+  2. Reads the destination IP
+  3. Looks at its routing table ("where should I send this?")
+  4. Forwards to the next hop (the next router in the path)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+4.2 ROUTING TABLE
+────────────────────────────────────────────────────────────────────────────────
+▸ Simple
+  A routing table is a list of known destinations and where to forward them.
+  Like a GPS map inside every router.
+
+▸ Example routing table entry
+  Destination     │  Next Hop       │  Interface │ Metric
+  ────────────────┼─────────────────┼────────────┼───────
+  192.168.1.0/24  │  directly       │  eth0      │ 0
+  10.0.0.0/8      │  192.168.1.1    │  eth0      │ 1
+  0.0.0.0/0       │  203.0.113.1    │  eth1      │ 10   ← default route
+
+  0.0.0.0/0 = default route = "if no other rule matches, send here"
+
+▸ Longest prefix match (Advanced)
+  When multiple routes could match, routers pick the MOST specific one.
+  Packet to 192.168.1.55:
+  Match 1: 0.0.0.0/0 (all traffic) → /0 — too general
+  Match 2: 192.168.1.0/24 → /24 — more specific → WINNER
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+4.3 ISP & AUTONOMOUS SYSTEMS
+────────────────────────────────────────────────────────────────────────────────
+▸ Simple
+  The internet is not one network — it's thousands of networks connected together.
+  Each network is called an Autonomous System (AS).
+  Your ISP is an AS. Google is an AS. AWS is an AS.
+
+  Every AS has an AS Number (ASN):
+  Google = AS15169
+  Cloudflare = AS13335
+  Amazon = AS16509
+
+▸ BGP — Border Gateway Protocol (Advanced)
+  BGP is the protocol that glues all ASes together.
+  Called the "protocol of the internet" — the internet's backbone.
+
+  ISPs use BGP to advertise their IP blocks to each other:
+  "I (AS1234) can reach 203.0.113.0/24 — send traffic my way"
+
+  BGP path selection considers:
+  - AS path length (prefer shorter paths)
+  - Local preference (prefer your own business partners)
+  - MED (Multi-Exit Discriminator)
+  - Origin type
+
+  BGP security weakness: BGP hijacking
+  An AS can maliciously advertise someone else's IP prefix.
+  The internet routes traffic to the attacker instead.
+  Defense: RPKI (Resource Public Key Infrastructure) — cryptographic proof
+  you own the prefix you're advertising.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+4.4 DNS — HOW NAMES MAP TO IPs
+────────────────────────────────────────────────────────────────────────────────
+▸ Simple
+  Humans remember names (google.com) not numbers (142.250.182.14).
+  DNS (Domain Name System) translates names to IPs.
+  Like a phone book for the internet.
+
+▸ DNS Lookup steps
+  1. You type google.com in browser
+  2. Browser checks local cache — if found, done
+  3. OS checks hosts file (/etc/hosts on Linux)
+  4. Query sent to Recursive Resolver (your ISP or 8.8.8.8)
+  5. Resolver asks Root Name Server → "where is .com?"
+  6. Root says: "ask the .com TLD server"
+  7. TLD (.com) server says: "ask Google's authoritative server"
+  8. Google's DNS responds: "google.com → 142.250.182.14"
+  9. Resolver caches and returns the IP to you
+
+▸ DNS Record Types
+  A     → maps hostname to IPv4 address
+  AAAA  → maps hostname to IPv6 address
+  CNAME → alias (www → example.com)
+  MX    → mail server for domain
+  TXT   → arbitrary text (used for SPF, DKIM, verification)
+  PTR   → reverse lookup: IP → hostname
+  NS    → authoritative name servers for domain
+  SOA   → start of authority (primary DNS info for zone)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 5 ◆ ADVANCED TOPICS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+5.1 IP FRAGMENTATION
+────────────────────────────────────────────────────────────────────────────────
+▸ Simple
+  Networks have a limit on packet size called MTU (Maximum Transmission Unit).
+  Ethernet MTU = 1500 bytes. If a packet is bigger, it must be fragmented.
+
+▸ IPv4 Fragmentation
+  - Routers OR sending host can fragment
+  - DF (Don't Fragment) bit: if set, router drops and sends ICMP "too big" error
+  - Fragment offset field in IPv4 header tells receiver how to reassemble
+
+▸ IPv6 Fragmentation
+  - Only the SENDING HOST can fragment, never intermediate routers
+  - Uses Path MTU Discovery (PMTUD) to find the smallest MTU on the path
+  - If packet too big: router sends ICMPv6 "Packet Too Big" back to sender
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+5.2 TTL — TIME TO LIVE
+────────────────────────────────────────────────────────────────────────────────
+▸ Simple
+  Every IP packet carries a TTL counter (default 64 or 128).
+  Each router that forwards the packet decreases TTL by 1.
+  When TTL = 0, the router drops the packet and sends ICMP "TTL exceeded."
+  This prevents packets looping forever on the internet.
+
+▸ traceroute uses TTL
+  traceroute sends packets with TTL = 1, 2, 3...
+  Each router that kills the packet reveals its IP (via ICMP reply).
+  This maps the path from you to any destination.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+5.3 ANYCAST & LOAD BALANCING AT THE IP LEVEL
+────────────────────────────────────────────────────────────────────────────────
+▸ Simple
+  Multiple servers around the world share the same IP address.
+  Routing automatically sends your traffic to the nearest server.
+  Used by: Cloudflare (1.1.1.1), Google DNS (8.8.8.8), CDN edge nodes.
+
+▸ Advanced
+  - BGP advertises the same prefix from multiple locations
+  - Each location's route is given a "weight" based on distance/hops
+  - No client-side change needed — routing just works
+  - If one data center goes down, BGP withdraws its route, traffic goes elsewhere
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+5.4 DUAL STACK, TUNNELING & IPv6 TRANSITION
+────────────────────────────────────────────────────────────────────────────────
+▸ Simple
+  The internet can't switch from IPv4 to IPv6 all at once.
+  Transition mechanisms are used to run both in parallel.
+
+▸ Dual Stack
+  Devices run both IPv4 and IPv6 simultaneously.
+  Browser prefers IPv6 if available (Happy Eyeballs algorithm).
+  This is how most modern devices work today.
+
+▸ Tunneling
+  Encapsulate IPv6 packets inside IPv4 packets to cross IPv4-only networks.
+  6in4 tunneling: wrap IPv6 in IPv4 header
+  Teredo: tunnel IPv6 through IPv4 NAT (Microsoft, last resort)
+  6to4: automatic tunneling via 2002::/16 prefix
+
+▸ NAT64 + DNS64
+  Allows IPv6-only hosts to reach IPv4-only servers.
+  DNS64 synthesizes an AAAA record (IPv6) for IPv4-only hostnames.
+  NAT64 gateway translates IPv6 ↔ IPv4 at the border.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+5.5 IP IN CLOUD & MODERN INFRASTRUCTURE
+────────────────────────────────────────────────────────────────────────────────
+▸ Elastic IPs (AWS)
+  A public IPv4 address you can re-attach to different instances.
+  Survives instance restarts. Useful for stable DNS mappings.
+
+▸ VPC (Virtual Private Cloud)
+  Cloud providers give you your own private network inside the cloud.
+  You pick your own CIDR block (e.g., 10.0.0.0/16).
+  Subnets inside the VPC → public subnets (internet-facing) + private subnets.
+
+▸ Floating IPs / Failover IPs
+  If your primary server dies, the IP moves to a standby automatically.
+  Used for high-availability setups (keepalived, VRRP).
+
+▸ Pod IPs in Kubernetes
+  Each Kubernetes pod gets its own IP from the cluster CIDR.
+  Container Network Interface (CNI) plugins manage IP allocation.
+  Examples: Calico, Flannel, Weave, Cilium.
+  Services in K8s get a stable Cluster IP — pods behind them can change IPs freely.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 6 ◆ QUICK REFERENCE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IMPORTANT IPv4 RESERved ADDRESSES
+───────────────────────────────────
+  0.0.0.0/8         → "This" network (source only)
+  10.0.0.0/8        → Private (Class A)
+  100.64.0.0/10     → Shared address space (ISP CGN/NAT)
+  127.0.0.0/8       → Loopback (127.0.0.1 = localhost)
+  169.254.0.0/16    → Link-local / APIPA (no DHCP response)
+  172.16.0.0/12     → Private (Class B)
+  192.0.0.0/24      → IETF Protocol Assignments
+  192.168.0.0/16    → Private (Class C)
+  198.51.100.0/24   → Documentation (TEST-NET-2)
+  203.0.113.0/24    → Documentation (TEST-NET-3)
+  224.0.0.0/4       → Multicast
+  240.0.0.0/4       → Reserved for future (Class E)
+  255.255.255.255   → Limited broadcast
+
+IMPORTANT IPv6 PREFIXES
+────────────────────────
+  ::1/128           → Loopback (equivalent to 127.0.0.1)
+  ::/128            → Unspecified address
+  2000::/3          → Global unicast (public internet IPs)
+  fc00::/7          → Unique local (private, fd00::/8 common)
+  fe80::/10         → Link-local (auto-configured, one hop)
+  ff00::/8          → Multicast
+  2001:db8::/32     → Documentation only (examples in RFCs)
+  64:ff9b::/96      → NAT64 translation prefix
+
+USEFUL COMMANDS
+────────────────────────────────────────────────────────────────────────────────
+  ipconfig              → (Windows) show IP configuration
+  ip addr / ifconfig    → (Linux) show IP addresses
+  ping 8.8.8.8          → test connectivity (IPv4)
+  ping6 2001:4860::     → test connectivity (IPv6)
+  tracert / traceroute  → trace route to host
+  nslookup google.com   → DNS lookup
+  dig AAAA google.com   → DNS lookup for IPv6 address
+  netstat -rn           → show routing table
+  ip route              → show routing table (Linux)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SUMMARY — THE MENTAL MODEL
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  IP addresses = unique labels for devices on networks
+  IPv4          = 32-bit, ~4.3B addresses, almost gone
+  IPv6          = 128-bit, practically unlimited, the future
+  Private IPs   = reused inside homes/offices (RFC 1918)
+  Public IPs    = unique on the internet (assigned by ISP)
+  NAT           = trick to share one public IP among many devices
+  DHCP          = auto-assigns IPs on your local network
+  Subnetting    = divide a network into smaller pieces (CIDR)
+  Routing       = hop-by-hop forwarding using routing tables
+  BGP           = the protocol that connects all ISPs together
+  DNS           = translates names (google.com) to IPs
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

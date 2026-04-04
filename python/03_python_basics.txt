@@ -1,0 +1,194 @@
+================================================================================
+                        BASICS OF PYTHON
+================================================================================
+
+Key Concepts Every Beginner Should Know
+----------------------------------------
+
+A. Variables
+------------
+
+What: A variable is like a box where you store information.
+
+Example in Real Life:
+Imagine you have a box labeled "age". You put the number 25 inside it.
+In Python, you write: age = 25
+
+Code Example:
+
+name = "John"
+age = 25
+height = 5.8
+is_student = True
+
+Explanation:
+- name stores text (we call this a "string")
+- age stores a whole number (we call this an "integer")
+- height stores a decimal number (we call this a "float")
+- is_student stores True or False (we call this a "boolean")
+
+
+B. Data Types
+--------------
+
+Python has different types of data, just like we have different types of 
+containers in the kitchen (bottles for liquids, boxes for solids).
+
+Common Data Types:
+
+1. Integer (int): Whole numbers
+   Example: 10, -5, 1000
+
+2. Float: Decimal numbers
+   Example: 3.14, -0.5, 99.99
+
+3. String (str): Text
+   Example: "Hello", "Python", "123"
+
+4. Boolean (bool): True or False
+   Example: True, False
+
+Code Example:
+
+age = 20                    
+price = 99.99               
+name = "Alice"              
+is_active = True            
+
+
+C. Basic Operations
+-------------------
+
+Just like in math class, Python can do calculations:
+
+Addition:       5 + 3 = 8
+Subtraction:    10 - 4 = 6
+Multiplication: 6 * 7 = 42
+Division:       20 / 4 = 5.0
+Power:          2 ** 3 = 8  (2 to the power of 3)
+Remainder:      10 % 3 = 1  (remainder when 10 is divided by 3)
+
+Code Example:
+
+x = 10
+y = 3
+
+print(x + y)    
+print(x - y)    
+print(x * y)    
+print(x / y)    
+print(x ** y)   
+print(x % y)    
+
+Output:
+13
+7
+30
+3.333...
+1000
+1
+
+
+D. Print Function
+-----------------
+
+The print() function displays output on the screen.
+It's like asking Python to "say" something.
+
+Code Example:
+
+print("Hello, World!")
+print("My age is", 25)
+print(10 + 5)
+
+Output:
+Hello, World!
+My age is 25
+15
+
+
+E. Input Function
+-----------------
+
+The input() function lets you ask the user for information.
+
+Code Example:
+
+name = input("What is your name? ")
+print("Hello,", name)
+
+When you run this:
+What is your name? John
+Hello, John
+
+
+F. Conditional Statements (if-else)
+------------------------------------
+
+These help Python make decisions, just like you decide:
+"If it's raining, take an umbrella. Otherwise, don't."
+
+Code Example:
+
+age = 18
+
+if age >= 18:
+    print("You are an adult")
+else:
+    print("You are a minor")
+
+Output: You are an adult
+
+
+G. Loops
+--------
+
+Loops help you repeat actions without writing the same code again and again.
+
+1. For Loop (when you know how many times to repeat):
+
+for i in range(5):
+    print("Hello")
+
+Output:
+Hello
+Hello
+Hello
+Hello
+Hello
+
+2. While Loop (repeat until a condition becomes false):
+
+count = 0
+while count < 3:
+    print("Count is", count)
+    count = count + 1
+
+Output:
+Count is 0
+Count is 1
+Count is 2
+
+
+H. Functions
+------------
+
+A function is a reusable block of code. Think of it as a recipe you can use 
+multiple times.
+
+Code Example:
+
+def greet(name):
+    print("Hello,", name)
+
+greet("Alice")
+greet("Bob")
+
+Output:
+Hello, Alice
+Hello, Bob
+
+
+================================================================================
+                              END OF FILE
+================================================================================

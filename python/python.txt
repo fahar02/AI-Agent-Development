@@ -1,0 +1,466 @@
+python
+1 introduction to the python
+2 basic of python
+	i how to create a python programmer.
+	ii data types.
+	iii variables in python
+3 operators in python
+4 control statements
+5 data structure
+6 functions
+7 modules and packages
+8 file handling in python
+9 exception handling in python
+10 object oriented programming
+11 decorator and generator
+12 iterators and iterable objects
+13 comprehensions
+14 Regular expression
+15 multithreading multiprocessing
+16 Virtual Environments and pip
+17 Unit Testing
+
+***************************************** day1 28-6-2025
+intorduction
+
+python : - Python is a high-level, object-oriented, and platform-independent programming language known for its simplicity, robustness, and ease of use. It supports multiple programming paradigms and is widely used for web development, automation, data science, machine learning, scripting, and software development.
+
+   It supports multiple programming paradigms explain me this concepts
+a programming paradigms is a style or way of writing and structure code.
+which helps solving different problems
+1 Procedural Programming: write a stepwise instruction
+2 object oriented programming: binding object and data.
+3 functional programming: program consist of only functions
+ and ect.
+
+@ features of python 
+1 high level programming language
+2 platform independent
+3 simple 
+4 easy to write and learn
+5 robust
+6 object oriented
+7 supports multithreading an multiprocessing
+8 Dynamic type
+
+#python architecture
+The main components of Python tools that we install are known as the **Python Development Environment**.
+The most important part is the **Python Interpreter**, which includes:
+- The **Python Compiler** (converts `.py` to bytecode '.pyc' )
+- The **Python Virtual Machine (PVM)** (executes bytecode)
+- The **Interpreter itself** (runs your Python programs)
+
+
+#How Python Program Executes
+Whenever we create a Python file with the extension .py, it is called the source code or Python code.
+When we execute this code, it is passed to the Python interpreter.
+The first step inside the interpreter is the Python compiler, which converts the source code into bytecode, stored with a .pyc extension in the  __pycache__ folder.
+This bytecode is then sent to the Python Virtual Machine (PVM).
+The PVM executes the bytecode line by line, using the interpreter logic built into it.
+During execution, the PVM also loads any imported libraries or modules needed by the program.
+
+ever time we execute the code we get the  __pycache__ folder. which store the byte code as use a caching of the code 
+during executing. On future runs, Python uses the .pyc bytecode instead of re-compiling the .py file for faster startup.
+
+#Python Virtual Machine 
+The Python Virtual Machine is part of the interpreter.
+It executes the bytecode line by line.
+It handles:
+Memory management (using reference counting + garbage collection)
+Error handling (exceptions)
+Calling functions, creating objects
+Interaction with OS and hardware (via libraries)
+
+1 high level : it means which it is easy to understand and learn by humans as well as machines
+2 platform independent: Code written on one machine can be executed on any other machine, regardless of the operating system, as long as the Python interpreter is installed.
+3. Robust and Secure: Python has its own exception handling mechanism (try, except, finally), which allows programs to gracefully handle errors without crashing. This makes Python programs robust (resistant to failure) and secure (safe from unexpected runtime errors).
+4 object oriented programming language: python support oop concepts like encapsulation, inheritance, polymorphism, abstraction.
+5 supports multithreading and multiprocessing: Python can run multiple threads or multiple processes to perform tasks concurrently or in parallel. Multithreading: Used for I/O-bound tasks (e.g., file, network).Multiprocessing: Used for CPU-bound tasks (e.g., computations).
+6. Dynamic type means no need to define the data types to variable to the python it will automatically guess
+
+
+#memory management in python:
+while executing the python code it require the ram to store:
+variables
+functions
+objects
+
+Code Object / Function Area: Functions and class bytecode live here
+Global & Module Scope: Module-level variables (once imported) live throughout the program
+stack to store the function call:unction call stack frames Local variables and references
+heap for dynamic memory: all objects and dynamically memory management
+
+***********************************************************************************************************************
+Variables in Python
+
+# A variable in Python is a reference to a memory location. 
+# Python is a dynamically-typed language, so we do not need to explicitly define the data type.
+# The Python interpreter automatically detects the type based on the value assigned.
+
+# There are four types of variable scopes in Python, following the LEGB rule:
+# - Local
+# - Enclosed
+# - Global
+# - Built-in
+# - instance
+# - class
+
+# 1. Local Variable:
+# A variable that is declared inside a function.
+# It is only accessible within that function.
+
+def func():
+    x = 10  # Local variable
+    print(x)
+
+# 2. Enclosed Variable:
+# Python supports nested functions (a function defined inside another function).
+# An enclosed variable is one that exists in the outer (enclosing) function, and is accessible by the inner function.
+
+def outer():
+    name = "Fahar"  # Enclosed variable
+    def inner():
+        print(name)  # Accessing enclosed variable
+    inner()
+
+# 3. Global Variable:
+# A variable that is defined at the top-level of a Python script (outside any function).
+# It can be accessed from any function within the same module.
+# To modify a global variable inside a function, the 'global' keyword is used.
+
+x = 5  # Global variable
+
+def show():
+    global x
+    x = 100
+    print(x)
+
+# 4. Built-in Variable:
+# These are predefined names in Python, such as len, print, list, etc.
+# These come from Python’s built-in namespace.
+# Overriding them should be avoided to prevent unexpected behavior.
+
+print(len("Hello"))  # 'len' is a built-in function
+
+5. class variables: the variable which is declared inside the class is called as class variable.
+this class variable will share to all the instance. i.e one for all instance
+6. instance variable: the variable which is define inside the function __init__ is called as instance variable.
+and instance variable get create only if the object is created. and each object has the copy of that variable.
+
+
+#variable shadow and resolution:
+Variable shadowing occurs when a variable in an inner scope has the same name as one in an outer scope. The inner variable “shadows” the outer one in that scope. For example:
+In this code, the local a = 5 inside func() has the same name as the global a. Python treats them as completely separate variables. The local a shadows the global one within func(). As GeeksforGeeks notes: “the global variable a is said to be shadowed by the local variable a.”
+geeksforgeeks.orgIn other words, references to a inside func() resolve to the local version, not the global. Shadowing can lead to confusion or subtle bugs if unintended. To force the use of the outer name instead, use global or nonlocal. For example, to modify the global a within func, write global a in func. To modify a variable in an enclosing function, use nonlocal. 
+
+
+
+#Scope Resolution: Python always follows LEGB order, so a local name will override (shadow) outer names. If a name is not found in the local scope, Python searches enclosing scopes, then global, then built-ins
+realpython.com If no declaration (global/nonlocal) is used, assigning to a name in a function always creates a new local variable, which is why forgetting global leads to an UnboundLocalError.
+
+# shadow of the class and instance variable:
+If both class and instance have a variable with the same name, the instance variable takes priority. Python will use the instance variable if it exists; otherwise, it uses the class variable.
+
+# access modifier in python : there are 3 access modifier in python those are
+1.public the variable/function/class which dose not have any modifier then it is public.
+2.private the variable/function/class which has __ at the starting that is called private. that means which is access and modified with in that scope.
+3.protected the variable/function/class which has _ at the starting that is called protected that mean which is access
+and modified with in that scope and inherited class.
+
+***********************************************************************************************************************
+data types in python:
+data types is the classification of the data. Which type of data can be store into that variable.A data type tells the interpreter what kind of value a variable holds.
+basically data types are of two types mutable and immutable 
+data types are as follow:
+int : dynamic
+float:8 byte
+bool:1 byte
+string:dynamic
+list:dynamic
+tuple:dynamic
+set:dynamic
+dict: dynamic
+
+int data type:
+The int data type is used to store integer values (whole numbers without decimals).
+In Python, int is actually a class (i.e., int is a built-in type implemented as a class).
+You can use the int() function to convert other types (like strings or floats) into integers.
+The default value of an integer variable is 0 if not explicitly assigned.
+
+float Data Type in Python:
+The float data type is used to store floating-point numbers (decimal values like 3.14, -0.5).
+In Python, float is actually a class – that means all float values are objects of the built-in float class.
+You can use the float() function to convert other types (like integers or strings) into float values.
+The default value of a float (when using float() without arguments) is 0.0.
+While converting a string using float(), the string must represent a valid float, otherwise it raises a ValueError.
+
+bool Data Type in Python
+The bool (Boolean) data type is used to store logical values: True or False.
+Internally, True is represented as 1 and False as 0, but they are not the same as integers — they are instances of the built-in bool class, which is a subclass of int.
+This means:
+True behaves like the integer 1
+False behaves like the integer 0
+You can use the bool() function to convert any value into its Boolean form, following Python's truthiness rules.
+
+
+String data type: python use Unicode for string to store the text data.
+1. A string is enclosed in single quotes, double quotes and triple quotes.
+2. Python strings are objects of the built-in str class and are immutable.
+3. string is indexing.
+4. string is iterable, and support slicing, which allows access to substrings or characters using index positions.
+5. string has inbuilt functions like 
+function is string are 
+capitalize() make first letter capital 
+count(object) count occurrence of substring 
+endswith("suffix") return bool 
+startswith("suffix") return  bool 
+find(object) Finds index of substring; -1 if not found 
+index(object) return the index but raise error if not find 
+strip() remove the trailling and leading whitespaces 
+also we have lower() upper()
+
+list data type in python:
+1 list is order data type.
+2 list is heterogeneous data type.
+3 list is implemented as dynamic array.
+4 list is mutable.
+5 list is iterable.
+6 list is index based.
+7 list have dynamic size it can grow or shrink 
+8 list allows duplicates.
+function is list:
+append() adding object at last
+index(object) Returns the index of the first occurrence of the object
+extend(object) Appends all elements from another iterable (like list, tuple) to the end of the current list.
+insert(index,object) Inserts the object at the specified index without replacing existing elements.
+remove(object) removing the first occurrence of the object from the list.
+pop(index) Removes and returns the element at the specified index. If index is not given, removes the last element.
+clear() remove all the elements from the list.
+count(object) count number of objects present.
+sort() sort the objects in ascending order
+reverse() reverse the list 
+copy() create a new object of list and return i.e used for shallow copy  
+
+
+tuple data type
+1 tuple is order.
+2 tuple is heterogeneous
+3 tuple is implemented as static sequence
+4 tuple is immutable 
+5 tuple is iterable
+6 tuple is index based
+7 tuple is fixed size
+8 tuple allows duplicate 
+
+count(object) – Returns number of occurrences of the object.
+
+index(object) – Returns index of first occurrence.
+
+Tuples support slicing, indexing, iteration.
+
+Tuples can be nested and used as keys in dictionaries (because they are immutable).
+
+set data type 
+1 set is unordered
+2 set is heterogeneous
+3 set i implemented as hash table
+4 set is mutable
+5 set is iterable
+6 set is not index based
+7 set is dynamic size
+8 set do not allows duplicate 
+
+Common Set Functions/Methods:
+
+add(object) add to the set
+update(otherset) add multiple elements
+remove(object) remove the specific elements
+clear() remove all elements from set
+union(), intersection(), difference() – Set operations.
+copy() return shallow copy
+
+
+dict data type
+1 dict is unordered key value pair data type
+2 dict is heterogeneous
+3 dict is implemented as hash table
+4 dict is iterable
+5 dict is not index based
+6 dict is dynamic size
+7 dict do not allow duplicate key but allows may duplicate values
+Common Dict Functions/Methods:
+get(key) – Returns value for key; returns None if key not found.
+keys() – Returns a view of all keys.
+values() – Returns a view of all values.
+items() – Returns all key-value pairs as tuples.
+update(dict2) – Updates dictionary with key-value pairs from another dictionary.
+pop(key) – Removes and returns value by key.
+popitem() – Removes and returns the last inserted item.
+clear() – Removes all items.
+copy() – Returns a shallow copy.
+setdefault(key, default) – Returns value if key exists; otherwise sets key with default.
+
+
+************************************************************************************************************************************************
+
+operator in python : operator are the symbols which has predefine meaning in the pyhton
+list of operator in python:
+1.logical
+2.Equality
+3.Comparison
+4.arithmetic
+5.bitwise
+6.Sequenece
+7.assignment
+
+1 logical operator: there are 3 types of operator and or not
+	1 and operator when two values are true then output is true and for all other condition false
+	2 or operator when any one value is true out of two then the result is true.
+	3 not operator is use to make true to false and false to true.
+
+2.equality operator: there are 4 types:
+is and is not: These are identity operators. They check whether two variables refer to the same object in memory (i.e., same memory address).
+== and !=: These are equality operators. They compare only the values of the objects, not their memory location.
+
+3 comparison: it is use to compare two values. for comparison the output is bool
+< less then
+<= less then or equal to
+> greater then 
+>= greater then or equal to
+
+4 Arithmetic operator:
++ add
+-substract
+* multiplication
+/ divison give float result
+// divison give only int result
+% mod give the remender
+
+*****************************************************************************************************************************************************
+expressions:
+An expression is a combination of operands and operators that produces a result. each and every expressions have precedence
+operand is any value or data or variable which holds data 
+
+control flow:
+Control flow is used to execute a specific block of code based on certain conditions, while skipping the other blocks.
+in that control flow we have 3 types:
+1. condition block. if, if else, if else nested, if elif and else ladder are use for dicison
+2. loops. while, for 
+3. loop control statements break ;- come out of loop, continue move to next iteration , pass this class or function do not perform any operation Does nothing; used as a placeholder.
+
+
+******************************************************************************************************************************************************
+Functions in Python – Access Modifiers and Scope
+Functions are blocks of code or sets of instructions used to perform a specific task.
+Python does not have strict access modifiers like Java (public, private, protected), but it uses naming conventions to indicate the intended scope or accessibility of a function.
+There are three main types of function accessibility based on naming style:
+1. Public Functions (Default)
+Any function that does not start with an underscore is considered public.
+It can be accessed from: Within the same class or module, Subclasses, Other modules
+This is the default behavior in Python.
+2. Protected Functions
+Functions whose names start with a single underscore (_) are treated as protected.
+This is only a convention — the function is still accessible outside the class/module, but it's intended for internal or subclass use only.
+Used to indicate: "Don't use this unless you're extending the class."
+3. Private Functions
+Functions starting with double underscores (__) are treated as private.
+Python performs name mangling — it internally renames the function to _ClassName__functionname.This makes it difficult (but not impossible) to access from outside the class.
+
+function consist of two components: function definition and function call
+function definition: function definition consist of function signature and function body.
+function signature: consist of def which defines the starting of the function and  the function name as a identifier to the function and (parameters) which are being used inside the function.
+function call : name of function and actual parameter which are send from function call to the function definition.
+types of parameters and arguments in function:
+1.positional arguments:These are standard arguments passed in the exact order the function expects.You must pass arguments in correct order, else you get wrong results.
+2.keyword arguments: you name the parameter during the function call, so order doesn't matter. which is defined in function call
+3.default arguments: You can provide a default value for one or more parameters.If the caller doesn't provide a value, the default is used.
+4.Variable-Length Arguments:You don't know how many arguments will be passed You want to accept a flexible number of inputs
+#Precedence / Order of Function Parameters
+ote: After *args, all parameters must be passed as keyword arguments, otherwise you’ll get an error.
+The / means everything before it must be positional
+/ → Positional-Only Parameters
+Parameters before / can only be passed by position, not by name.
+You must give them without specifying parameter name in function call.
+
+The * means everything after it must be keyword-only
+* → Keyword-Only Parameters
+Parameters after * can only be passed by name (as keyword arguments).
+Even though there’s no *args, the * forces keyword-only behavior.
+
+def func(a, b, /, c, d=4, *, e, f=6):
+    print(f"a = {a}, b = {b}, c = {c}, d = {d}, e = {e}, f = {f}")
+Explanation:
+Parameter	How It Must Be Passed	Notes
+a, b	Positional only	Must pass as func(1, 2, ...)
+c, d	Positional or keyword	You can pass c=3, or 3
+e, f	Keyword only (after *)	Must pass as e=value
+
+✅ Correct Function Call:
+python
+Copy
+Edit
+func(10, 20, 30, d=40, e=50, f=60)
+✅ a=10, b=20 → positional-only
+✅ c=30 → can be positional or keyword
+✅ d=40, e=50, f=60 → must be keyword-only
+
+❌ Incorrect Calls:
+python
+Copy
+Edit
+func(a=10, b=20, c=30, e=50)  # ❌ Error: a and b are positional-only
+func(10, 20, 30, 40, 50)      # ❌ Error: e is keyword-only
+🔁 Summary: Signature Pattern
+python
+Copy
+Edit
+def function(positional_only, /, positional_or_keyword, default=val, *args, keyword_only, **kwargs):
+    pass
+Symbol	Purpose
+/	Marks the end of positional-only parameters
+*	Marks the start of keyword-only parameters
+*args	Accepts extra positional arguments
+**kwargs	Accepts extra keyword arguments
+
+Functions inside Class:
+These are called methods.
+If they use self, they are instance methods.
+If decorated with @classmethod or @staticmethod, they behave differently.
+
+***********************************************************************************************************************
+module: modules are the python file with .py extension. that contain variable, function and classes.
+we have add this modules to other modules by using import keyword and also and specific variable or function in the other module.
+basically there are two types of module built in and user define modules.
+
+#understanding of the __name__ is a built-in variable in Python.
+When a Python file is run directly, __name__ is set to "__main__".
+
+The condition if __name__ == "__main__": is used to run specific blocks of code only when the file is executed directly, and not when it is imported as a module in another script. It lets you test a module safely without affecting importing scripts.  It makes your module reusable and clean.It’s a best practice in Python scripting and module design.
+
+packages in python: package is group of modules organized in the folder. it allows structure, reusable, maintainable and scalable code to the large project.
+a package is folder which consist of init file which contain initialization code __init__.py tells Python that this folder should be treated as a package.. inside that folder we can have many folder as well as sub packages. to import any module form the package first use the package name then module and so on.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

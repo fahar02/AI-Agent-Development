@@ -1,0 +1,1525 @@
+================================================================================
+                        OPERATORS IN PYTHON
+================================================================================
+
+                        A COMPLETE BEGINNER'S GUIDE
+
+================================================================================
+
+
+TABLE OF CONTENTS
+-----------------
+1. What are Operators?
+2. Why Operators are Important
+3. Types of Operators
+4. Arithmetic Operators
+5. Comparison (Relational) Operators
+6. Logical Operators
+7. Assignment Operators
+8. Bitwise Operators
+9. Membership Operators
+10. Identity Operators
+11. Operator Precedence
+12. Common Mistakes
+13. Tips for Clean Code
+14. Summary
+15. Quick Revision Checklist
+
+
+================================================================================
+1. WHAT ARE OPERATORS?
+================================================================================
+
+Operators are SPECIAL SYMBOLS that perform operations on values and variables.
+
+REAL-LIFE ANALOGY:
+Think of operators like tools in a toolbox:
+- '+' is like a glue gun (joins things together)
+- '-' is like scissors (removes/subtracts)
+- '*' is like a photocopier (multiplies/repeats)
+- '/' is like a knife (divides/splits)
+
+SIMPLE DEFINITION:
+Operators are symbols that tell Python to perform specific mathematical,
+logical, or comparison operations.
+
+Example:
+
+    result = 10 + 5
+    
+    Here:
+    - '10' and '5' are OPERANDS (values being operated on)
+    - '+' is the OPERATOR (performs addition)
+    - 'result' stores the OUTPUT (15)
+
+
+================================================================================
+2. WHY OPERATORS ARE IMPORTANT
+================================================================================
+
+Operators are essential because they allow you to:
+
+1. PERFORM CALCULATIONS: Math operations (add, subtract, multiply, divide)
+2. COMPARE VALUES: Check if values are equal, greater, smaller
+3. MAKE DECISIONS: Combine conditions (and, or, not)
+4. MANIPULATE DATA: Modify and update values
+5. CHECK MEMBERSHIP: See if item exists in collection
+6. CHECK IDENTITY: Verify if two variables point to same object
+
+Without operators, you couldn't do much in programming!
+
+
+================================================================================
+3. TYPES OF OPERATORS
+================================================================================
+
+Python has several types of operators:
+
+1. ARITHMETIC OPERATORS
+   +, -, *, /, //, %, **
+
+2. COMPARISON OPERATORS (RELATIONAL)
+   ==, !=, >, <, >=, <=
+
+3. LOGICAL OPERATORS
+   and, or, not
+
+4. ASSIGNMENT OPERATORS
+   =, +=, -=, *=, /=, //=, %=, **=, &=, |=, ^=, >>=, <<=
+
+5. BITWISE OPERATORS
+   &, |, ^, ~, <<, >>
+
+6. MEMBERSHIP OPERATORS
+   in, not in
+
+7. IDENTITY OPERATORS
+   is, is not
+
+
+================================================================================
+4. ARITHMETIC OPERATORS
+================================================================================
+
+Arithmetic operators perform mathematical calculations.
+
+--------------------------------------------------------------------------------
+4.1 ADDITION (+)
+--------------------------------------------------------------------------------
+
+WHAT: Adds two numbers or concatenates strings
+
+Examples:
+
+    # Adding numbers
+    result = 10 + 5
+    print(result)              # Output: 15
+    
+    # Adding floats
+    result = 3.5 + 2.5
+    print(result)              # Output: 6.0
+    
+    # Adding negative numbers
+    result = -10 + 5
+    print(result)              # Output: -5
+    
+    # String concatenation
+    greeting = "Hello" + " " + "World"
+    print(greeting)            # Output: Hello World
+    
+    # List concatenation
+    list1 = [1, 2, 3]
+    list2 = [4, 5, 6]
+    result = list1 + list2
+    print(result)              # Output: [1, 2, 3, 4, 5, 6]
+
+
+REAL-WORLD USE:
+    - Calculating total price
+    - Adding scores
+    - Combining text
+
+
+--------------------------------------------------------------------------------
+4.2 SUBTRACTION (-)
+--------------------------------------------------------------------------------
+
+WHAT: Subtracts second number from first
+
+Examples:
+
+    # Basic subtraction
+    result = 10 - 5
+    print(result)              # Output: 5
+    
+    # With floats
+    result = 7.5 - 2.3
+    print(result)              # Output: 5.2
+    
+    # Negative result
+    result = 5 - 10
+    print(result)              # Output: -5
+    
+    # With variables
+    price = 100
+    discount = 20
+    final_price = price - discount
+    print(final_price)         # Output: 80
+
+
+REAL-WORLD USE:
+    - Calculating change
+    - Finding difference
+    - Applying discounts
+
+
+--------------------------------------------------------------------------------
+4.3 MULTIPLICATION (*)
+--------------------------------------------------------------------------------
+
+WHAT: Multiplies two numbers or repeats sequences
+
+Examples:
+
+    # Basic multiplication
+    result = 10 * 5
+    print(result)              # Output: 50
+    
+    # With floats
+    result = 3.5 * 2
+    print(result)              # Output: 7.0
+    
+    # String repetition
+    laugh = "ha" * 3
+    print(laugh)               # Output: hahaha
+    
+    # List repetition
+    zeros = [0] * 5
+    print(zeros)               # Output: [0, 0, 0, 0, 0]
+    
+    # Practical example
+    price_per_item = 25
+    quantity = 4
+    total = price_per_item * quantity
+    print(total)               # Output: 100
+
+
+REAL-WORLD USE:
+    - Calculating total cost
+    - Finding area (length * width)
+    - Repeating patterns
+
+
+--------------------------------------------------------------------------------
+4.4 DIVISION (/)
+--------------------------------------------------------------------------------
+
+WHAT: Divides first number by second (always returns float)
+
+Examples:
+
+    # Basic division
+    result = 10 / 2
+    print(result)              # Output: 5.0 (float, not int!)
+    
+    # Division with remainder
+    result = 10 / 3
+    print(result)              # Output: 3.3333333333333335
+    
+    # Division by float
+    result = 15 / 2.5
+    print(result)              # Output: 6.0
+    
+    # Practical example
+    total_bill = 150
+    people = 3
+    per_person = total_bill / people
+    print(per_person)          # Output: 50.0
+
+
+IMPORTANT: Division by zero causes error!
+
+    result = 10 / 0            # ZeroDivisionError!
+
+
+REAL-WORLD USE:
+    - Splitting bills
+    - Calculating average
+    - Finding rate
+
+
+--------------------------------------------------------------------------------
+4.5 FLOOR DIVISION (//)
+--------------------------------------------------------------------------------
+
+WHAT: Divides and returns only the whole number part (rounds down)
+
+Examples:
+
+    # Basic floor division
+    result = 10 // 3
+    print(result)              # Output: 3 (not 3.333...)
+    
+    # Even division
+    result = 10 // 2
+    print(result)              # Output: 5
+    
+    # With negative numbers
+    result = -10 // 3
+    print(result)              # Output: -4 (rounds down, not towards zero!)
+    
+    # Practical example
+    total_items = 17
+    box_capacity = 5
+    boxes_needed = total_items // box_capacity
+    print(boxes_needed)        # Output: 3 (need 3 full boxes)
+
+
+DIFFERENCE BETWEEN / AND //:
+
+    print(10 / 3)              # Output: 3.3333333333333335 (float)
+    print(10 // 3)             # Output: 3 (integer)
+
+
+REAL-WORLD USE:
+    - Calculating full boxes/packages
+    - Finding complete sets
+    - Page numbering
+
+
+--------------------------------------------------------------------------------
+4.6 MODULUS (%)
+--------------------------------------------------------------------------------
+
+WHAT: Returns the REMAINDER after division
+
+Examples:
+
+    # Basic modulus
+    result = 10 % 3
+    print(result)              # Output: 1 (10 ÷ 3 = 3 remainder 1)
+    
+    # No remainder
+    result = 10 % 2
+    print(result)              # Output: 0 (10 ÷ 2 = 5 remainder 0)
+    
+    # Checking even/odd
+    number = 7
+    if number % 2 == 0:
+        print("Even")
+    else:
+        print("Odd")           # Output: Odd
+    
+    # Practical example: Every 3rd item
+    for i in range(1, 11):
+        if i % 3 == 0:
+            print(i, "is divisible by 3")
+    # Output: 3, 6, 9
+
+
+REAL-WORLD USE:
+    - Checking even/odd numbers
+    - Cycling through items (0, 1, 2, 0, 1, 2...)
+    - Finding remainders
+
+
+--------------------------------------------------------------------------------
+4.7 EXPONENTIATION (**)
+--------------------------------------------------------------------------------
+
+WHAT: Raises first number to the power of second number
+
+Examples:
+
+    # Basic exponentiation
+    result = 2 ** 3
+    print(result)              # Output: 8 (2 × 2 × 2)
+    
+    # Square
+    result = 5 ** 2
+    print(result)              # Output: 25 (5 × 5)
+    
+    # Cube
+    result = 3 ** 3
+    print(result)              # Output: 27 (3 × 3 × 3)
+    
+    # Fractional power (square root)
+    result = 16 ** 0.5
+    print(result)              # Output: 4.0 (square root of 16)
+    
+    # Practical example: Compound interest
+    principal = 1000
+    rate = 0.05
+    years = 3
+    amount = principal * (1 + rate) ** years
+    print(amount)              # Output: 1157.625
+
+
+REAL-WORLD USE:
+    - Calculating area (side ** 2)
+    - Volume (side ** 3)
+    - Compound interest
+    - Scientific calculations
+
+
+--------------------------------------------------------------------------------
+COMBINED ARITHMETIC EXAMPLE
+--------------------------------------------------------------------------------
+
+    # Calculate total cost with tax
+    price = 100
+    quantity = 3
+    tax_rate = 0.08
+    
+    subtotal = price * quantity
+    tax = subtotal * tax_rate
+    total = subtotal + tax
+    
+    print("Subtotal:", subtotal)   # Output: Subtotal: 300
+    print("Tax:", tax)              # Output: Tax: 24.0
+    print("Total:", total)          # Output: Total: 324.0
+
+
+================================================================================
+5. COMPARISON (RELATIONAL) OPERATORS
+================================================================================
+
+Comparison operators compare two values and return True or False.
+
+--------------------------------------------------------------------------------
+5.1 EQUAL TO (==)
+--------------------------------------------------------------------------------
+
+WHAT: Checks if two values are equal
+
+Examples:
+
+    # Numbers
+    print(10 == 10)            # Output: True
+    print(10 == 5)             # Output: False
+    
+    # Strings
+    print("hello" == "hello")  # Output: True
+    print("hello" == "Hello")  # Output: False (case-sensitive!)
+    
+    # Variables
+    age = 25
+    if age == 25:
+        print("Age is 25")     # Output: Age is 25
+    
+    # Lists
+    list1 = [1, 2, 3]
+    list2 = [1, 2, 3]
+    print(list1 == list2)      # Output: True (same values)
+
+
+IMPORTANT: Don't confuse '=' (assignment) with '==' (comparison)!
+
+    x = 10                     # Assignment
+    x == 10                    # Comparison (returns True)
+
+
+--------------------------------------------------------------------------------
+5.2 NOT EQUAL TO (!=)
+--------------------------------------------------------------------------------
+
+WHAT: Checks if two values are NOT equal
+
+Examples:
+
+    # Numbers
+    print(10 != 5)             # Output: True
+    print(10 != 10)            # Output: False
+    
+    # Strings
+    print("hello" != "world")  # Output: True
+    
+    # Practical example
+    password = "secret123"
+    user_input = "secret"
+    
+    if user_input != password:
+        print("Wrong password")  # Output: Wrong password
+
+
+--------------------------------------------------------------------------------
+5.3 GREATER THAN (>)
+--------------------------------------------------------------------------------
+
+WHAT: Checks if left value is greater than right value
+
+Examples:
+
+    # Numbers
+    print(10 > 5)              # Output: True
+    print(5 > 10)              # Output: False
+    print(10 > 10)             # Output: False (not greater, equal)
+    
+    # Practical example
+    age = 20
+    if age > 18:
+        print("Adult")         # Output: Adult
+    
+    # String comparison (alphabetical)
+    print("b" > "a")           # Output: True
+    print("apple" > "banana")  # Output: False
+
+
+--------------------------------------------------------------------------------
+5.4 LESS THAN (<)
+--------------------------------------------------------------------------------
+
+WHAT: Checks if left value is less than right value
+
+Examples:
+
+    # Numbers
+    print(5 < 10)              # Output: True
+    print(10 < 5)              # Output: False
+    print(10 < 10)             # Output: False
+    
+    # Practical example
+    temperature = 15
+    if temperature < 20:
+        print("Cold")          # Output: Cold
+
+
+--------------------------------------------------------------------------------
+5.5 GREATER THAN OR EQUAL TO (>=)
+--------------------------------------------------------------------------------
+
+WHAT: Checks if left value is greater than OR equal to right value
+
+Examples:
+
+    # Numbers
+    print(10 >= 5)             # Output: True
+    print(10 >= 10)            # Output: True (equal counts!)
+    print(5 >= 10)             # Output: False
+    
+    # Practical example
+    score = 60
+    if score >= 60:
+        print("Pass")          # Output: Pass
+
+
+--------------------------------------------------------------------------------
+5.6 LESS THAN OR EQUAL TO (<=)
+--------------------------------------------------------------------------------
+
+WHAT: Checks if left value is less than OR equal to right value
+
+Examples:
+
+    # Numbers
+    print(5 <= 10)             # Output: True
+    print(10 <= 10)            # Output: True
+    print(15 <= 10)            # Output: False
+    
+    # Practical example
+    age = 12
+    if age <= 12:
+        print("Child ticket")  # Output: Child ticket
+
+
+--------------------------------------------------------------------------------
+CHAINING COMPARISONS
+--------------------------------------------------------------------------------
+
+Python allows chaining multiple comparisons:
+
+    # Check if value is in range
+    age = 25
+    print(18 <= age <= 65)     # Output: True
+    
+    # Equivalent to:
+    print(age >= 18 and age <= 65)  # Output: True
+    
+    # More examples
+    x = 5
+    print(1 < x < 10)          # Output: True
+    print(0 <= x <= 100)       # Output: True
+
+
+PRACTICAL EXAMPLE:
+
+    # Grade calculator
+    score = 85
+    
+    if score >= 90:
+        grade = "A"
+    elif score >= 80:
+        grade = "B"
+    elif score >= 70:
+        grade = "C"
+    elif score >= 60:
+        grade = "D"
+    else:
+        grade = "F"
+    
+    print("Grade:", grade)     # Output: Grade: B
+
+
+================================================================================
+6. LOGICAL OPERATORS
+================================================================================
+
+Logical operators combine multiple conditions.
+
+--------------------------------------------------------------------------------
+6.1 AND OPERATOR
+--------------------------------------------------------------------------------
+
+WHAT: Returns True only if BOTH conditions are True
+
+TRUTH TABLE:
+    True  and True  = True
+    True  and False = False
+    False and True  = False
+    False and False = False
+
+Examples:
+
+    # Basic usage
+    print(True and True)       # Output: True
+    print(True and False)      # Output: False
+    
+    # With comparisons
+    age = 25
+    has_license = True
+    
+    if age >= 18 and has_license:
+        print("Can drive")     # Output: Can drive
+    
+    # Multiple conditions
+    score = 85
+    attendance = 90
+    
+    if score >= 80 and attendance >= 85:
+        print("Excellent student")  # Output: Excellent student
+    
+    # Range checking
+    temperature = 25
+    if temperature >= 20 and temperature <= 30:
+        print("Comfortable")   # Output: Comfortable
+
+
+REAL-WORLD USE:
+    - Checking multiple requirements
+    - Validating user input
+    - Access control
+
+
+--------------------------------------------------------------------------------
+6.2 OR OPERATOR
+--------------------------------------------------------------------------------
+
+WHAT: Returns True if AT LEAST ONE condition is True
+
+TRUTH TABLE:
+    True  or True  = True
+    True  or False = True
+    False or True  = True
+    False or False = False
+
+Examples:
+
+    # Basic usage
+    print(True or False)       # Output: True
+    print(False or False)      # Output: False
+    
+    # With comparisons
+    day = "Saturday"
+    
+    if day == "Saturday" or day == "Sunday":
+        print("Weekend!")      # Output: Weekend!
+    
+    # Multiple conditions
+    age = 15
+    has_guardian = True
+    
+    if age >= 18 or has_guardian:
+        print("Can enter")     # Output: Can enter
+    
+    # Checking multiple values
+    grade = "A"
+    if grade == "A" or grade == "B" or grade == "C":
+        print("Pass")          # Output: Pass
+
+
+REAL-WORLD USE:
+    - Providing alternatives
+    - Flexible conditions
+    - Default values
+
+
+--------------------------------------------------------------------------------
+6.3 NOT OPERATOR
+--------------------------------------------------------------------------------
+
+WHAT: Reverses the boolean value (True becomes False, False becomes True)
+
+TRUTH TABLE:
+    not True  = False
+    not False = True
+
+Examples:
+
+    # Basic usage
+    print(not True)            # Output: False
+    print(not False)           # Output: True
+    
+    # With comparisons
+    is_raining = False
+    if not is_raining:
+        print("Go outside")    # Output: Go outside
+    
+    # Negating conditions
+    age = 15
+    if not (age >= 18):
+        print("Minor")         # Output: Minor
+    
+    # With variables
+    is_logged_in = False
+    if not is_logged_in:
+        print("Please log in")  # Output: Please log in
+
+
+REAL-WORLD USE:
+    - Checking opposite conditions
+    - Validating negative cases
+    - Toggle states
+
+
+--------------------------------------------------------------------------------
+COMBINING LOGICAL OPERATORS
+--------------------------------------------------------------------------------
+
+    # Complex conditions
+    age = 25
+    is_student = True
+    has_id = True
+    
+    # Must be adult AND (student OR has ID)
+    if age >= 18 and (is_student or has_id):
+        print("Access granted")  # Output: Access granted
+    
+    # Login validation
+    username = "admin"
+    password = "secret"
+    is_active = True
+    
+    if (username == "admin" and password == "secret") and is_active:
+        print("Login successful")  # Output: Login successful
+
+
+OPERATOR PRECEDENCE (Logical):
+    1. not (highest)
+    2. and
+    3. or (lowest)
+
+Example:
+
+    # Without parentheses
+    result = True or False and False
+    print(result)              # Output: True
+    # Evaluated as: True or (False and False)
+    
+    # With parentheses (clearer)
+    result = (True or False) and False
+    print(result)              # Output: False
+
+
+SHORT-CIRCUIT EVALUATION:
+
+    # 'and' stops at first False
+    result = False and print("This won't print")
+    # print() is never executed
+    
+    # 'or' stops at first True
+    result = True or print("This won't print")
+    # print() is never executed
+
+
+================================================================================
+7. ASSIGNMENT OPERATORS
+================================================================================
+
+Assignment operators assign values to variables.
+
+--------------------------------------------------------------------------------
+7.1 SIMPLE ASSIGNMENT (=)
+--------------------------------------------------------------------------------
+
+    x = 10
+    name = "John"
+    is_active = True
+
+
+--------------------------------------------------------------------------------
+7.2 ADD AND ASSIGN (+=)
+--------------------------------------------------------------------------------
+
+WHAT: Adds right value to variable and assigns result
+
+Examples:
+
+    # Basic usage
+    x = 10
+    x += 5                     # Same as: x = x + 5
+    print(x)                   # Output: 15
+    
+    # With strings
+    message = "Hello"
+    message += " World"        # Same as: message = message + " World"
+    print(message)             # Output: Hello World
+    
+    # Counter
+    count = 0
+    count += 1                 # Increment by 1
+    count += 1
+    print(count)               # Output: 2
+
+
+--------------------------------------------------------------------------------
+7.3 SUBTRACT AND ASSIGN (-=)
+--------------------------------------------------------------------------------
+
+    x = 10
+    x -= 3                     # Same as: x = x - 3
+    print(x)                   # Output: 7
+    
+    # Countdown
+    lives = 3
+    lives -= 1                 # Lose a life
+    print(lives)               # Output: 2
+
+
+--------------------------------------------------------------------------------
+7.4 MULTIPLY AND ASSIGN (*=)
+--------------------------------------------------------------------------------
+
+    x = 5
+    x *= 2                     # Same as: x = x * 2
+    print(x)                   # Output: 10
+    
+    # Doubling
+    price = 100
+    price *= 2                 # Double the price
+    print(price)               # Output: 200
+
+
+--------------------------------------------------------------------------------
+7.5 DIVIDE AND ASSIGN (/=)
+--------------------------------------------------------------------------------
+
+    x = 10
+    x /= 2                     # Same as: x = x / 2
+    print(x)                   # Output: 5.0
+    
+    # Halving
+    total = 100
+    total /= 2
+    print(total)               # Output: 50.0
+
+
+--------------------------------------------------------------------------------
+7.6 FLOOR DIVIDE AND ASSIGN (//=)
+--------------------------------------------------------------------------------
+
+    x = 10
+    x //= 3                    # Same as: x = x // 3
+    print(x)                   # Output: 3
+
+
+--------------------------------------------------------------------------------
+7.7 MODULUS AND ASSIGN (%=)
+--------------------------------------------------------------------------------
+
+    x = 10
+    x %= 3                     # Same as: x = x % 3
+    print(x)                   # Output: 1
+
+
+--------------------------------------------------------------------------------
+7.8 EXPONENT AND ASSIGN (**=)
+--------------------------------------------------------------------------------
+
+    x = 2
+    x **= 3                    # Same as: x = x ** 3
+    print(x)                   # Output: 8
+
+
+PRACTICAL EXAMPLE:
+
+    # Shopping cart
+    total = 0
+    
+    total += 50                # Add item 1
+    total += 30                # Add item 2
+    total += 20                # Add item 3
+    
+    print("Subtotal:", total)  # Output: Subtotal: 100
+    
+    total *= 1.08              # Add 8% tax
+    print("Total:", total)     # Output: Total: 108.0
+
+
+================================================================================
+8. BITWISE OPERATORS
+================================================================================
+
+Bitwise operators work on binary representations of numbers.
+
+WHAT: Operate on individual bits (0s and 1s)
+
+WHY: Used in low-level programming, flags, permissions
+
+NOTE: This is an advanced topic. Basic understanding is enough for beginners.
+
+--------------------------------------------------------------------------------
+8.1 BITWISE AND (&)
+--------------------------------------------------------------------------------
+
+    # Binary: 5 = 0101, 3 = 0011
+    result = 5 & 3
+    print(result)              # Output: 1 (binary: 0001)
+
+
+--------------------------------------------------------------------------------
+8.2 BITWISE OR (|)
+--------------------------------------------------------------------------------
+
+    # Binary: 5 = 0101, 3 = 0011
+    result = 5 | 3
+    print(result)              # Output: 7 (binary: 0111)
+
+
+--------------------------------------------------------------------------------
+8.3 BITWISE XOR (^)
+--------------------------------------------------------------------------------
+
+    # Binary: 5 = 0101, 3 = 0011
+    result = 5 ^ 3
+    print(result)              # Output: 6 (binary: 0110)
+
+
+--------------------------------------------------------------------------------
+8.4 BITWISE NOT (~)
+--------------------------------------------------------------------------------
+
+    result = ~5
+    print(result)              # Output: -6
+
+
+--------------------------------------------------------------------------------
+8.5 LEFT SHIFT (<<)
+--------------------------------------------------------------------------------
+
+    # Shifts bits left (multiplies by 2^n)
+    result = 5 << 1            # 5 * 2^1
+    print(result)              # Output: 10
+    
+    result = 5 << 2            # 5 * 2^2
+    print(result)              # Output: 20
+
+
+--------------------------------------------------------------------------------
+8.6 RIGHT SHIFT (>>)
+--------------------------------------------------------------------------------
+
+    # Shifts bits right (divides by 2^n)
+    result = 20 >> 1           # 20 / 2^1
+    print(result)              # Output: 10
+    
+    result = 20 >> 2           # 20 / 2^2
+    print(result)              # Output: 5
+
+
+PRACTICAL USE (Permissions):
+
+    # Permission flags
+    READ = 4                   # 100 in binary
+    WRITE = 2                  # 010 in binary
+    EXECUTE = 1                # 001 in binary
+    
+    # Grant read and write
+    permissions = READ | WRITE
+    print(permissions)         # Output: 6 (110 in binary)
+    
+    # Check if has read permission
+    has_read = permissions & READ
+    print(has_read)            # Output: 4 (True, has read)
+
+
+================================================================================
+9. MEMBERSHIP OPERATORS
+================================================================================
+
+Membership operators check if a value exists in a sequence.
+
+--------------------------------------------------------------------------------
+9.1 IN OPERATOR
+--------------------------------------------------------------------------------
+
+WHAT: Returns True if value is found in sequence
+
+Examples:
+
+    # Lists
+    fruits = ["apple", "banana", "orange"]
+    print("apple" in fruits)   # Output: True
+    print("grape" in fruits)   # Output: False
+    
+    # Strings
+    text = "Hello World"
+    print("Hello" in text)     # Output: True
+    print("hello" in text)     # Output: False (case-sensitive!)
+    
+    # Tuples
+    numbers = (1, 2, 3, 4, 5)
+    print(3 in numbers)        # Output: True
+    
+    # Dictionaries (checks keys)
+    person = {"name": "John", "age": 25}
+    print("name" in person)    # Output: True
+    print("John" in person)    # Output: False (checks keys, not values!)
+    
+    # Sets
+    colors = {"red", "green", "blue"}
+    print("red" in colors)     # Output: True
+
+
+PRACTICAL EXAMPLES:
+
+    # Checking valid input
+    valid_choices = ["yes", "no", "maybe"]
+    user_input = "yes"
+    
+    if user_input in valid_choices:
+        print("Valid choice")  # Output: Valid choice
+    
+    # Email validation (basic)
+    email = "user@example.com"
+    if "@" in email and "." in email:
+        print("Valid email format")  # Output: Valid email format
+    
+    # Checking vowels
+    letter = "a"
+    vowels = "aeiou"
+    if letter in vowels:
+        print("Vowel")         # Output: Vowel
+
+
+--------------------------------------------------------------------------------
+9.2 NOT IN OPERATOR
+--------------------------------------------------------------------------------
+
+WHAT: Returns True if value is NOT found in sequence
+
+Examples:
+
+    # Lists
+    fruits = ["apple", "banana", "orange"]
+    print("grape" not in fruits)  # Output: True
+    print("apple" not in fruits)  # Output: False
+    
+    # Strings
+    text = "Hello World"
+    print("xyz" not in text)   # Output: True
+    
+    # Practical example
+    banned_users = ["user1", "user2", "user3"]
+    username = "user4"
+    
+    if username not in banned_users:
+        print("Access granted")  # Output: Access granted
+
+
+REAL-WORLD USE:
+    - Validating input
+    - Checking blacklists/whitelists
+    - Search functionality
+
+
+================================================================================
+10. IDENTITY OPERATORS
+================================================================================
+
+Identity operators check if two variables point to the SAME object in memory.
+
+--------------------------------------------------------------------------------
+10.1 IS OPERATOR
+--------------------------------------------------------------------------------
+
+WHAT: Returns True if both variables point to same object
+
+Examples:
+
+    # Same object
+    a = [1, 2, 3]
+    b = a                      # b points to same list as a
+    print(a is b)              # Output: True
+    
+    # Different objects, same value
+    a = [1, 2, 3]
+    b = [1, 2, 3]              # Different list, same values
+    print(a is b)              # Output: False
+    print(a == b)              # Output: True (same values)
+    
+    # Small integers (cached)
+    a = 10
+    b = 10
+    print(a is b)              # Output: True (Python caches small ints)
+    
+    # Large integers (not cached)
+    a = 1000
+    b = 1000
+    print(a is b)              # Output: False (different objects)
+    
+    # None comparison
+    value = None
+    if value is None:
+        print("Value is None")  # Output: Value is None
+
+
+IMPORTANT: Use 'is' for None, True, False. Use '==' for value comparison.
+
+    # Correct
+    if value is None:
+        pass
+    
+    # Incorrect (works but not recommended)
+    if value == None:
+        pass
+
+
+--------------------------------------------------------------------------------
+10.2 IS NOT OPERATOR
+--------------------------------------------------------------------------------
+
+WHAT: Returns True if variables point to DIFFERENT objects
+
+Examples:
+
+    # Different objects
+    a = [1, 2, 3]
+    b = [1, 2, 3]
+    print(a is not b)          # Output: True
+    
+    # Checking not None
+    value = 10
+    if value is not None:
+        print("Value exists")  # Output: Value exists
+
+
+DIFFERENCE BETWEEN 'is' AND '==':
+
+    # '==' checks VALUE equality
+    # 'is' checks IDENTITY (same object)
+    
+    a = [1, 2, 3]
+    b = [1, 2, 3]
+    
+    print(a == b)              # Output: True (same values)
+    print(a is b)              # Output: False (different objects)
+    
+    print(id(a))               # Different memory address
+    print(id(b))               # Different memory address
+
+
+================================================================================
+11. OPERATOR PRECEDENCE
+================================================================================
+
+WHAT: The order in which operators are evaluated
+
+WHY: Determines how complex expressions are calculated
+
+PRECEDENCE (Highest to Lowest):
+
+    1. **                      (Exponentiation)
+    2. ~, +, -                 (Unary NOT, plus, minus)
+    3. *, /, //, %             (Multiplication, Division, Floor Division, Modulus)
+    4. +, -                    (Addition, Subtraction)
+    5. <<, >>                  (Bitwise shifts)
+    6. &                       (Bitwise AND)
+    7. ^                       (Bitwise XOR)
+    8. |                       (Bitwise OR)
+    9. ==, !=, >, <, >=, <=    (Comparisons)
+    10. is, is not             (Identity)
+    11. in, not in             (Membership)
+    12. not                    (Logical NOT)
+    13. and                    (Logical AND)
+    14. or                     (Logical OR)
+
+
+EXAMPLES:
+
+    # Multiplication before addition
+    result = 2 + 3 * 4
+    print(result)              # Output: 14 (not 20!)
+    # Evaluated as: 2 + (3 * 4) = 2 + 12 = 14
+    
+    # Exponentiation before multiplication
+    result = 2 * 3 ** 2
+    print(result)              # Output: 18 (not 36!)
+    # Evaluated as: 2 * (3 ** 2) = 2 * 9 = 18
+    
+    # Division before addition
+    result = 10 + 20 / 2
+    print(result)              # Output: 20.0 (not 15!)
+    # Evaluated as: 10 + (20 / 2) = 10 + 10 = 20
+    
+    # Comparison before logical
+    result = 5 > 3 and 10 < 20
+    print(result)              # Output: True
+    # Evaluated as: (5 > 3) and (10 < 20) = True and True = True
+
+
+USING PARENTHESES (RECOMMENDED):
+
+    # Without parentheses (confusing)
+    result = 2 + 3 * 4
+    
+    # With parentheses (clear)
+    result = 2 + (3 * 4)       # Output: 14
+    result = (2 + 3) * 4       # Output: 20
+    
+    # Complex expression
+    result = ((2 + 3) * 4) - 5
+    print(result)              # Output: 15
+
+
+PRACTICAL EXAMPLES:
+
+    # Calculate total with discount and tax
+    price = 100
+    quantity = 3
+    discount = 0.1
+    tax = 0.08
+    
+    # Wrong (without parentheses)
+    total = price * quantity - discount + tax
+    print(total)               # Output: 300.98 (incorrect!)
+    
+    # Correct (with parentheses)
+    total = (price * quantity) * (1 - discount) * (1 + tax)
+    print(total)               # Output: 291.6 (correct!)
+    
+    # Even clearer
+    subtotal = price * quantity
+    after_discount = subtotal * (1 - discount)
+    total = after_discount * (1 + tax)
+    print(total)               # Output: 291.6
+
+
+BEST PRACTICE: Use parentheses to make your intention clear!
+
+
+================================================================================
+12. COMMON MISTAKES
+================================================================================
+
+MISTAKE 1: Confusing '=' and '=='
+
+    # Wrong
+    if age = 25:               # SyntaxError!
+        print("Adult")
+    
+    # Correct
+    if age == 25:
+        print("Adult")
+
+
+MISTAKE 2: Division by zero
+
+    # Wrong
+    result = 10 / 0            # ZeroDivisionError!
+    
+    # Correct
+    divisor = 0
+    if divisor != 0:
+        result = 10 / divisor
+    else:
+        print("Cannot divide by zero")
+
+
+MISTAKE 3: Using 'and' instead of 'or'
+
+    # Wrong (will never be true!)
+    age = 25
+    if age == 20 and age == 25:
+        print("Match")
+    
+    # Correct
+    if age == 20 or age == 25:
+        print("Match")
+
+
+MISTAKE 4: Incorrect operator precedence
+
+    # Wrong assumption
+    result = 10 + 5 * 2
+    # Might think: (10 + 5) * 2 = 30
+    # Actually: 10 + (5 * 2) = 20
+    
+    # Correct
+    result = (10 + 5) * 2      # Output: 30
+
+
+MISTAKE 5: Using 'is' for value comparison
+
+    # Wrong (unreliable)
+    a = 1000
+    b = 1000
+    if a is b:                 # Might be False!
+        print("Equal")
+    
+    # Correct
+    if a == b:                 # Always works for values
+        print("Equal")
+
+
+MISTAKE 6: Forgetting operator precedence with 'not'
+
+    # Wrong
+    if not x == 5:             # Confusing
+    
+    # Better
+    if not (x == 5):           # Clear
+    
+    # Best
+    if x != 5:                 # Most clear
+
+
+MISTAKE 7: Modifying variable while comparing
+
+    # Wrong
+    x = 10
+    if x = 5:                  # SyntaxError!
+    
+    # Correct
+    x = 10
+    if x == 5:
+
+
+MISTAKE 8: Incorrect string comparison
+
+    # Wrong (case-sensitive)
+    if name == "john":
+        print("Match")
+    # Won't match "John"
+    
+    # Correct
+    if name.lower() == "john":
+        print("Match")
+
+
+MISTAKE 9: Using 'and' with membership
+
+    # Wrong
+    if x == 1 and 2 and 3:     # Not what you think!
+    
+    # Correct
+    if x == 1 or x == 2 or x == 3:
+    
+    # Better
+    if x in [1, 2, 3]:
+
+
+MISTAKE 10: Integer division in Python 2 vs 3
+
+    # Python 2: 10 / 3 = 3 (integer division)
+    # Python 3: 10 / 3 = 3.333... (float division)
+    
+    # To ensure integer division in Python 3
+    result = 10 // 3           # Output: 3
+
+
+================================================================================
+13. TIPS FOR CLEAN CODE
+================================================================================
+
+TIP 1: Use parentheses for clarity
+
+    # Less clear
+    result = a + b * c - d / e
+    
+    # More clear
+    result = a + (b * c) - (d / e)
+
+
+TIP 2: Use appropriate comparison operators
+
+    # Instead of
+    if not (x > 5):
+    
+    # Use
+    if x <= 5:
+
+
+TIP 3: Use 'in' for multiple comparisons
+
+    # Instead of
+    if x == 1 or x == 2 or x == 3:
+    
+    # Use
+    if x in [1, 2, 3]:
+
+
+TIP 4: Use augmented assignment operators
+
+    # Instead of
+    count = count + 1
+    
+    # Use
+    count += 1
+
+
+TIP 5: Chain comparisons when possible
+
+    # Instead of
+    if x >= 0 and x <= 100:
+    
+    # Use
+    if 0 <= x <= 100:
+
+
+TIP 6: Use 'is' for None, True, False
+
+    # Correct
+    if value is None:
+    if flag is True:
+    if result is False:
+    
+    # Also acceptable (for booleans)
+    if flag:
+    if not result:
+
+
+TIP 7: Avoid complex expressions
+
+    # Too complex
+    result = (a + b) * (c - d) / (e + f) ** 2 if x > 0 else (g - h) * i
+    
+    # Better: Break into steps
+    if x > 0:
+        numerator = (a + b) * (c - d)
+        denominator = (e + f) ** 2
+        result = numerator / denominator
+    else:
+        result = (g - h) * i
+
+
+TIP 8: Use meaningful variable names
+
+    # Bad
+    if a > b and c < d:
+    
+    # Good
+    if age > min_age and score < max_score:
+
+
+TIP 9: Comment complex operations
+
+    # Calculate compound interest
+    amount = principal * (1 + rate) ** years
+
+
+TIP 10: Test edge cases
+
+    # Always test:
+    # - Division by zero
+    # - Empty sequences
+    # - None values
+    # - Boundary values
+
+
+================================================================================
+14. SUMMARY
+================================================================================
+
+KEY POINTS TO REMEMBER:
+
+1. ARITHMETIC OPERATORS:
+   +, -, *, /, //, %, **
+
+2. COMPARISON OPERATORS:
+   ==, !=, >, <, >=, <=
+
+3. LOGICAL OPERATORS:
+   and, or, not
+
+4. ASSIGNMENT OPERATORS:
+   =, +=, -=, *=, /=, //=, %=, **=
+
+5. MEMBERSHIP OPERATORS:
+   in, not in
+
+6. IDENTITY OPERATORS:
+   is, is not
+
+7. OPERATOR PRECEDENCE:
+   ** > *, /, //, % > +, - > comparisons > not > and > or
+
+8. BEST PRACTICES:
+   - Use parentheses for clarity
+   - Use appropriate operators
+   - Chain comparisons when possible
+   - Use 'is' for None, True, False
+   - Use '==' for value comparison
+
+
+================================================================================
+15. QUICK REVISION CHECKLIST
+================================================================================
+
+[ ] I understand what operators are and why they're important
+
+[ ] I can use arithmetic operators (+, -, *, /, //, %, **)
+
+[ ] I know the difference between / and //
+
+[ ] I can use comparison operators (==, !=, >, <, >=, <=)
+
+[ ] I understand logical operators (and, or, not)
+
+[ ] I can combine multiple conditions with logical operators
+
+[ ] I know how to use assignment operators (=, +=, -=, etc.)
+
+[ ] I understand membership operators (in, not in)
+
+[ ] I understand identity operators (is, is not)
+
+[ ] I know the difference between 'is' and '=='
+
+[ ] I understand operator precedence
+
+[ ] I use parentheses to make expressions clear
+
+[ ] I can chain comparison operators
+
+[ ] I avoid common mistakes (=  vs ==, division by zero)
+
+[ ] I use appropriate operators for different situations
+
+[ ] I know when to use 'is' vs '=='
+
+[ ] I understand short-circuit evaluation
+
+[ ] I can write clean, readable expressions
+
+
+================================================================================
+                            END OF GUIDE
+================================================================================
+
+Operators are the building blocks of Python expressions. Master them to write
+powerful and efficient code!
+
+Practice with different operators and combinations to become comfortable with
+their usage.
+
+Happy Learning!

@@ -1,0 +1,408 @@
+================================================================================
+                    HOW TO DEBUG PYTHON CODE
+================================================================================
+
+What is Debugging?
+------------------
+
+Debugging means finding and fixing errors (bugs) in your code.
+
+Analogy:
+Think of debugging like being a detective:
+- Something went wrong (a crime happened)
+- You look for clues (error messages, print statements)
+- You find the culprit (the bug)
+- You fix it (solve the case)
+
+
+Types of Errors
+---------------
+
+1. Syntax Errors
+   - Mistakes in writing code
+   - Python won't run the program at all
+   - Example: Missing parenthesis, wrong indentation
+
+2. Runtime Errors
+   - Code looks correct but crashes while running
+   - Example: Dividing by zero, accessing non-existent file
+
+3. Logical Errors
+   - Code runs but gives wrong results
+   - Hardest to find because no error message appears
+   - Example: Using + instead of * in a formula
+
+
+Debugging Techniques
+--------------------
+
+Technique 1: Read Error Messages Carefully
+-------------------------------------------
+
+Python gives helpful error messages. Learn to read them!
+
+Example:
+
+print("Hello"
+
+Error:
+  File "test.py", line 1
+    print("Hello"
+                ^
+SyntaxError: '(' was never closed
+
+What it tells you:
+- File name: test.py
+- Line number: 1
+- Problem: Missing closing parenthesis
+- Where: Points with ^
+
+
+Technique 2: Use Print Statements
+----------------------------------
+
+The simplest debugging method!
+
+Example Problem:
+
+def calculate_average(a, b, c):
+    total = a + b + c
+    average = total / 2
+    return average
+
+result = calculate_average(10, 20, 30)
+print("Average:", result)
+
+Output: Average: 30.0
+(Wrong! Should be 20.0)
+
+Debug with print:
+
+def calculate_average(a, b, c):
+    total = a + b + c
+    print("Total:", total)
+    average = total / 2
+    print("Average:", average)
+    return average
+
+Output:
+Total: 60
+Average: 30.0
+
+Now you can see: We're dividing by 2 instead of 3!
+
+Fix:
+average = total / 3
+
+
+Technique 3: Use Comments to Isolate Problems
+----------------------------------------------
+
+Comment out parts of code to find where the error is.
+
+Example:
+
+x = 10
+y = 0
+z = x / y
+print(z)
+
+Error: ZeroDivisionError
+
+Debug:
+
+x = 10
+y = 0
+print("x =", x)
+print("y =", y)
+z = x / y
+print(z)
+
+Now you can see y is 0, which causes division by zero!
+
+
+Technique 4: Check Variable Types
+----------------------------------
+
+Sometimes variables have unexpected types.
+
+Example:
+
+age = input("Enter age: ")
+next_year_age = age + 1
+
+Error: TypeError: can only concatenate str (not "int") to str
+
+Debug:
+
+age = input("Enter age: ")
+print("Type of age:", type(age))
+next_year_age = age + 1
+
+Output: Type of age: <class 'str'>
+
+Fix:
+age = int(input("Enter age: "))
+
+
+Technique 5: Use Python Debugger (pdb)
+---------------------------------------
+
+Python has a built-in debugger called pdb.
+
+Basic usage:
+
+import pdb
+
+x = 10
+y = 20
+pdb.set_trace()
+z = x + y
+print(z)
+
+When you run this, program pauses at pdb.set_trace()
+You can then:
+- Type variable names to see their values
+- Type 'n' to go to next line
+- Type 'c' to continue running
+- Type 'q' to quit
+
+
+Technique 6: Use Try-Except Blocks
+-----------------------------------
+
+Catch errors gracefully and show custom messages.
+
+Example:
+
+try:
+    num = int(input("Enter a number: "))
+    result = 100 / num
+    print("Result:", result)
+except ValueError:
+    print("Error: Please enter a valid number")
+except ZeroDivisionError:
+    print("Error: Cannot divide by zero")
+
+This prevents your program from crashing!
+
+
+Technique 7: Use IDE Debugger
+------------------------------
+
+Most IDEs (VS Code, PyCharm) have visual debuggers.
+
+Features:
+- Set breakpoints (click on line number)
+- Step through code line by line
+- Watch variable values change
+- See call stack
+
+
+Common Debugging Scenarios
+---------------------------
+
+Scenario 1: IndentationError
+-----------------------------
+
+Problem:
+
+def greet():
+print("Hello")
+
+Error: IndentationError: expected an indented block
+
+Fix: Add proper indentation
+
+def greet():
+    print("Hello")
+
+
+Scenario 2: NameError
+---------------------
+
+Problem:
+
+print(name)
+
+Error: NameError: name 'name' is not defined
+
+Fix: Define the variable first
+
+name = "John"
+print(name)
+
+
+Scenario 3: IndexError
+----------------------
+
+Problem:
+
+numbers = [1, 2, 3]
+print(numbers[5])
+
+Error: IndexError: list index out of range
+
+Fix: Use valid index
+
+print(numbers[2])
+
+
+Scenario 4: KeyError
+--------------------
+
+Problem:
+
+person = {"name": "John", "age": 25}
+print(person["address"])
+
+Error: KeyError: 'address'
+
+Fix: Check if key exists
+
+if "address" in person:
+    print(person["address"])
+else:
+    print("Address not found")
+
+
+Scenario 5: TypeError
+---------------------
+
+Problem:
+
+result = "5" + 10
+
+Error: TypeError: can only concatenate str (not "int") to str
+
+Fix: Convert types properly
+
+result = int("5") + 10
+or
+result = "5" + str(10)
+
+
+Debugging Checklist
+-------------------
+
+When you encounter an error:
+
+1. Read the error message carefully
+   - What type of error?
+   - Which line?
+   - What does the message say?
+
+2. Check the line mentioned in the error
+   - Is there a typo?
+   - Is the syntax correct?
+   - Are parentheses/brackets matched?
+
+3. Check the lines before the error
+   - Sometimes the actual error is earlier
+
+4. Add print statements
+   - Print variable values
+   - Print types
+   - Print at different stages
+
+5. Test with simple inputs
+   - Use simple test cases first
+   - Then try complex cases
+
+6. Take a break
+   - Sometimes stepping away helps
+   - Come back with fresh eyes
+
+7. Search online
+   - Copy the error message
+   - Search on Google or Stack Overflow
+   - Someone likely had the same problem
+
+
+Best Practices to Avoid Bugs
+-----------------------------
+
+1. Write clean code
+   - Use meaningful variable names
+   - Add proper indentation
+   - Keep functions small and focused
+
+2. Test as you go
+   - Don't write 100 lines then test
+   - Test after every few lines
+
+3. Use comments
+   - Explain complex logic
+   - Future you will thank present you
+
+4. Handle errors
+   - Use try-except for risky operations
+   - Validate user input
+
+5. Use version control
+   - Save working versions
+   - Easy to go back if something breaks
+
+
+Debugging Tools Summary
+-----------------------
+
+Built-in:
+- print() - Simple and effective
+- type() - Check variable types
+- len() - Check lengths
+- dir() - See available methods
+- help() - Get help on functions
+
+Advanced:
+- pdb - Python debugger
+- IDE debuggers - Visual debugging
+- logging module - Better than print for large programs
+
+
+Practice Exercise
+-----------------
+
+Try to find and fix the bugs in this code:
+
+def calculate_discount(price, discount)
+    if discount > 100
+        print("Invalid discount")
+        return price
+    
+    discount_amount = price * discount / 100
+    final_price = price - discount_amount
+    return final price
+
+price = input("Enter price: ")
+discount = input("Enter discount %: ")
+result = calculate_discount(price, discount)
+print("Final price:", result)
+
+Bugs to find:
+1. Missing colon after function definition
+2. Missing colon after if statement
+3. Space in variable name (final price)
+4. Input returns string, need to convert to number
+5. Logic issue: what if discount is negative?
+
+Corrected version:
+
+def calculate_discount(price, discount):
+    if discount > 100 or discount < 0:
+        print("Invalid discount")
+        return price
+    
+    discount_amount = price * discount / 100
+    final_price = price - discount_amount
+    return final_price
+
+price = float(input("Enter price: "))
+discount = float(input("Enter discount %: "))
+result = calculate_discount(price, discount)
+print("Final price:", result)
+
+
+================================================================================
+                              END OF FILE
+================================================================================

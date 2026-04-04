@@ -1,0 +1,118 @@
+================================================================================
+                    HOW TO CREATE A PYTHON PROGRAM
+================================================================================
+
+Step-by-Step Guide
+------------------
+
+Step 1: Install Python
+----------------------
+
+1. Go to www.python.org
+2. Download Python (latest version)
+3. Install it on your computer
+4. During installation, CHECK the box "Add Python to PATH"
+
+How to verify installation:
+- Open Command Prompt (Windows) or Terminal (Mac/Linux)
+- Type: python --version
+- You should see something like: Python 3.11.0
+
+
+Step 2: Choose a Text Editor or IDE
+------------------------------------
+
+Where will you write your code? You have options:
+
+Beginner-Friendly Options:
+- IDLE (comes with Python, simple)
+- VS Code (professional, free)
+- PyCharm (powerful, free community version)
+- Thonny (designed for beginners)
+
+For now, let's use IDLE (it's already installed with Python).
+
+
+Step 3: Write Your First Program
+---------------------------------
+
+Let's create a simple program that greets you.
+
+1. Open IDLE
+2. Click File > New File
+3. Type this code:
+
+name = input("Enter your name: ")
+print("Hello,", name)
+print("Welcome to Python programming!")
+
+4. Save the file as: hello.py
+   (Always use .py extension for Python files)
+
+
+Step 4: Run Your Program
+-------------------------
+
+Method 1 (Using IDLE):
+- Press F5 or click Run > Run Module
+
+Method 2 (Using Command Prompt):
+- Open Command Prompt
+- Navigate to the folder where you saved hello.py
+- Type: python hello.py
+- Press Enter
+
+You should see:
+Enter your name: [type your name and press Enter]
+Hello, [your name]
+Welcome to Python programming!
+
+
+Step 5: Understanding the Program
+----------------------------------
+
+Line 1: name = input("Enter your name: ")
+- This asks the user to type their name
+- Whatever they type gets stored in the variable "name"
+
+Line 2: print("Hello,", name)
+- This displays "Hello," followed by the name
+
+Line 3: print("Welcome to Python programming!")
+- This displays a welcome message
+
+
+Complete Example Program
+-------------------------
+
+Let's create a simple calculator:
+
+File name: calculator.py
+
+print("=== Simple Calculator ===")
+print()
+
+num1 = float(input("Enter first number: "))
+num2 = float(input("Enter second number: "))
+
+print()
+print("Addition:", num1 + num2)
+print("Subtraction:", num1 - num2)
+print("Multiplication:", num1 * num2)
+print("Division:", num1 / num2)
+
+When you run this:
+=== Simple Calculator ===
+
+Enter first number: 10
+Enter second number: 5
+
+Addition: 15.0
+Subtraction: 5.0
+Multiplication: 50.0
+Division: 2.0
+
+
+================================================================================
+                              END OF FILE
+================================================================================

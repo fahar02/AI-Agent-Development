@@ -1,0 +1,40 @@
+================================================================================
+                        HISTORY OF PYTHON
+================================================================================
+
+The Birth of Python
+-------------------
+
+Creator: Guido van Rossum (A programmer from Netherlands)
+Year: Started in December 1989
+First Release: February 1991
+Name Origin: Named after "Monty Python's Flying Circus" (a comedy show)
+
+Fun Fact: Python was NOT named after the snake! Guido was a fan of the 
+comedy show and thought the name was short, unique, and mysterious.
+
+Python Timeline:
+----------------
+
+1991 - Python 0.9.0 released (First version)
+2000 - Python 2.0 released (Added new features)
+2008 - Python 3.0 released (Major improvements, not backward compatible)
+2020 - Python 2 officially retired
+Today - Python 3.x is the current version (3.9, 3.10, 3.11, 3.12...)
+
+Why Was Python Created?
+------------------------
+
+Guido wanted to create a language that was:
+- Easy to read and write
+- Less complicated than other languages (like C++)
+- Fun to work with
+- Suitable for everyday programming tasks
+
+Think of it like this: If C++ is like driving a manual car (complicated but 
+powerful), Python is like driving an automatic car (easy and still powerful).
+
+
+================================================================================
+                              END OF FILE
+================================================================================

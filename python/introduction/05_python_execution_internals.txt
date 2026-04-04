@@ -1,0 +1,106 @@
+================================================================================
+                    HOW PYTHON CODE EXECUTES INTERNALLY
+================================================================================
+
+The Journey of Your Code
+-------------------------
+
+When you write Python code and run it, a lot happens behind the scenes.
+Let's understand this step by step.
+
+Analogy:
+Think of it like ordering food at a restaurant:
+1. You tell the waiter what you want (write code)
+2. Waiter writes it down in kitchen language (compilation to bytecode)
+3. Chef reads the instructions and cooks (PVM executes bytecode)
+4. You get your food (output)
+
+
+The Execution Process (Simplified)
+-----------------------------------
+
+Step 1: You Write Source Code
+------------------------------
+This is your .py file with Python code that humans can read.
+
+Example: hello.py
+print("Hello, World!")
+
+
+Step 2: Python Checks for Syntax Errors
+----------------------------------------
+Before doing anything, Python checks if your code follows the rules.
+
+If you wrote: print("Hello"
+Python says: "SyntaxError: '(' was never closed"
+
+If everything is correct, Python moves to the next step.
+
+
+Step 3: Compilation to Bytecode
+--------------------------------
+Python converts your code into an intermediate language called "bytecode".
+
+Why? Because:
+- Bytecode is easier for the computer to understand than your code
+- Bytecode is faster to execute
+- But it's not yet machine code (0s and 1s)
+
+Think of bytecode as a "middle language" between human code and machine code.
+
+Your code: print("Hello")
+Bytecode: (looks like gibberish to us, but Python understands it)
+
+Where is bytecode stored?
+- In a folder called __pycache__
+- Files have .pyc extension
+- You don't need to worry about these files
+
+
+Step 4: Python Virtual Machine (PVM) Executes Bytecode
+-------------------------------------------------------
+The PVM reads bytecode line by line and executes it.
+This is where your program actually runs.
+
+We'll learn more about PVM in the next section.
+
+
+Step 5: Output
+--------------
+Finally, you see the result on your screen.
+
+Output: Hello, World!
+
+
+Visual Representation
+----------------------
+
+[You Write]      [Python Checks]      [Compilation]      [PVM]      [Output]
+   .py file   -->   Syntax Check   -->   Bytecode    -->  Executes --> Result
+  (hello.py)        (No errors?)        (.pyc file)      (Runs it)   (Screen)
+
+
+Why This Process?
+-----------------
+
+You might wonder: "Why so many steps? Why not just run the code directly?"
+
+Answer:
+1. Error Detection: Catching mistakes early
+2. Optimization: Bytecode runs faster than interpreting text every time
+3. Platform Independence: Same bytecode works on Windows, Mac, Linux
+4. Security: Bytecode is harder to reverse-engineer than source code
+
+
+Important Note
+--------------
+
+Python is called an "interpreted language" because:
+- You don't need to compile it manually (like C++ or Java)
+- Python does compilation automatically in the background
+- You can run code immediately without a separate compilation step
+
+
+================================================================================
+                              END OF FILE
+================================================================================

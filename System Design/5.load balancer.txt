@@ -1,0 +1,154 @@
+
+================================================================================
+  LOAD BALANCING — COMPLETE GUIDE
+  Distributing traffic for High Availability and Scalability
+================================================================================
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 0 ◆ WHAT IS A LOAD BALANCER?
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+▸ Simple
+  A Load Balancer is like a "traffic cop" or a "manager" at a restaurant.
+  When 1,000 people show up, the manager doesn't send everyone to one waiter.
+  The manager spreads them out: "You go to Table 1, you go to Table 2."
+
+  This prevents any single waiter (server) from getting overwhelmed and crashing.
+
+▸ Technical
+  A Load Balancer is a device or software that distributes network or
+  application traffic across a cluster of servers. It sits between the
+  client and the backend servers, ensuring no single server takes too
+  much load.
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 1 ◆ WHY DO WE NEED IT?
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. HIGH AVAILABILITY (Zero Downtime)
+────────────────────────────────────────────────────────────────────────────────
+  If one server dies, the Load Balancer detects it and automatically stops
+  sending traffic there. The website stays UP for the users.
+
+2. SCALABILITY (Grow with Traffic)
+────────────────────────────────────────────────────────────────────────────────
+  Traffic tripled? Just add 5 more servers. The Load Balancer will immediately
+  start sending them a share of the work.
+
+3. PERFORMANCE (Faster Responses)
+────────────────────────────────────────────────────────────────────────────────
+  By reducing the queue on any single server, each request gets processed
+  faster.
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 2 ◆ LAYER 4 vs. LAYER 7 (The Core Technical Split)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ┌──────────────────┬────────────────────────────┬────────────────────────────┐
+  │ Feature          │ LAYER 4 (Network)          │ LAYER 7 (Application)      │
+  ├──────────────────┼────────────────────────────┼────────────────────────────┤
+  │ Operates at:     │ Transport Layer (TCP/UDP)   │ Application Layer (HTTP)   │
+  │ Basis for choice:│ IP Address & Port Number   │ Headers, URLs, Cookies     │
+  │ Speed:           │ Extremely Fast (Simple)     │ Fast (Needs to read data)  │
+  │ Intelligence:    │ Low (doesn't look at data) │ High (reads the request)   │
+  └──────────────────┴────────────────────────────┴────────────────────────────┘
+
+▸ Layer 4 Example (Simple)
+  "Send all traffic on port 80 to this group of IPs."
+  (It doesn't care if the user is asking for an image or a search result.)
+
+▸ Layer 7 Example (Advanced)
+  "If the URL contains '/images', send to Image-Server.
+   If the language cookie is 'FR', send to the French-Server."
+  (It "knows" what the user is doing and makes smart choices.)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 3 ◆ LOAD BALANCING ALGORITHMS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+▸ STATIC ALGORITHMS (Rules that don't change)
+────────────────────────────────────────────────────────────────────────────────
+  1. ROUND ROBIN:
+     Goes in order (Server A, then B, then C, then back to A). Simple & fair.
+  2. WEIGHTED ROUND ROBIN:
+     If Server A is big and Server B is small, give Server A 70% of the traffic.
+  3. IP HASHING:
+     Matches the user's IP to a specific server. This ensures the same user
+     always goes to the same server (good for sessions).
+
+▸ DYNAMIC ALGORITHMS (Rules that watch the servers)
+────────────────────────────────────────────────────────────────────────────────
+  1. LEAST CONNECTIONS:
+     Sends the new user to the server with the fewest active visitors.
+  2. LEAST RESPONSE TIME:
+     Sends the user to the server that is answering requests the fastest.
+  3. LEAST BANDWIDTH:
+     Sends the user to the server currently using the least MB/s of data.
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 4 ◆ ADVANCED LOAD BALANCING CONCEPTS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. HEALTH CHECKS (The "Are you alive?" ping)
+────────────────────────────────────────────────────────────────────────────────
+  The Load Balancer constantly pings backend servers. If a server doesn't
+  answer in 5 seconds, it is marked "Offline" and pulled from rotation.
+  Once it starts answering again, it is added back.
+
+2. SESSION PERSISTENCE (Sticky Sessions)
+────────────────────────────────────────────────────────────────────────────────
+  Some apps break if you keep jumping between servers (e.g., your shopping cart
+  might disappear). Sticky sessions use a "Cookie" to keep you on the same
+  server for your entire visit.
+
+3. SSL OFFLOADING / TERMINATION
+────────────────────────────────────────────────────────────────────────────────
+  Encrypting traffic (HTTPS) is hard work for a CPU.
+  - The Load Balancer handles the encryption work.
+  - It talks to the backend servers via plain "HTTP."
+  - This makes the backend servers perform much faster.
+
+4. GSLB (Global Server Load Balancing)
+────────────────────────────────────────────────────────────────────────────────
+  Distributes traffic across data centers in different CITIES or COUNTRIES.
+  - User in India → India Data Center.
+  - User in USA → USA Data Center.
+  - If a whole city has a blackout, traffic is routed to the next closest city.
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 5 ◆ DEPLOYMENT TYPES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+▸ 1. HARDWARE LOAD BALANCER
+  Expensive, heavy metal boxes (like F5 or Citrix) that sit in your server room.
+  Extremely fast, but hard to upgrade.
+
+▸ 2. SOFTWARE LOAD BALANCER
+  Software you install on a normal server (like Nginx, HAProxy, or Envoy).
+  Very flexible, cheaper, and easy to scale.
+
+▸ 3. CLOUD-BASED LOAD BALANCER
+  PaaS (Platform as a Service) from AWS/GCP/Azure.
+  Examples: AWS ALB (Application Load Balancer) or NLB (Network Load Balancer).
+  They handle everything for you; you just pay a monthly fee.
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SUMMARY — THE MENTAL MODEL
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  The Load Balancer is the brain of your web system.
+  Without it: One big server gets hit by 1 million users and catches fire.
+  With it: 1 million users are spread across 10 small servers, and everything
+  stays fast and reliable.
+
+  ALWAYS REMEMBER:
+  - Use Layer 4 for pure speed (TCP/UDP).
+  - Use Layer 7 for smart routing (HTTP/URL/Headers).
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

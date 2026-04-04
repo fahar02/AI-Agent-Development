@@ -1,0 +1,755 @@
+================================================================================
+         INTRODUCTION TO SYSTEM DESIGN
+         Detailed Understanding | Core Concepts | Fundamentals
+================================================================================
+
+--------------------------------------------------------------------------------
+STEP 1: WHAT IS SYSTEM DESIGN?
+--------------------------------------------------------------------------------
+
+Definition:
+  System Design is the process of defining the ARCHITECTURE, COMPONENTS,
+  MODULES, INTERFACES, and DATA FLOW of a system to satisfy a given set
+  of functional and non-functional requirements.
+
+  In simpler terms:
+    "Given a problem, how do you build a system that solves it at scale,
+     reliably, and efficiently?"
+
+  Think of it like being an ARCHITECT of a building:
+    - An architect doesn't lay bricks themselves.
+    - They design the blueprint — where rooms go, how electricity flows,
+      how people move through the building safely.
+    - A system designer does the same for software.
+
+Real-World Analogy:
+  Imagine building a hospital:
+    - You need departments (modules): ER, Surgery, Pharmacy
+    - Each dept communicates via protocols (interfaces): radio, phones
+    - Data flows (patient records) must be accessible to all departments
+    - It must handle 1000 patients/day without collapse (scalability)
+    - It must work even if one department is temporarily down (fault tolerance)
+  → This is EXACTLY how software systems are designed.
+
+--------------------------------------------------------------------------------
+WHY DOES SYSTEM DESIGN MATTER?
+--------------------------------------------------------------------------------
+
+  Every product you use daily is built on system design decisions:
+
+  GOOGLE SEARCH
+    - Crawls billions of pages
+    - Returns results in < 100 milliseconds
+    - Handles 8.5 billion searches PER DAY
+    → Without solid design, this is impossible.
+
+  NETFLIX
+    - Streams to 238 million subscribers simultaneously
+    - Stores petabytes of video content
+    - Recommends personalized content to each user
+    → Without design, it would crash under load.
+
+  UBER
+    - Matches riders with drivers in real-time globally
+    - Tracks GPS location of millions of drivers every few seconds
+    - Handles surge pricing dynamically
+    → Without design, drivers and riders would never match fast enough.
+
+  WHATSAPP
+    - Delivers 100 billion messages per day
+    - Supports group chats of 1024 people
+    - Works on 2G networks in developing countries
+    → Without design, messages would be lost or delayed.
+
+  The bottom line:
+    Without good system design, software BREAKS at scale.
+    With good system design, software THRIVES at scale.
+
+--------------------------------------------------------------------------------
+TWO TYPES OF SYSTEM DESIGN
+--------------------------------------------------------------------------------
+
+  1. HIGH-LEVEL DESIGN (HLD) — "The Big Picture"
+  ------------------------------------------------
+     Also called: Macro Design / Architecture Design
+
+     What it covers:
+       - Overall system architecture
+       - Major components and how they interact
+       - API contracts between services
+       - Choice of databases (SQL vs NoSQL)
+       - Choice of infrastructure (cloud, on-prem)
+       - Data flow from user request to response
+
+     Example (for a chat app like WhatsApp):
+       Client App
+           ↓
+       API Gateway (handles auth, rate limiting)
+           ↓
+       Message Service → Message Queue (Kafka)
+           ↓                    ↓
+       User DB (MySQL)    Notification Service
+           ↓
+       Object Storage (for media)
+
+     Questions HLD answers:
+       - What are the main components?
+       - How do they talk to each other?
+       - What database will we use and why?
+       - How will we scale?
+       - Where are the potential bottlenecks?
+
+  2. LOW-LEVEL DESIGN (LLD) — "The Details"
+  -------------------------------------------
+     Also called: Micro Design / Detailed Design
+
+     What it covers:
+       - Class diagrams and object relationships
+       - Database schema (tables, columns, indexes)
+       - API endpoint design (exact request/response format)
+       - Algorithm choices within a component
+       - Error handling and edge cases
+       - Design patterns used (Singleton, Factory, Observer, etc.)
+
+     Example (for the Message Service in the chat app):
+       Class: Message
+         - id: UUID
+         - sender_id: int
+         - receiver_id: int
+         - content: string (encrypted)
+         - timestamp: datetime
+         - status: ENUM(SENT, DELIVERED, READ)
+
+       DB Table: messages
+         CREATE TABLE messages (
+           id          UUID PRIMARY KEY,
+           sender_id   INT NOT NULL,
+           receiver_id INT NOT NULL,
+           content     TEXT NOT NULL,
+           status      VARCHAR(10) DEFAULT 'SENT',
+           created_at  TIMESTAMP DEFAULT NOW()
+         );
+         INDEX on (sender_id, receiver_id, created_at)
+
+     Questions LLD answers:
+       - How is data structured in the DB?
+       - What classes and methods are needed?
+       - What's the exact API request/response format?
+       - How does the code handle failures?
+
+  HLD vs LLD Summary:
+  ┌─────────────────────┬──────────────────────────┬─────────────────────────┐
+  │ Aspect              │ HLD                      │ LLD                     │
+  ├─────────────────────┼──────────────────────────┼─────────────────────────┤
+  │ Focus               │ Architecture & Components│ Code & Data Structures  │
+  │ Audience            │ Architects, Stakeholders │ Developers, Engineers   │
+  │ Abstraction Level   │ High (bird's-eye view)   │ Low (ground-level)      │
+  │ Deliverable         │ Architecture Diagram     │ Class Diagrams, Schemas │
+  │ Interview Context   │ Senior/Staff level       │ SDE-1/SDE-2 level       │
+  └─────────────────────┴──────────────────────────┴─────────────────────────┘
+
+================================================================================
+SECTION 2: FUNDAMENTALS OF SYSTEM DESIGN — CORE CONCEPTS
+================================================================================
+
+--------------------------------------------------------------------------------
+2.1 SCALABILITY — "Can your system grow?"
+--------------------------------------------------------------------------------
+
+  Definition:
+    Scalability is the ability of a system to HANDLE INCREASED LOAD
+    without a proportional degradation in performance.
+
+  "Load" can mean:
+    - More users (1K → 10M users)
+    - More data (1GB → 1PB)
+    - More requests (100 req/sec → 1M req/sec)
+    - More geography (1 country → global)
+
+  ┌─────────────────────────────────────────────────────────────────────────┐
+  │                    TYPE A: VERTICAL SCALING                             │
+  │                    (Scale Up)                                           │
+  └─────────────────────────────────────────────────────────────────────────┘
+
+    What: Make your single server BIGGER and STRONGER
+      - Add more CPU cores
+      - Add more RAM (memory)
+      - Add faster SSD storage
+      - Upgrade to a more powerful machine
+
+    Analogy:
+      You have a truck that carries goods.
+      Vertical scaling = buy a BIGGER truck.
+
+    Example:
+      Your web server is on a 4-core, 16GB RAM machine.
+      Traffic increases → upgrade to 32-core, 256GB RAM machine.
+
+    Pros:
+      ✔ Simple — no code changes needed
+      ✔ No need to handle distributed system complexity
+      ✔ Works well for databases that are hard to distribute
+
+    Cons:
+      ✘ Hardware limits — you can only go so big
+      ✘ Single Point of Failure (SPOF) — if it crashes, everything is down
+      ✘ Very expensive at the top end
+      ✘ Requires downtime to upgrade
+
+    Used by: Small startups early on, legacy monolith systems
+
+  ┌─────────────────────────────────────────────────────────────────────────┐
+  │                    TYPE B: HORIZONTAL SCALING                           │
+  │                    (Scale Out)                                          │
+  └─────────────────────────────────────────────────────────────────────────┘
+
+    What: Add MORE machines to your pool of servers
+
+    Analogy:
+      Instead of buying a bigger truck → hire MORE trucks.
+
+    Example:
+      1 web server handles 1,000 req/sec.
+      Traffic grows to 10,000 req/sec → add 10 more identical servers.
+      A LOAD BALANCER distributes requests across all of them.
+
+    Architecture:
+              [Users]
+                 ↓
+          [Load Balancer]
+         /       |        \
+    [Server1] [Server2] [Server3]
+         \       |        /
+          [Shared Database]
+
+    Pros:
+      ✔ Virtually unlimited scale (just add more machines)
+      ✔ No single point of failure (if one server dies, others handle traffic)
+      ✔ Cheaper commodity hardware vs expensive specialized hardware
+      ✔ Can scale specific components independently (scale just the API server)
+
+    Cons:
+      ✘ Code must be stateless (no data stored on individual servers)
+      ✘ Distributed system complexity (network partitions, consistency)
+      ✘ Requires Load Balancer infrastructure
+      ✘ Harder to manage
+
+    Used by: Netflix, Google, Facebook, Uber — any system at internet scale
+
+  Vertical vs Horizontal:
+  ┌─────────────────┬───────────────────┬───────────────────────┐
+  │ Dimension       │ Vertical (Scale↑) │ Horizontal (Scale→)   │
+  ├─────────────────┼───────────────────┼───────────────────────┤
+  │ Method          │ Bigger machine    │ More machines         │
+  │ Limit           │ Hardware ceiling  │ Practically unlimited │
+  │ Failure risk    │ High (SPOF)       │ Low (redundancy)      │
+  │ Code changes    │ None              │ Required (stateless)  │
+  │ Cost            │ Exponential       │ Linear                │
+  │ Complexity      │ Low               │ High                  │
+  └─────────────────┴───────────────────┴───────────────────────┘
+
+  Key Insight:
+    Almost all large-scale systems use a COMBINATION of both.
+    Start vertical (simple), then go horizontal as you grow.
+
+--------------------------------------------------------------------------------
+2.2 AVAILABILITY vs CONSISTENCY — THE CAP THEOREM
+--------------------------------------------------------------------------------
+
+  ┌─────────────────────────────────────────────────────────────────────────┐
+  │  CAP THEOREM (Brewer's Theorem, 2000)                                   │
+  │  "In a distributed system, you can only GUARANTEE 2 of 3 properties:"  │
+  │                                                                         │
+  │       C — Consistency                                                   │
+  │       A — Availability                                                  │
+  │       P — Partition Tolerance                                           │
+  │                                                                         │
+  │  And since Network Partitions always happen in real distributed         │
+  │  systems, you MUST choose P. So really, you choose between:            │
+  │       → CP (Consistency + Partition Tolerance)                          │
+  │       → AP (Availability + Partition Tolerance)                         │
+  └─────────────────────────────────────────────────────────────────────────┘
+
+  C — CONSISTENCY
+    Definition: Every READ receives the MOST RECENT WRITE or an error.
+    No stale data. Every node in the cluster sees the same data at the same time.
+
+    Example:
+      You deposit $500 in your bank account via ATM.
+      A consistent system means: ANY bank teller you visit RIGHT AFTER
+      will see your updated $500 balance. No teller shows old data.
+
+    Real-world: Bank transactions, stock trading, inventory systems
+
+  A — AVAILABILITY
+    Definition: Every REQUEST receives a RESPONSE (not necessarily the most
+    recent data), even if some nodes have failed.
+    The system is always ON and always responds.
+
+    Example:
+      Amazon product page shows "In Stock" even if the inventory database
+      is temporarily stale. The page still works. You can still browse.
+      (The actual stock count might be slightly off for a moment)
+
+    Real-world: Social media feeds, product catalogs, search results
+
+  P — PARTITION TOLERANCE
+    Definition: The system CONTINUES TO OPERATE even when network
+    communication between nodes is lost (network partition).
+
+    Example:
+      Your US data center and EU data center can't communicate for 30 seconds
+      due to a network issue. The system should still keep serving users.
+
+    Reality: Network failures ALWAYS happen. P is NON-NEGOTIABLE.
+    You MUST choose P. So the real choice is CP vs AP.
+
+  CP SYSTEMS (Consistency + Partition Tolerance):
+    - When a partition occurs, the system refuses to respond rather than
+      return stale data. Sacrifices Availability.
+    - Examples: HBase, Zookeeper, MongoDB (default), Redis (single node)
+    - Use when: Financial transactions, inventory counts, anything where
+      stale data causes harm
+
+  AP SYSTEMS (Availability + Partition Tolerance):
+    - When a partition occurs, the system returns possibly stale data
+      rather than refusing to respond. Sacrifices Consistency.
+    - Examples: DynamoDB, Cassandra, CouchDB
+    - Use when: Social media posts, product recommendations, user profiles —
+      where slight staleness is acceptable
+
+  CONSISTENCY MODELS (in order from weakest to strongest):
+    1. Eventual Consistency  → Data will be consistent EVENTUALLY (AP)
+    2. Read-Your-Writes      → You always see your own updates
+    3. Session Consistency   → Consistent within a user session
+    4. Monotonic Reads       → Won't see older data after seeing newer
+    5. Strong Consistency    → Every read sees the latest write (CP)
+
+  Real-world example:
+    Facebook "Likes" on a post:
+      - When you like a post, it might show 1,000 likes to you
+        and 999 likes to your friend in Europe for a moment.
+      - That's EVENTUAL CONSISTENCY — AP system. Acceptable for likes.
+      - But your bank balance? Must be STRONGLY CONSISTENT — CP system.
+
+  PACELC Extension:
+    Even without partitions, there's a tradeoff between:
+        Latency (L) and Consistency (C)
+    Low-latency systems often sacrifice consistency (serve cached data).
+    High-consistency systems often have higher latency (wait for quorum).
+
+--------------------------------------------------------------------------------
+2.3 LATENCY vs THROUGHPUT
+--------------------------------------------------------------------------------
+
+  LATENCY
+    Definition: The TIME it takes to complete a SINGLE operation.
+    "How long does one request take?"
+    Measured in: milliseconds (ms) or microseconds (µs)
+
+    Types of latency:
+      - Network latency: time for a packet to travel from A to B
+      - Disk latency: time to read/write data from storage
+      - Processing latency: time for a CPU to process a request
+      - Queuing latency: time a request waits in a queue
+
+    Analogy:
+      You order a pizza. Latency = how long until YOUR pizza arrives.
+
+    Real-world numbers to memorize:
+    ┌────────────────────────────────┬────────────────┐
+    │ Operation                      │ Latency        │
+    ├────────────────────────────────┼────────────────┤
+    │ L1 cache reference             │ ~1 ns          │
+    │ L2 cache reference             │ ~4 ns          │
+    │ RAM memory read                │ ~100 ns        │
+    │ SSD random read                │ ~100 µs        │
+    │ HDD seek + read                │ ~10 ms         │
+    │ Network round trip (same DC)   │ ~500 µs        │
+    │ Network round trip (US→Europe) │ ~150 ms        │
+    └────────────────────────────────┴────────────────┘
+
+  THROUGHPUT
+    Definition: The NUMBER OF OPERATIONS processed per unit of time.
+    "How many requests can the system handle per second?"
+    Measured in: requests/sec (RPS), queries/sec (QPS), MB/sec
+
+    Analogy:
+      Throughput = how many pizzas the restaurant delivers per hour.
+
+    Formula:
+      Throughput = (Number of requests) / (Time period)
+
+  LATENCY vs THROUGHPUT — The Trade-off:
+    - To increase throughput: process requests in parallel (batching)
+      → But batching adds latency (you wait until batch is full)
+    - To minimize latency: process each request individually, immediately
+      → But that limits how many you can handle concurrently
+
+    Example:
+      A database that writes in BATCHES (every 100ms):
+        - Throughput: Very high (processes 1000 writes at once)
+        - Latency: High (each write waits up to 100ms to be committed)
+
+      A database that writes IMMEDIATELY on each request:
+        - Latency: Very low (immediate response)
+        - Throughput: Lower (can only process so many at once)
+
+  PERCENTILE LATENCY (P50, P95, P99):
+    Don't just measure AVERAGE latency. Use percentiles:
+      - P50 = 50th percentile (median) — 50% of requests are faster than this
+      - P95 = 95th percentile — 95% of requests are faster than this
+      - P99 = 99th percentile — 99% of requests are faster than this
+      - P99.9 = 99.9th percentile — the "tail latency"
+
+    Why percentiles matter:
+      Average latency can HIDE slow requests.
+        Average: 50ms (looks fine)
+        P99:    2000ms (some users wait 2 SECONDS — terrible experience)
+
+    Google's goal: P99 < 100ms for Search.
+    Amazon found: 100ms of extra latency = 1% drop in sales.
+
+  Key Design Principle:
+    Optimize for the P99 latency, not the average.
+    The user who always gets a slow response will leave, even if most users
+    have a fast experience.
+
+--------------------------------------------------------------------------------
+2.4 RELIABILITY AND FAULT TOLERANCE
+--------------------------------------------------------------------------------
+
+  RELIABILITY
+    Definition: The ability of a system to perform its intended function
+    CORRECTLY for a specified period of time.
+    "Does the system do what it's supposed to do, consistently?"
+
+    Measured by: MTBF - Mean Time Between Failures
+      MTBF = Total Uptime / Number of Failures
+      Higher MTBF = More reliable system
+
+    Types of faults:
+      1. Hardware Faults:
+           - Disk crashes (hard drives fail every 10–50 years on average)
+           - RAM errors (bit flips from cosmic rays — yes, this happens!)
+           - Server power supply failures
+           - Network cable cut
+         Solution: Redundant hardware, RAID, multiple power supplies
+
+      2. Software Faults:
+           - A bug causing the system to crash under specific inputs
+           - Memory leaks (software slowly consumes RAM and crashes)
+           - Cascading failures (one service slows → others queue up → all crash)
+           - Dependency failures (third-party API is down)
+         Solution: Extensive testing, chaos engineering, circuit breakers
+
+      3. Human Faults:
+           - Operator accidentally deletes database (fb outage 2021)
+           - Wrong config deployed to production
+           - Accidental DDoS from own batch job
+         Solution: Role-based access, audit logs, gradual deployments,
+                   rollback mechanisms
+
+  FAULT TOLERANCE
+    Definition: The ability of a system to CONTINUE OPERATING correctly
+    even when some of its components FAIL.
+    "The system keeps working despite failures."
+
+    Key strategies:
+
+    A) REPLICATION:
+       Run multiple copies of data and services.
+         - Active-Active: ALL replicas serve traffic
+         - Active-Passive: One replica is on standby; takes over on failure
+       Example: Database primary + 2 read replicas. If primary dies,
+                a replica is promoted to primary automatically.
+
+    B) REDUNDANCY:
+       Have backup systems ready to take over.
+         - N+1 redundancy: 1 spare for every N active components
+         - Geographic redundancy: data centers in multiple regions
+       Example: AWS runs 3 Availability Zones per region. A failure in
+                one AZ doesn't bring down your application.
+
+    C) FAILOVER:
+       Automatically switch to a backup when primary fails.
+         - DNS failover
+         - Database failover (automatic primary election)
+         - Load balancer health checks + rerouting
+
+    D) GRACEFUL DEGRADATION:
+       When a component fails, the system provides REDUCED (not zero) service.
+       Example:
+         - Netflix recommendation service is down?
+           → Show "Top 10 Popular" instead of personalized recommendations.
+           → The site still works. Users can still watch.
+         - This is better than showing a blank error page.
+
+    E) CHAOS ENGINEERING:
+       INTENTIONALLY introduce failures in production to test resilience.
+       Netflix's "Chaos Monkey" randomly kills production servers.
+       Goal: Build confidence that the system survives real failures.
+       Famous practitioners: Netflix, Amazon, Google, LinkedIn
+
+    SINGLE POINT OF FAILURE (SPOF):
+      A SPOF is any component whose failure causes the ENTIRE system to fail.
+      SPOFs must be eliminated in high-reliability systems.
+
+      Common SPOFs and fixes:
+      ┌──────────────────────┬───────────────────────────────────────┐
+      │ SPOF                 │ Solution                              │
+      ├──────────────────────┼───────────────────────────────────────┤
+      │ Single server        │ Horizontal scaling + Load Balancer    │
+      │ Single database      │ Replication + Failover               │
+      │ Single data center   │ Multi-region deployment              │
+      │ Single load balancer │ Active-Active LB pair                │
+      │ Single DNS provider  │ Multiple DNS providers               │
+      └──────────────────────┴───────────────────────────────────────┘
+
+--------------------------------------------------------------------------------
+2.5 DURABILITY AND PERSISTENCE
+--------------------------------------------------------------------------------
+
+  DURABILITY
+    Definition: Once data is WRITTEN and ACKNOWLEDGED, it will NOT be lost,
+    even in the event of system failures (crashes, power outages, etc.).
+    "Written data stays written."
+
+    The 'D' in ACID (Atomicity, Consistency, Isolation, Durability).
+
+    How durability is achieved:
+      1. Write-Ahead Logging (WAL):
+           Before modifying data, write the change to a LOG first.
+           If system crashes, the log is used to REPLAY the changes.
+           Used by: PostgreSQL, MySQL InnoDB, SQLite
+
+      2. Replication:
+           Write data to multiple nodes before acknowledging success.
+           If one node fails, others still have the data.
+           Example: Kafka requires all replicas to acknowledge a write
+                    before confirming it to the producer.
+
+      3. Checksums:
+           After writing data, calculate a checksum (hash).
+           On read, recalculate and compare. If mismatch → data is corrupted.
+           Detects silent data corruption (bit rot).
+
+      4. Backups:
+           Regular snapshots of data stored in separate locations (e.g., S3).
+           Last line of defense against catastrophic failure.
+
+    Durability levels in practice:
+      - In-memory only (Redis default): Data lost on restart. Fast.
+      - Single-node disk: Survives restart, not a disk failure.
+      - Replicated to 2 nodes: Survives 1 node failure.
+      - Replicated across 3 AZs: Survives a full data center outage.
+      - Cross-region replication: Survives a regional disaster.
+
+  PERSISTENCE
+    Definition: Data SURVIVES beyond the lifetime of the process that created it.
+    Persistent storage = data on disk, not just in RAM.
+
+    Storage types:
+      - Ephemeral (non-persistent): RAM, CPU cache — lost on restart
+      - Durable (persistent): SSD/HDD, S3, database — survives restarts
+
+    Design decision:
+      Redis is in-memory (fast) but can be configured to persist to disk.
+      Cassandra writes to disk (durable) but keeps hot data in memory cache.
+
+--------------------------------------------------------------------------------
+2.6 PERFORMANCE METRICS — SLA, SLO, SLI
+--------------------------------------------------------------------------------
+
+  These are HOW systems make and measure promises about reliability.
+
+  SLI — Service Level INDICATOR
+  ───────────────────────────────
+    Definition: A METRIC that measures a specific aspect of service quality.
+    It's the RAW MEASUREMENT. A number you actually observe.
+
+    Examples of SLIs:
+      - Request latency: "95% of requests complete in < 200ms"
+      - Error rate: "0.1% of requests return HTTP 5xx errors"
+      - Availability: "99.95% of health checks succeed"
+      - Throughput: "System handles 50,000 requests/sec"
+      - Freshness: "Data is no more than 10 minutes old"
+
+    SLI = What you MEASURE
+
+  SLO — Service Level OBJECTIVE
+  ───────────────────────────────
+    Definition: A TARGET value (or range) for an SLI.
+    It's the GOAL your team commits to internally.
+
+    Examples of SLOs:
+      - "P99 latency < 100ms" (target for latency SLI)
+      - "Availability ≥ 99.9%" (target for uptime SLI)
+      - "Error rate < 0.1%" (target for error rate SLI)
+
+    SLO = The TARGET you AIM FOR
+
+    Error Budget:
+      SLO defines how much failure is acceptable.
+      Error Budget = 100% - SLO
+      Example: SLO of 99.9% availability = 0.1% error budget
+               Per month: 0.1% × 30 days × 24 hours = 43.8 minutes downtime/month
+      
+      Error budgets let teams balance reliability vs. feature velocity:
+        - Budget not used? → Safe to deploy new risky features.
+        - Budget exhausted? → Freeze deployments, focus on reliability.
+
+  SLA — Service Level AGREEMENT
+  ───────────────────────────────
+    Definition: A LEGAL CONTRACT with CUSTOMERS defining the service quality
+    they are guaranteed, along with penalties if not met.
+
+    SLA is the PROMISE to CUSTOMERS. SLO is the INTERNAL TARGET.
+    SLA is always LESS strict than the internal SLO (to give headroom).
+
+    Examples of SLAs:
+      - AWS EC2 SLA: 99.99% uptime. If violated → 30% service credit.
+      - Google Cloud SQL SLA: 99.95% uptime.
+      - Microsoft Azure: 99.9% uptime for VMs.
+
+    If SLO = 99.95%, then SLA to customers might be 99.9%
+    That 0.05% gap gives engineers breathing room.
+
+  SLI vs SLO vs SLA Summary:
+  ┌─────────┬──────────────────────────┬──────────────────────────────────────┐
+  │ Term    │ What it is               │ Example                              │
+  ├─────────┼──────────────────────────┼──────────────────────────────────────┤
+  │ SLI     │ The metric you measure   │ P99 latency = 80ms (observed)        │
+  │ SLO     │ Your internal target     │ P99 latency must be < 100ms          │
+  │ SLA     │ Your promise to customers│ Guarantee < 200ms or give refund     │
+  └─────────┴──────────────────────────┴──────────────────────────────────────┘
+
+  Common SLIs and their SLO targets:
+  ┌───────────────────────┬────────────────────────────────────────────────┐
+  │ SLI                   │ Typical SLO Target                             │
+  ├───────────────────────┼────────────────────────────────────────────────┤
+  │ Availability          │ 99.9% to 99.999% (3 to 5 nines)               │
+  │ P99 Latency           │ < 100ms to 500ms (depends on use case)         │
+  │ Error Rate            │ < 0.1%                                         │
+  │ Freshness             │ Data lag < 5 minutes                           │
+  │ Request Success Rate  │ > 99.5%                                        │
+  └───────────────────────┴────────────────────────────────────────────────┘
+
+  THE NINES TABLE — Availability:
+  ┌──────────────┬─────────────────┬────────────────┬────────────────────────┐
+  │ Availability │ Annual Downtime  │ Monthly Downtime│ Name                  │
+  ├──────────────┼─────────────────┼────────────────┼────────────────────────┤
+  │ 99%          │ 3.65 days       │ 7.2 hours      │ Two nines              │
+  │ 99.9%        │ 8.7 hours       │ 43.8 minutes   │ Three nines            │
+  │ 99.95%       │ 4.38 hours      │ 21.9 minutes   │ Three and a half nines │
+  │ 99.99%       │ 52.6 minutes    │ 4.38 minutes   │ Four nines             │
+  │ 99.999%      │ 5.26 minutes    │ 26.3 seconds   │ Five nines (Gold std.) │
+  └──────────────┴─────────────────┴────────────────┴────────────────────────┘
+
+  Goal: Most internet-scale systems target 99.99% (four nines).
+  AWS S3 durability: 99.999999999% (11 nines) — for data durability.
+
+================================================================================
+SECTION 3: HOW ALL CORE CONCEPTS CONNECT
+================================================================================
+
+  Every system design decision involves TRADE-OFFS between these concepts:
+
+  Scenario: You're designing a global social media platform (like Instagram)
+
+  SCALABILITY decision:
+    → Use horizontal scaling for app servers
+    → Use database sharding for user data
+    → Use CDN for images and videos
+
+  AVAILABILITY vs CONSISTENCY decision:
+    → AP system (eventual consistency) for posts, likes, followers
+    → CP system (strong consistency) for login, payments
+
+  LATENCY vs THROUGHPUT decision:
+    → Cache hot posts in Redis (low latency for reads)
+    → Batch process notification emails (high throughput, higher latency)
+
+  RELIABILITY & FAULT TOLERANCE decision:
+    → Replicate databases across 3 Availability Zones
+    → Use circuit breakers to prevent cascading failures
+    → Graceful degradation: show cached feed if DB is down
+
+  DURABILITY decision:
+    → All posts written to 3 replicas before acknowledging
+    → Media files stored in S3 (11 nines durability)
+
+  PERFORMANCE METRICS:
+    → SLI: P99 feed-load latency
+    → SLO: P99 feed-load < 300ms
+    → SLA: Guarantee 99.9% availability to users
+
+================================================================================
+SECTION 4: THE SYSTEM DESIGNER'S MINDSET
+================================================================================
+
+  Great system designers think in TRADE-OFFS, not absolutes.
+
+  1. Ask WHY before HOW
+       Don't jump to solutions. Understand the problem deeply.
+       "Why does this need to be real-time?" (Maybe batch processing is fine)
+       "Why does this need global availability?" (Maybe one region is enough)
+
+  2. Always think about SCALE
+       What works for 100 users often breaks at 1 million.
+       Design for 10× your current scale, plan for 100×.
+
+  3. Embrace FAILURE
+       Assume everything will fail. Design for it.
+       Ask: "What happens when this database goes down?"
+       Ask: "What happens when the network is slow?"
+
+  4. Start SIMPLE, Add Complexity When Needed
+       Don't over-engineer upfront.
+       Monolith → then break into services when you understand the boundaries.
+       Single DB → then shard when you hit limits.
+
+  5. DATA is King
+       Most bottlenecks are in data storage and retrieval.
+       Spend most of your design effort on the data model and data flow.
+
+  6. Know Your NUMBERS
+       Back-of-envelope estimation is a superpower.
+       Know: how many users, how many requests, how much data.
+       This drives every architecture decision.
+
+  7. Communicate CLEARLY
+       In interviews and real jobs, how you EXPLAIN your design matters as much
+       as the design itself. Draw diagrams. Explain trade-offs explicitly.
+
+================================================================================
+NEXT STEPS AFTER THIS INTRODUCTION
+================================================================================
+
+  Now that you understand what system design is and its core concepts:
+
+  1. [ ] Learn Networking Basics (HTTP, DNS, TCP/IP)
+
+  2. [ ] Study Databases deeply (SQL vs NoSQL, indexing, replication)
+
+  3. [ ] Learn Caching (Redis, eviction policies, cache strategies)
+
+  4. [ ] Learn Load Balancing and horizontal scaling in depth
+
+  5. [ ] Study Message Queues (Kafka, RabbitMQ)
+
+  6. [ ] Practice designing real systems:
+             Start with: URL Shortener
+             Then: Pastebin
+             Then: Instagram / Twitter
+             Then: Uber / WhatsApp
+
+  7. [ ] Read: "Designing Data-Intensive Applications" — Martin Kleppmann
+
+  8. [ ] Watch: ByteByteGo on YouTube — visual system design explanations
+
+================================================================================
+         "A complex system that works is invariably found to have
+          evolved from a simple system that worked."
+                                              — Gall's Law
+================================================================================

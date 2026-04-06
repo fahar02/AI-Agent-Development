@@ -1,0 +1,615 @@
+================================================================================
+OBJECT-ORIENTED PROGRAMMING (OOP) IN PYTHON
+================================================================================
+
+TABLE OF CONTENTS:
+1. Introduction to OOP
+2. Classes & Objects
+3. Constructors (__init__)
+4. Instance vs Class Variables
+5. Inheritance
+6. Polymorphism
+7. Encapsulation
+8. Abstraction
+9. Advanced OOP Concepts
+10. Real-world Examples
+
+================================================================================
+1. INTRODUCTION TO OOP
+================================================================================
+
+Object-Oriented Programming (OOP) is a programming paradigm that organizes code
+into reusable objects. It helps in:
+- Organizing code logically
+- Reusing code through inheritance
+- Hiding implementation details (encapsulation)
+- Making code more maintainable and scalable
+
+Key Concepts:
+- Class: A blueprint for creating objects
+- Object: An instance of a class
+- Attributes: Data members of a class
+- Methods: Functions defined in a class
+
+================================================================================
+2. CLASSES & OBJECTS
+================================================================================
+
+BASIC EXAMPLE:
+--------------
+
+class Dog:
+    # Class variable
+    species = "Canis familiaris"
+    
+    # Constructor
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+    
+    # Instance method
+    def bark(self):
+        return f"{self.name} says Woof!"
+    
+    def get_age(self):
+        return f"{self.name} is {self.age} years old"
+
+# Creating objects (instances)
+dog1 = Dog("Buddy", 3)
+dog2 = Dog("Max", 5)
+
+print(dog1.bark())  # Output: Buddy says Woof!
+print(dog1.get_age())  # Output: Buddy is 3 years old
+print(Dog.species)  # Output: Canis familiaris
+
+
+INTERMEDIATE EXAMPLE:
+---------------------
+
+class Car:
+    total_cars = 0
+    
+    def __init__(self, brand, model, year):
+        self.brand = brand
+        self.model = model
+        self.year = year
+        self.speed = 0
+        Car.total_cars += 1
+    
+    def accelerate(self, amount):
+        self.speed += amount
+        return f"Speed increased to {self.speed} km/h"
+    
+    def brake(self, amount):
+        self.speed = max(0, self.speed - amount)
+        return f"Speed reduced to {self.speed} km/h"
+    
+    def get_info(self):
+        return f"{self.year} {self.brand} {self.model}"
+    
+    @classmethod
+    def get_total_cars(cls):
+        return f"Total cars: {cls.total_cars}"
+
+car1 = Car("Toyota", "Camry", 2022)
+car2 = Car("Honda", "Civic", 2023)
+
+print(car1.accelerate(50))  # Output: Speed increased to 50 km/h
+print(car1.brake(20))  # Output: Speed reduced to 30 km/h
+print(Car.get_total_cars())  # Output: Total cars: 2
+
+
+================================================================================
+3. CONSTRUCTORS (__init__)
+================================================================================
+
+The __init__ method is called automatically when an object is created.
+It initializes the object's attributes.
+
+BASIC EXAMPLE:
+--------------
+
+class Person:
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+
+person = Person("Alice", 30)
+print(f"Name: {person.name}, Age: {person.age}")
+
+
+WITH DEFAULT VALUES:
+--------------------
+
+class Book:
+    def __init__(self, title, author, pages=0, published=False):
+        self.title = title
+        self.author = author
+        self.pages = pages
+        self.published = published
+
+book1 = Book("Python 101", "John Doe")
+book2 = Book("Advanced Python", "Jane Smith", 500, True)
+
+print(f"{book1.title} by {book1.author}")
+print(f"{book2.title}: {book2.pages} pages, Published: {book2.published}")
+
+
+ADVANCED EXAMPLE WITH VALIDATION:
+----------------------------------
+
+class BankAccount:
+    def __init__(self, account_holder, initial_balance=0):
+        if initial_balance < 0:
+            raise ValueError("Initial balance cannot be negative")
+        self.account_holder = account_holder
+        self.balance = initial_balance
+        self.transactions = []
+        self.transactions.append(f"Account created with balance: {initial_balance}")
+    
+    def deposit(self, amount):
+        if amount <= 0:
+            raise ValueError("Deposit amount must be positive")
+        self.balance += amount
+        self.transactions.append(f"Deposit: +{amount}")
+        return f"Deposited {amount}. New balance: {self.balance}"
+    
+    def withdraw(self, amount):
+        if amount > self.balance:
+            raise ValueError("Insufficient funds")
+        self.balance -= amount
+        self.transactions.append(f"Withdrawal: -{amount}")
+        return f"Withdrew {amount}. New balance: {self.balance}"
+
+account = BankAccount("John", 1000)
+print(account.deposit(500))  # Output: Deposited 500. New balance: 1500
+print(account.withdraw(200))  # Output: Withdrew 200. New balance: 1300
+
+
+================================================================================
+4. INSTANCE VS CLASS VARIABLES
+================================================================================
+
+Instance Variables:
+- Belong to individual objects
+- Each object has its own copy
+- Defined in __init__ method
+
+Class Variables:
+- Belong to the class itself
+- Shared by all instances
+- Defined at class level
+
+EXAMPLE:
+--------
+
+class Student:
+    school = "XYZ School"  # Class variable
+    total_students = 0
+    
+    def __init__(self, name, grade):
+        self.name = name  # Instance variable
+        self.grade = grade  # Instance variable
+        Student.total_students += 1
+    
+    def display_info(self):
+        print(f"Name: {self.name}, Grade: {self.grade}, School: {Student.school}")
+
+student1 = Student("Alice", "A")
+student2 = Student("Bob", "B")
+
+student1.display_info()  # Output: Name: Alice, Grade: A, School: XYZ School
+student2.display_info()  # Output: Name: Bob, Grade: B, School: XYZ School
+
+print(Student.total_students)  # Output: 2
+
+# Modifying class variable
+Student.school = "ABC School"
+student1.display_info()  # Output: Name: Alice, Grade: A, School: ABC School
+
+
+================================================================================
+5. INHERITANCE
+================================================================================
+
+Inheritance allows a class to inherit attributes and methods from another class.
+
+BASIC EXAMPLE:
+--------------
+
+class Animal:
+    def __init__(self, name):
+        self.name = name
+    
+    def speak(self):
+        return f"{self.name} makes a sound"
+
+class Dog(Animal):
+    def speak(self):
+        return f"{self.name} barks"
+
+class Cat(Animal):
+    def speak(self):
+        return f"{self.name} meows"
+
+dog = Dog("Buddy")
+cat = Cat("Whiskers")
+
+print(dog.speak())  # Output: Buddy barks
+print(cat.speak())  # Output: Whiskers meows
+
+
+MULTI-LEVEL INHERITANCE:
+-------------------------
+
+class Vehicle:
+    def __init__(self, brand):
+        self.brand = brand
+    
+    def start(self):
+        return f"{self.brand} vehicle started"
+
+class Car(Vehicle):
+    def __init__(self, brand, doors):
+        super().__init__(brand)
+        self.doors = doors
+    
+    def start(self):
+        return f"{self.brand} car with {self.doors} doors started"
+
+class ElectricCar(Car):
+    def __init__(self, brand, doors, battery_capacity):
+        super().__init__(brand, doors)
+        self.battery_capacity = battery_capacity
+    
+    def start(self):
+        return f"{self.brand} electric car with {self.battery_capacity}kWh battery started"
+
+ev = ElectricCar("Tesla", 4, 100)
+print(ev.start())  # Output: Tesla electric car with 100kWh battery started
+
+
+================================================================================
+6. POLYMORPHISM
+================================================================================
+
+Polymorphism means "many forms". It allows objects of different classes to be
+treated through the same interface.
+
+EXAMPLE 1: METHOD OVERRIDING
+-----------------------------
+
+class Shape:
+    def area(self):
+        pass
+
+class Circle(Shape):
+    def __init__(self, radius):
+        self.radius = radius
+    
+    def area(self):
+        return 3.14 * self.radius ** 2
+
+class Rectangle(Shape):
+    def __init__(self, width, height):
+        self.width = width
+        self.height = height
+    
+    def area(self):
+        return self.width * self.height
+
+shapes = [Circle(5), Rectangle(4, 6)]
+
+for shape in shapes:
+    print(f"Area: {shape.area()}")
+
+
+EXAMPLE 2: OPERATOR OVERLOADING
+--------------------------------
+
+class Vector:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+    
+    def __add__(self, other):
+        return Vector(self.x + other.x, self.y + other.y)
+    
+    def __sub__(self, other):
+        return Vector(self.x - other.x, self.y - other.y)
+    
+    def __mul__(self, scalar):
+        return Vector(self.x * scalar, self.y * scalar)
+    
+    def __str__(self):
+        return f"({self.x}, {self.y})"
+
+v1 = Vector(2, 3)
+v2 = Vector(1, 4)
+
+print(v1 + v2)  # Output: (3, 7)
+print(v1 - v2)  # Output: (1, -1)
+print(v1 * 2)  # Output: (4, 6)
+
+
+================================================================================
+7. ENCAPSULATION
+================================================================================
+
+Encapsulation is the bundling of data (attributes) and methods that operate on
+that data within a single unit (class), and hiding internal details.
+
+BASIC EXAMPLE:
+--------------
+
+class BankAccount:
+    def __init__(self, account_number, balance):
+        self.account_number = account_number
+        self._balance = balance  # Protected (convention)
+    
+    def deposit(self, amount):
+        if amount > 0:
+            self._balance += amount
+            return True
+        return False
+    
+    def withdraw(self, amount):
+        if 0 < amount <= self._balance:
+            self._balance -= amount
+            return True
+        return False
+    
+    def get_balance(self):
+        return self._balance
+
+account = BankAccount("123456", 1000)
+account.deposit(500)
+print(account.get_balance())  # Output: 1500
+
+
+USING PROPERTIES:
+-----------------
+
+class Temperature:
+    def __init__(self, celsius):
+        self._celsius = celsius
+    
+    @property
+    def celsius(self):
+        return self._celsius
+    
+    @celsius.setter
+    def celsius(self, value):
+        if value < -273.15:
+            raise ValueError("Temperature cannot be below absolute zero")
+        self._celsius = value
+    
+    @property
+    def fahrenheit(self):
+        return (self._celsius * 9/5) + 32
+
+temp = Temperature(25)
+print(f"Celsius: {temp.celsius}")  # Output: Celsius: 25
+print(f"Fahrenheit: {temp.fahrenheit}")  # Output: Fahrenheit: 77.0
+
+temp.celsius = 30
+print(f"Celsius: {temp.celsius}")  # Output: Celsius: 30
+
+
+================================================================================
+8. ABSTRACTION
+================================================================================
+
+Abstraction is the concept of hiding complex implementation details and showing
+only the necessary features of an object.
+
+USING ABC (ABSTRACT BASE CLASS):
+--------------------------------
+
+from abc import ABC, abstractmethod
+
+class Animal(ABC):
+    @abstractmethod
+    def speak(self):
+        pass
+    
+    @abstractmethod
+    def move(self):
+        pass
+    
+    def describe(self):
+        return "This is an animal"
+
+class Dog(Animal):
+    def speak(self):
+        return "Woof!"
+    
+    def move(self):
+        return "Running on four legs"
+
+class Bird(Animal):
+    def speak(self):
+        return "Chirp!"
+    
+    def move(self):
+        return "Flying"
+
+dog = Dog()
+print(dog.speak())  # Output: Woof!
+print(dog.move())  # Output: Running on four legs
+
+
+================================================================================
+9. ADVANCED OOP CONCEPTS
+================================================================================
+
+STATIC METHODS:
+---------------
+
+class MathOperations:
+    @staticmethod
+    def add(a, b):
+        return a + b
+    
+    @staticmethod
+    def multiply(a, b):
+        return a * b
+
+print(MathOperations.add(5, 3))  # Output: 8
+print(MathOperations.multiply(5, 3))  # Output: 15
+
+
+CLASS METHODS:
+--------------
+
+class Person:
+    count = 0
+    
+    def __init__(self, name):
+        self.name = name
+        Person.count += 1
+    
+    @classmethod
+    def from_birth_year(cls, name, birth_year):
+        age = 2024 - birth_year
+        return cls(name)
+    
+    @classmethod
+    def get_count(cls):
+        return f"Total persons: {cls.count}"
+
+p1 = Person("Alice")
+p2 = Person.from_birth_year("Bob", 1990)
+print(Person.get_count())  # Output: Total persons: 2
+
+
+MAGIC METHODS:
+--------------
+
+class Book:
+    def __init__(self, title, author, pages):
+        self.title = title
+        self.author = author
+        self.pages = pages
+    
+    def __str__(self):
+        return f"{self.title} by {self.author}"
+    
+    def __repr__(self):
+        return f"Book('{self.title}', '{self.author}', {self.pages})"
+    
+    def __len__(self):
+        return self.pages
+    
+    def __eq__(self, other):
+        return self.pages == other.pages
+    
+    def __lt__(self, other):
+        return self.pages < other.pages
+
+book1 = Book("Python 101", "John", 300)
+book2 = Book("Advanced Python", "Jane", 500)
+
+print(str(book1))  # Output: Python 101 by John
+print(repr(book1))  # Output: Book('Python 101', 'John', 300)
+print(len(book1))  # Output: 300
+print(book1 < book2)  # Output: True
+
+
+================================================================================
+10. REAL-WORLD EXAMPLE: LIBRARY MANAGEMENT SYSTEM
+================================================================================
+
+from abc import ABC, abstractmethod
+
+class LibraryItem(ABC):
+    def __init__(self, title, author, item_id):
+        self.title = title
+        self.author = author
+        self.item_id = item_id
+        self.is_available = True
+    
+    @abstractmethod
+    def get_details(self):
+        pass
+
+class Book(LibraryItem):
+    def __init__(self, title, author, item_id, pages):
+        super().__init__(title, author, item_id)
+        self.pages = pages
+    
+    def get_details(self):
+        return f"Book: {self.title} by {self.author} ({self.pages} pages)"
+
+class Member:
+    def __init__(self, name, member_id):
+        self.name = name
+        self.member_id = member_id
+        self.borrowed_items = []
+    
+    def borrow_item(self, item):
+        if item.is_available:
+            item.is_available = False
+            self.borrowed_items.append(item)
+            return f"{self.name} borrowed {item.title}"
+        return f"{item.title} is not available"
+    
+    def return_item(self, item):
+        if item in self.borrowed_items:
+            item.is_available = True
+            self.borrowed_items.remove(item)
+            return f"{self.name} returned {item.title}"
+        return f"{item.title} was not borrowed by {self.name}"
+
+class Library:
+    def __init__(self, name):
+        self.name = name
+        self.items = []
+        self.members = []
+    
+    def add_item(self, item):
+        self.items.append(item)
+    
+    def register_member(self, member):
+        self.members.append(member)
+    
+    def display_available_items(self):
+        available = [item for item in self.items if item.is_available]
+        for item in available:
+            print(item.get_details())
+
+# Usage
+library = Library("City Library")
+
+book1 = Book("Python 101", "John Doe", 1, 300)
+book2 = Book("Advanced Python", "Jane Smith", 2, 500)
+
+library.add_item(book1)
+library.add_item(book2)
+
+member1 = Member("Alice", 101)
+library.register_member(member1)
+
+print(member1.borrow_item(book1))  # Output: Alice borrowed Python 101
+print(book1.is_available)  # Output: False
+print(member1.return_item(book1))  # Output: Alice returned Python 101
+print(book1.is_available)  # Output: True
+
+library.display_available_items()
+
+================================================================================
+KEY TAKEAWAYS
+================================================================================
+
+1. Classes are blueprints for creating objects with attributes and methods
+2. Inheritance allows code reuse and hierarchical organization
+3. Polymorphism enables flexible and extensible code
+4. Encapsulation hides internal details and protects data
+5. Abstraction defines interfaces without exposing implementation
+6. Use composition for flexible object relationships
+7. Magic methods enable operator overloading and special behavior
+8. Abstract base classes enforce interface contracts
+9. Class and static methods provide alternative ways to define methods
+10. Properties allow controlled access to attributes
+
+================================================================================

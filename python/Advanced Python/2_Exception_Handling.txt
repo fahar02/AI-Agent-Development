@@ -1,0 +1,571 @@
+================================================================================
+EXCEPTION HANDLING IN PYTHON
+================================================================================
+
+TABLE OF CONTENTS:
+1. Introduction to Exceptions
+2. try, except, finally Blocks
+3. Exception Types
+4. Multiple Exception Handling
+5. Custom Exceptions
+6. Exception Propagation
+7. Best Practices
+8. Real-world Examples
+
+================================================================================
+1. INTRODUCTION TO EXCEPTIONS
+================================================================================
+
+An exception is an event that occurs during program execution that disrupts
+the normal flow of the program. Exception handling allows you to gracefully
+handle errors instead of letting the program crash.
+
+Common Exception Types:
+- ValueError: Invalid value for a type
+- TypeError: Wrong type passed to a function
+- IndexError: Index out of range
+- KeyError: Key not found in dictionary
+- FileNotFoundError: File doesn't exist
+- ZeroDivisionError: Division by zero
+- AttributeError: Attribute doesn't exist
+- NameError: Variable not defined
+
+
+================================================================================
+2. TRY, EXCEPT, FINALLY BLOCKS
+================================================================================
+
+BASIC SYNTAX:
+-------------
+
+try:
+    # Code that might raise an exception
+    risky_code()
+except ExceptionType:
+    # Code to handle the exception
+    handle_error()
+finally:
+    # Code that always executes
+    cleanup()
+
+
+EXAMPLE 1: BASIC TRY-EXCEPT
+---------------------------
+
+try:
+    result = 10 / 0
+except ZeroDivisionError:
+    print("Error: Cannot divide by zero")
+    result = 0
+
+print(f"Result: {result}")  # Output: Error: Cannot divide by zero, Result: 0
+
+
+EXAMPLE 2: TRY-EXCEPT-FINALLY
+------------------------------
+
+def read_file(filename):
+    try:
+        file = open(filename, 'r')
+        content = file.read()
+        return content
+    except FileNotFoundError:
+        print(f"Error: File '{filename}' not found")
+        return None
+    finally:
+        if 'file' in locals():
+            file.close()
+            print("File closed")
+
+result = read_file("nonexistent.txt")
+
+
+EXAMPLE 3: MULTIPLE EXCEPT BLOCKS
+----------------------------------
+
+try:
+    user_input = input("Enter a number: ")
+    number = int(user_input)
+    result = 100 / number
+except ValueError:
+    print("Error: Please enter a valid number")
+except ZeroDivisionError:
+    print("Error: Cannot divide by zero")
+except Exception as e:
+    print(f"Unexpected error: {e}")
+else:
+    print(f"Result: {result}")
+finally:
+    print("Operation complete")
+
+
+EXAMPLE 4: CATCHING MULTIPLE EXCEPTIONS IN ONE BLOCK
+-----------------------------------------------------
+
+try:
+    data = {"name": "Alice"}
+    print(data["age"])
+except (KeyError, TypeError) as e:
+    print(f"Error accessing data: {e}")
+
+
+EXAMPLE 5: GENERIC EXCEPTION HANDLING
+--------------------------------------
+
+try:
+    # Some risky operation
+    x = int("abc")
+except Exception as e:
+    print(f"An error occurred: {type(e).__name__}: {e}")
+
+
+================================================================================
+3. EXCEPTION TYPES
+================================================================================
+
+BUILT-IN EXCEPTIONS HIERARCHY:
+------------------------------
+
+BaseException
+├── SystemExit
+├── KeyboardInterrupt
+└── Exception
+    ├── StopIteration
+    ├── GeneratorExit
+    ├── ArithmeticError
+    │   ├── FloatingPointError
+    │   ├── OverflowError
+    │   └── ZeroDivisionError
+    ├── AssertionError
+    ├── AttributeError
+    ├── BufferError
+    ├── EOFError
+    ├── ImportError
+    ├── LookupError
+    │   ├── IndexError
+    │   └── KeyError
+    ├── MemoryError
+    ├── NameError
+    ├── OSError
+    ├── ReferenceError
+    ├── RuntimeError
+    ├── SyntaxError
+    ├── IndentationError
+    ├── TabError
+    ├── SystemError
+    ├── TypeError
+    ├── ValueError
+    └── Warning
+
+
+COMMON EXCEPTIONS WITH EXAMPLES:
+---------------------------------
+
+# ValueError
+try:
+    age = int("not a number")
+except ValueError as e:
+    print(f"ValueError: {e}")
+
+# TypeError
+try:
+    result = "5" + 5
+except TypeError as e:
+    print(f"TypeError: {e}")
+
+# IndexError
+try:
+    my_list = [1, 2, 3]
+    print(my_list[10])
+except IndexError as e:
+    print(f"IndexError: {e}")
+
+# KeyError
+try:
+    my_dict = {"name": "Alice"}
+    print(my_dict["age"])
+except KeyError as e:
+    print(f"KeyError: {e}")
+
+# AttributeError
+try:
+    my_string = "hello"
+    print(my_string.nonexistent_method())
+except AttributeError as e:
+    print(f"AttributeError: {e}")
+
+# FileNotFoundError
+try:
+    with open("nonexistent.txt", "r") as f:
+        content = f.read()
+except FileNotFoundError as e:
+    print(f"FileNotFoundError: {e}")
+
+
+================================================================================
+4. MULTIPLE EXCEPTION HANDLING
+================================================================================
+
+EXAMPLE 1: SEPARATE HANDLERS
+-----------------------------
+
+def process_data(data):
+    try:
+        index = int(data)
+        my_list = [10, 20, 30]
+        return my_list[index]
+    except ValueError:
+        print("Error: Input must be a number")
+        return None
+    except IndexError:
+        print("Error: Index out of range")
+        return None
+    except Exception as e:
+        print(f"Unexpected error: {e}")
+        return None
+
+print(process_data("1"))  # Output: 20
+print(process_data("abc"))  # Output: Error: Input must be a number
+print(process_data("10"))  # Output: Error: Index out of range
+
+
+EXAMPLE 2: EXCEPTION CHAINING
+------------------------------
+
+def divide_numbers(a, b):
+    try:
+        return a / b
+    except ZeroDivisionError as e:
+        raise ValueError("Cannot divide by zero") from e
+
+try:
+    result = divide_numbers(10, 0)
+except ValueError as e:
+    print(f"Error: {e}")
+    print(f"Caused by: {e.__cause__}")
+
+
+EXAMPLE 3: RE-RAISING EXCEPTIONS
+---------------------------------
+
+def process_file(filename):
+    try:
+        with open(filename, 'r') as f:
+            data = f.read()
+    except FileNotFoundError:
+        print(f"File not found: {filename}")
+        raise  # Re-raise the same exception
+
+try:
+    process_file("nonexistent.txt")
+except FileNotFoundError:
+    print("Caught the re-raised exception")
+
+
+================================================================================
+5. CUSTOM EXCEPTIONS
+================================================================================
+
+BASIC CUSTOM EXCEPTION:
+-----------------------
+
+class CustomError(Exception):
+    pass
+
+try:
+    raise CustomError("This is a custom error")
+except CustomError as e:
+    print(f"Caught custom error: {e}")
+
+
+CUSTOM EXCEPTION WITH ATTRIBUTES:
+----------------------------------
+
+class ValidationError(Exception):
+    def __init__(self, field, message):
+        self.field = field
+        self.message = message
+        super().__init__(f"Validation error in {field}: {message}")
+
+try:
+    age = -5
+    if age < 0:
+        raise ValidationError("age", "Age cannot be negative")
+except ValidationError as e:
+    print(f"Error in field '{e.field}': {e.message}")
+
+
+CUSTOM EXCEPTION HIERARCHY:
+---------------------------
+
+class ApplicationError(Exception):
+    """Base exception for the application"""
+    pass
+
+class DatabaseError(ApplicationError):
+    """Raised when database operations fail"""
+    pass
+
+class ValidationError(ApplicationError):
+    """Raised when validation fails"""
+    pass
+
+class AuthenticationError(ApplicationError):
+    """Raised when authentication fails"""
+    pass
+
+# Usage
+def authenticate_user(username, password):
+    if not username:
+        raise ValidationError("Username cannot be empty")
+    if not password:
+        raise ValidationError("Password cannot be empty")
+    if username != "admin" or password != "secret":
+        raise AuthenticationError("Invalid credentials")
+    return True
+
+try:
+    authenticate_user("admin", "secret")
+except ValidationError as e:
+    print(f"Validation error: {e}")
+except AuthenticationError as e:
+    print(f"Authentication error: {e}")
+except ApplicationError as e:
+    print(f"Application error: {e}")
+
+
+================================================================================
+6. EXCEPTION PROPAGATION
+================================================================================
+
+EXAMPLE 1: EXCEPTION BUBBLING UP
+--------------------------------
+
+def level_3():
+    raise ValueError("Error in level 3")
+
+def level_2():
+    level_3()
+
+def level_1():
+    level_2()
+
+try:
+    level_1()
+except ValueError as e:
+    print(f"Caught exception: {e}")
+
+
+EXAMPLE 2: HANDLING AT DIFFERENT LEVELS
+----------------------------------------
+
+def database_query():
+    raise ConnectionError("Database connection failed")
+
+def fetch_user(user_id):
+    try:
+        database_query()
+    except ConnectionError as e:
+        print(f"Retrying database connection...")
+        raise  # Re-raise to let caller handle it
+
+def get_user_profile(user_id):
+    try:
+        fetch_user(user_id)
+    except ConnectionError:
+        print("Failed to fetch user profile")
+        return None
+
+result = get_user_profile(1)
+
+
+EXAMPLE 3: CONTEXT MANAGERS FOR RESOURCE MANAGEMENT
+----------------------------------------------------
+
+class DatabaseConnection:
+    def __init__(self, db_name):
+        self.db_name = db_name
+        self.connected = False
+    
+    def __enter__(self):
+        print(f"Connecting to {self.db_name}...")
+        self.connected = True
+        return self
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        print(f"Disconnecting from {self.db_name}...")
+        self.connected = False
+        if exc_type is not None:
+            print(f"Exception occurred: {exc_type.__name__}: {exc_val}")
+        return False  # Don't suppress exceptions
+
+try:
+    with DatabaseConnection("mydb") as db:
+        print("Executing queries...")
+        raise ValueError("Query error")
+except ValueError as e:
+    print(f"Caught: {e}")
+
+
+================================================================================
+7. BEST PRACTICES
+================================================================================
+
+PRACTICE 1: BE SPECIFIC WITH EXCEPTIONS
+----------------------------------------
+
+# Bad
+try:
+    result = 10 / 0
+except:
+    print("Something went wrong")
+
+# Good
+try:
+    result = 10 / 0
+except ZeroDivisionError:
+    print("Cannot divide by zero")
+
+
+PRACTICE 2: AVOID BARE EXCEPT
+------------------------------
+
+# Bad
+try:
+    risky_operation()
+except:
+    pass
+
+# Good
+try:
+    risky_operation()
+except SpecificException as e:
+    logger.error(f"Error: {e}")
+
+
+PRACTICE 3: USE FINALLY FOR CLEANUP
+------------------------------------
+
+file = None
+try:
+    file = open("data.txt", "r")
+    data = file.read()
+except FileNotFoundError:
+    print("File not found")
+finally:
+    if file:
+        file.close()
+
+
+PRACTICE 4: USE CONTEXT MANAGERS
+---------------------------------
+
+# Better than manual try-finally
+with open("data.txt", "r") as file:
+    data = file.read()
+
+
+PRACTICE 5: PROVIDE CONTEXT IN EXCEPTIONS
+------------------------------------------
+
+def process_user_data(user_data):
+    try:
+        age = int(user_data["age"])
+        if age < 0:
+            raise ValueError("Age cannot be negative")
+    except KeyError as e:
+        raise ValueError(f"Missing required field: {e}") from e
+    except ValueError as e:
+        raise ValueError(f"Invalid user data: {e}") from e
+
+
+================================================================================
+8. REAL-WORLD EXAMPLES
+================================================================================
+
+EXAMPLE 1: DATA VALIDATION
+---------------------------
+
+class User:
+    def __init__(self, name, email, age):
+        self.name = self._validate_name(name)
+        self.email = self._validate_email(email)
+        self.age = self._validate_age(age)
+    
+    def _validate_name(self, name):
+        if not isinstance(name, str):
+            raise TypeError("Name must be a string")
+        if not name.strip():
+            raise ValueError("Name cannot be empty")
+        return name.strip()
+    
+    def _validate_email(self, email):
+        if "@" not in email:
+            raise ValueError("Invalid email format")
+        return email
+    
+    def _validate_age(self, age):
+        try:
+            age = int(age)
+        except ValueError:
+            raise ValueError("Age must be a number")
+        if age < 0 or age > 150:
+            raise ValueError("Age must be between 0 and 150")
+        return age
+
+try:
+    user = User("Alice", "alice@example.com", 30)
+    print(f"User created: {user.name}")
+except (TypeError, ValueError) as e:
+    print(f"Error creating user: {e}")
+
+
+EXAMPLE 2: FILE PROCESSING WITH ERROR HANDLING
+-----------------------------------------------
+
+def process_csv_file(filename):
+    try:
+        with open(filename, 'r') as file:
+            lines = file.readlines()
+        
+        data = []
+        for line_num, line in enumerate(lines, 1):
+            try:
+                parts = line.strip().split(',')
+                if len(parts) != 3:
+                    raise ValueError(f"Expected 3 columns, got {len(parts)}")
+                name, age, email = parts
+                age = int(age)
+                data.append({"name": name, "age": age, "email": email})
+            except ValueError as e:
+                print(f"Error on line {line_num}: {e}")
+                continue
+        
+        return data
+    
+    except FileNotFoundError:
+        print(f"File '{filename}' not found")
+        return []
+    except Exception as e:
+        print(f"Unexpected error: {e}")
+        return []
+
+result = process_csv_file("data.csv")
+
+
+================================================================================
+KEY TAKEAWAYS
+================================================================================
+
+1. Use try-except blocks to handle exceptions gracefully
+2. Always use finally for cleanup operations
+3. Be specific with exception types, avoid bare except
+4. Create custom exceptions for application-specific errors
+5. Use context managers (with statement) for resource management
+6. Provide meaningful error messages with context
+7. Re-raise exceptions when appropriate
+8. Use exception chaining to preserve error context
+9. Test exception handling paths in your code
+10. Log exceptions for debugging and monitoring
+
+================================================================================

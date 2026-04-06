@@ -1,0 +1,522 @@
+================================================================================
+ITERATORS AND GENERATORS IN PYTHON
+================================================================================
+
+TABLE OF CONTENTS:
+1. Introduction to Iterators
+2. Creating Iterators
+3. Introduction to Generators
+4. yield Keyword
+5. Generator Expressions
+6. Advanced Generator Concepts
+7. Iterator vs Generator
+8. Real-world Examples
+
+================================================================================
+1. INTRODUCTION TO ITERATORS
+================================================================================
+
+An iterator is an object that implements two methods:
+- __iter__(): Returns the iterator object itself
+- __next__(): Returns the next value from the iterator
+
+Iterators are used to iterate over sequences like lists, tuples, strings, etc.
+
+BASIC CONCEPT:
+--------------
+
+# Using built-in iterators
+my_list = [1, 2, 3, 4, 5]
+iterator = iter(my_list)
+
+print(next(iterator))  # Output: 1
+print(next(iterator))  # Output: 2
+print(next(iterator))  # Output: 3
+
+# When iterator is exhausted, StopIteration is raised
+# print(next(iterator))  # After all elements
+
+
+ITERATING WITH FOR LOOP:
+------------------------
+
+# For loops use iterators internally
+my_list = [1, 2, 3, 4, 5]
+
+for item in my_list:
+    print(item)
+
+# This is equivalent to:
+iterator = iter(my_list)
+while True:
+    try:
+        item = next(iterator)
+        print(item)
+    except StopIteration:
+        break
+
+
+================================================================================
+2. CREATING ITERATORS
+================================================================================
+
+BASIC ITERATOR CLASS:
+---------------------
+
+class CountUp:
+    def __init__(self, max):
+        self.max = max
+        self.current = 0
+    
+    def __iter__(self):
+        return self
+    
+    def __next__(self):
+        if self.current < self.max:
+            self.current += 1
+            return self.current
+        else:
+            raise StopIteration
+
+# Usage
+counter = CountUp(5)
+for num in counter:
+    print(num)  # Output: 1, 2, 3, 4, 5
+
+
+ITERATOR WITH STATE:
+--------------------
+
+class Fibonacci:
+    def __init__(self, limit):
+        self.limit = limit
+        self.a, self.b = 0, 1
+    
+    def __iter__(self):
+        return self
+    
+    def __next__(self):
+        if self.a > self.limit:
+            raise StopIteration
+        value = self.a
+        self.a, self.b = self.b, self.a + self.b
+        return value
+
+# Usage
+fib = Fibonacci(50)
+for num in fib:
+    print(num)  # Output: 0, 1, 1, 2, 3, 5, 8, 13, 21, 34
+
+
+ITERATOR WITH FILTERING:
+------------------------
+
+class EvenNumbers:
+    def __init__(self, max):
+        self.max = max
+        self.current = 0
+    
+    def __iter__(self):
+        return self
+    
+    def __next__(self):
+        while self.current < self.max:
+            self.current += 1
+            if self.current % 2 == 0:
+                return self.current
+        raise StopIteration
+
+# Usage
+evens = EvenNumbers(10)
+for num in evens:
+    print(num)  # Output: 2, 4, 6, 8, 10
+
+
+================================================================================
+3. INTRODUCTION TO GENERATORS
+================================================================================
+
+A generator is a function that returns an iterator. It uses the yield keyword
+to produce a sequence of values lazily (on-demand).
+
+BASIC GENERATOR:
+----------------
+
+def count_up(max):
+    current = 0
+    while current < max:
+        current += 1
+        yield current
+
+# Usage
+for num in count_up(5):
+    print(num)  # Output: 1, 2, 3, 4, 5
+
+# Generators are lazy - they don't compute all values upfront
+gen = count_up(5)
+print(next(gen))  # Output: 1
+print(next(gen))  # Output: 2
+
+
+GENERATOR VS FUNCTION:
+----------------------
+
+# Regular function - returns all values at once
+def get_numbers_function(n):
+    result = []
+    for i in range(n):
+        result.append(i)
+    return result
+
+# Generator - yields values one at a time
+def get_numbers_generator(n):
+    for i in range(n):
+        yield i
+
+# Function returns list
+print(get_numbers_function(5))  # Output: [0, 1, 2, 3, 4]
+
+# Generator returns generator object
+print(get_numbers_generator(5))  # Output: <generator object...>
+
+# Iterate through generator
+for num in get_numbers_generator(5):
+    print(num)  # Output: 0, 1, 2, 3, 4
+
+
+MEMORY EFFICIENCY:
+------------------
+
+# Function: Creates entire list in memory
+def numbers_function(n):
+    result = []
+    for i in range(n):
+        result.append(i)
+    return result
+
+# Generator: Creates values on-demand
+def numbers_generator(n):
+    for i in range(n):
+        yield i
+
+# For large n, generator is much more memory efficient
+import sys
+
+# Function uses more memory
+func_result = numbers_function(1000000)
+print(f"Function result size: {sys.getsizeof(func_result)} bytes")
+
+# Generator uses minimal memory
+gen_result = numbers_generator(1000000)
+print(f"Generator result size: {sys.getsizeof(gen_result)} bytes")
+
+
+================================================================================
+4. YIELD KEYWORD
+================================================================================
+
+The yield keyword pauses the function and returns a value. When called again,
+it resumes from where it left off.
+
+BASIC YIELD:
+------------
+
+def simple_generator():
+    yield 1
+    yield 2
+    yield 3
+
+gen = simple_generator()
+print(next(gen))  # Output: 1
+print(next(gen))  # Output: 2
+print(next(gen))  # Output: 3
+# print(next(gen))  # StopIteration
+
+
+YIELD WITH COMPUTATION:
+-----------------------
+
+def fibonacci(limit):
+    a, b = 0, 1
+    while a < limit:
+        yield a
+        a, b = b, a + b
+
+for num in fibonacci(100):
+    print(num)  # Output: 0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89
+
+
+YIELD IN LOOPS:
+---------------
+
+def read_file_lines(filename):
+    with open(filename, 'r') as file:
+        for line in file:
+            yield line.strip()
+
+# Usage - memory efficient for large files
+for line in read_file_lines("large_file.txt"):
+    process_line(line)
+
+
+YIELD FROM (Python 3.3+):
+-------------------------
+
+def generator1():
+    yield 1
+    yield 2
+
+def generator2():
+    yield 3
+    yield 4
+
+def combined_generator():
+    yield from generator1()
+    yield from generator2()
+
+for num in combined_generator():
+    print(num)  # Output: 1, 2, 3, 4
+
+
+================================================================================
+5. GENERATOR EXPRESSIONS
+================================================================================
+
+Generator expressions are like list comprehensions but return a generator.
+
+BASIC SYNTAX:
+-------------
+
+# List comprehension - creates list in memory
+list_comp = [x**2 for x in range(10)]
+print(list_comp)  # Output: [0, 1, 4, 9, 16, 25, 36, 49, 64, 81]
+
+# Generator expression - creates generator
+gen_exp = (x**2 for x in range(10))
+print(gen_exp)  # Output: <generator object...>
+
+# Iterate through generator expression
+for value in gen_exp:
+    print(value)  # Output: 0, 1, 4, 9, 16, 25, 36, 49, 64, 81
+
+
+MEMORY COMPARISON:
+------------------
+
+import sys
+
+# List comprehension
+list_comp = [x**2 for x in range(1000000)]
+print(f"List size: {sys.getsizeof(list_comp)} bytes")
+
+# Generator expression
+gen_exp = (x**2 for x in range(1000000))
+print(f"Generator size: {sys.getsizeof(gen_exp)} bytes")
+
+
+GENERATOR EXPRESSIONS WITH CONDITIONS:
+--------------------------------------
+
+# Filter even numbers
+even_gen = (x for x in range(20) if x % 2 == 0)
+for num in even_gen:
+    print(num)  # Output: 0, 2, 4, 6, 8, 10, 12, 14, 16, 18
+
+# Transform and filter
+squared_evens = (x**2 for x in range(20) if x % 2 == 0)
+for num in squared_evens:
+    print(num)  # Output: 0, 4, 16, 36, 64, 100, 144, 196, 256, 324
+
+
+USING GENERATOR EXPRESSIONS WITH FUNCTIONS:
+---------------------------------------------
+
+# sum() with generator expression
+total = sum(x**2 for x in range(100))
+print(total)
+
+# max() with generator expression
+maximum = max(x for x in range(100) if x % 3 == 0)
+print(maximum)
+
+# any() with generator expression
+has_even = any(x % 2 == 0 for x in range(10))
+print(has_even)  # Output: True
+
+
+================================================================================
+6. ADVANCED GENERATOR CONCEPTS
+================================================================================
+
+GENERATOR WITH INITIALIZATION:
+-------------------------------
+
+def countdown(start):
+    while start > 0:
+        yield start
+        start -= 1
+
+# Usage
+for num in countdown(5):
+    print(num)  # Output: 5, 4, 3, 2, 1
+
+
+GENERATOR WITH MULTIPLE YIELDS:
+--------------------------------
+
+def process_data(data):
+    for item in data:
+        if item > 0:
+            yield f"Positive: {item}"
+        elif item < 0:
+            yield f"Negative: {item}"
+        else:
+            yield "Zero"
+
+for result in process_data([1, -2, 0, 3, -4]):
+    print(result)
+
+
+GENERATOR CHAINING:
+-------------------
+
+def read_file(filename):
+    with open(filename, 'r') as file:
+        for line in file:
+            yield line.strip()
+
+def filter_comments(lines):
+    for line in lines:
+        if not line.startswith('#'):
+            yield line
+
+def uppercase_lines(lines):
+    for line in lines:
+        yield line.upper()
+
+# Chain generators
+for line in uppercase_lines(filter_comments(read_file("data.txt"))):
+    print(line)
+
+
+================================================================================
+7. ITERATOR VS GENERATOR
+================================================================================
+
+COMPARISON TABLE:
+-----------------
+
+Iterator:
+- Class with __iter__() and __next__() methods
+- More verbose
+- Can maintain complex state
+- Reusable (can create multiple instances)
+
+Generator:
+- Function with yield keyword
+- Concise and readable
+- Automatic state management
+- Creates new generator each call
+
+
+EXAMPLE COMPARISON:
+-------------------
+
+# Iterator approach
+class RangeIterator:
+    def __init__(self, max):
+        self.max = max
+        self.current = 0
+    
+    def __iter__(self):
+        return self
+    
+    def __next__(self):
+        if self.current < self.max:
+            self.current += 1
+            return self.current
+        raise StopIteration
+
+# Generator approach
+def range_generator(max):
+    current = 0
+    while current < max:
+        current += 1
+        yield current
+
+# Both work the same way
+for num in RangeIterator(5):
+    print(num)
+
+for num in range_generator(5):
+    print(num)
+
+
+================================================================================
+8. REAL-WORLD EXAMPLES
+================================================================================
+
+EXAMPLE 1: FILE PROCESSING
+---------------------------
+
+def read_csv_file(filename):
+    with open(filename, 'r') as file:
+        header = next(file).strip().split(',')
+        for line in file:
+            values = line.strip().split(',')
+            yield dict(zip(header, values))
+
+# Usage - memory efficient for large files
+for row in read_csv_file("data.csv"):
+    print(row)
+
+
+EXAMPLE 2: INFINITE SEQUENCE GENERATOR
+---------------------------------------
+
+def infinite_counter(start=0):
+    while True:
+        yield start
+        start += 1
+
+# Usage - take first 5 values
+counter = infinite_counter()
+for _ in range(5):
+    print(next(counter))  # Output: 0, 1, 2, 3, 4
+
+
+EXAMPLE 3: BATCH PROCESSING
+-----------------------------
+
+def batch_generator(iterable, batch_size):
+    batch = []
+    for item in iterable:
+        batch.append(item)
+        if len(batch) == batch_size:
+            yield batch
+            batch = []
+    if batch:
+        yield batch
+
+# Usage
+data = range(10)
+for batch in batch_generator(data, 3):
+    print(batch)  # Output: [0, 1, 2], [3, 4, 5], [6, 7, 8], [9]
+
+
+================================================================================
+KEY TAKEAWAYS
+================================================================================
+
+1. Iterators implement __iter__() and __next__() methods
+2. Generators are functions that use yield to produce values lazily
+3. Generators are more memory efficient than lists for large sequences
+4. Generator expressions are like list comprehensions but return generators
+5. yield keyword pauses execution and returns a value
+6. yield from delegates to another generator
+7. Generators are ideal for processing large files or streams
+8. Use iterators for complex state management
+9. Use generators for simple, readable lazy evaluation
+10. Generators can be chained for efficient data processing pipelines
+
+================================================================================

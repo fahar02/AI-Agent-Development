@@ -1,0 +1,535 @@
+================================================================================
+MEMORY MANAGEMENT IN PYTHON
+================================================================================
+
+TABLE OF CONTENTS:
+1. Introduction to Memory Management
+2. Stack vs Heap
+3. Reference Counting
+4. Garbage Collection
+5. Memory Optimization
+6. Debugging Memory Issues
+7. Advanced Concepts
+8. Real-world Examples
+
+================================================================================
+1. INTRODUCTION TO MEMORY MANAGEMENT
+================================================================================
+
+Memory management is crucial for writing efficient Python programs. Python
+automatically manages memory through reference counting and garbage collection,
+but understanding how it works helps write better code.
+
+Key Concepts:
+- Stack: Fast, limited, automatic cleanup
+- Heap: Larger, slower, requires garbage collection
+- Reference counting: Tracks object references
+- Garbage collection: Removes unreachable objects
+- Memory leaks: Objects that aren't freed
+
+
+================================================================================
+2. STACK VS HEAP
+================================================================================
+
+STACK:
+------
+
+The stack stores:
+- Local variables
+- Function parameters
+- Return addresses
+- Small data types (int, float, bool)
+
+Characteristics:
+- Fast access (LIFO - Last In First Out)
+- Limited size
+- Automatically freed when function returns
+- No garbage collection needed
+
+Example:
+def function():
+    x = 5  # Stored on stack
+    y = 10  # Stored on stack
+    return x + y  # x and y freed when function returns
+
+
+HEAP:
+-----
+
+The heap stores:
+- Objects (instances of classes)
+- Lists, dictionaries, sets
+- Strings (in some cases)
+- Large data structures
+
+Characteristics:
+- Slower access
+- Larger size
+- Manual or automatic cleanup
+- Requires garbage collection
+
+Example:
+def function():
+    my_list = [1, 2, 3]  # List object stored on heap
+    my_dict = {"key": "value"}  # Dict object stored on heap
+    return my_list, my_dict  # Objects persist after function returns
+
+
+MEMORY LAYOUT EXAMPLE:
+---------------------
+
+import sys
+
+# Small integers are cached
+a = 5
+b = 5
+print(a is b)  # Output: True (same object)
+
+# Larger integers are not cached
+a = 257
+b = 257
+print(a is b)  # Output: False (different objects)
+
+# Lists always create new objects
+list1 = [1, 2, 3]
+list2 = [1, 2, 3]
+print(list1 is list2)  # Output: False (different objects)
+
+# Check object size
+print(sys.getsizeof(5))  # Output: 28 bytes
+print(sys.getsizeof([1, 2, 3]))  # Output: 56 bytes
+print(sys.getsizeof("hello"))  # Output: 54 bytes
+
+
+================================================================================
+3. REFERENCE COUNTING
+================================================================================
+
+Python uses reference counting to track object references. When reference
+count reaches zero, the object is immediately freed.
+
+BASIC REFERENCE COUNTING:
+-------------------------
+
+import sys
+
+# Create an object
+my_list = [1, 2, 3]
+print(sys.getrefcount(my_list))  # Output: 2 (1 for my_list, 1 for getrefcount)
+
+# Create another reference
+another_ref = my_list
+print(sys.getrefcount(my_list))  # Output: 3
+
+# Delete a reference
+del another_ref
+print(sys.getrefcount(my_list))  # Output: 2
+
+# When all references are deleted, object is freed
+del my_list
+# Object is now freed
+
+
+REFERENCE COUNTING WITH FUNCTIONS:
+----------------------------------
+
+import sys
+
+def process_list(lst):
+    print(f"Inside function: {sys.getrefcount(lst)}")
+    # Reference count increases when passed to function
+
+my_list = [1, 2, 3]
+print(f"Before function: {sys.getrefcount(my_list)}")  # Output: 2
+process_list(my_list)  # Output: 3
+print(f"After function: {sys.getrefcount(my_list)}")  # Output: 2
+
+
+CIRCULAR REFERENCES:
+--------------------
+
+# Circular references can prevent garbage collection
+class Node:
+    def __init__(self, value):
+        self.value = value
+        self.next = None
+
+# Create circular reference
+node1 = Node(1)
+node2 = Node(2)
+node1.next = node2
+node2.next = node1  # Circular reference
+
+# Even if we delete references, objects won't be freed immediately
+del node1
+del node2
+# Objects are freed by garbage collector, not reference counting
+
+
+BREAKING CIRCULAR REFERENCES:
+-----------------------------
+
+import weakref
+
+class Node:
+    def __init__(self, value):
+        self.value = value
+        self.next = None
+
+# Use weak references to break cycles
+node1 = Node(1)
+node2 = Node(2)
+node1.next = node2
+node2.next = weakref.ref(node1)  # Weak reference
+
+del node1
+del node2
+# Objects are freed immediately
+
+
+================================================================================
+4. GARBAGE COLLECTION
+================================================================================
+
+Python's garbage collector handles circular references and unreachable objects.
+
+GARBAGE COLLECTION BASICS:
+--------------------------
+
+import gc
+
+# Get garbage collection stats
+print(gc.get_count())  # Output: (objects, collections, collections)
+
+# Disable garbage collection
+gc.disable()
+
+# Enable garbage collection
+gc.enable()
+
+# Force garbage collection
+collected = gc.collect()
+print(f"Collected {collected} objects")
+
+# Get garbage collector objects
+garbage = gc.garbage
+print(f"Garbage objects: {len(garbage)}")
+
+
+GARBAGE COLLECTION THRESHOLDS:
+------------------------------
+
+import gc
+
+# Get current thresholds
+print(gc.get_threshold())  # Output: (700, 10, 10)
+
+# Set new thresholds
+gc.set_threshold(1000, 15, 15)
+
+# Thresholds determine when garbage collection runs
+# Higher thresholds = less frequent collection = better performance
+# Lower thresholds = more frequent collection = more memory
+
+
+MONITORING GARBAGE COLLECTION:
+------------------------------
+
+import gc
+
+# Enable debug output
+gc.set_debug(gc.DEBUG_SAVEALL)
+
+# Create objects
+my_list = [1, 2, 3]
+my_dict = {"key": "value"}
+
+# Force collection
+gc.collect()
+
+# Check garbage
+print(f"Garbage count: {len(gc.garbage)}")
+
+# Disable debug
+gc.set_debug(0)
+
+
+GENERATIONAL GARBAGE COLLECTION:
+--------------------------------
+
+import gc
+
+# Python uses generational garbage collection
+# Objects are grouped by age (generation 0, 1, 2)
+
+# Get generation stats
+for i in range(gc.get_count().__len__()):
+    print(f"Generation {i}: {gc.get_count()[i]} objects")
+
+# Collect specific generation
+gc.collect(generation=0)  # Collect youngest generation
+
+
+================================================================================
+5. MEMORY OPTIMIZATION
+================================================================================
+
+USING __slots__:
+----------------
+
+# Without __slots__ - uses __dict__
+class PersonWithDict:
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+
+# With __slots__ - more memory efficient
+class PersonWithSlots:
+    __slots__ = ['name', 'age']
+    
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+
+import sys
+
+p1 = PersonWithDict("Alice", 30)
+p2 = PersonWithSlots("Alice", 30)
+
+print(f"With __dict__: {sys.getsizeof(p1.__dict__)} bytes")
+print(f"With __slots__: {sys.getsizeof(p2)} bytes")
+
+
+MEMORY EFFICIENT DATA STRUCTURES:
+---------------------------------
+
+# Use generators instead of lists for large sequences
+def large_sequence_list():
+    return [i for i in range(1000000)]
+
+def large_sequence_generator():
+    for i in range(1000000):
+        yield i
+
+import sys
+
+list_result = large_sequence_list()
+gen_result = large_sequence_generator()
+
+print(f"List size: {sys.getsizeof(list_result)} bytes")
+print(f"Generator size: {sys.getsizeof(gen_result)} bytes")
+
+
+OBJECT POOLING:
+---------------
+
+class ObjectPool:
+    def __init__(self, object_class, initial_size=10):
+        self.object_class = object_class
+        self.available = [object_class() for _ in range(initial_size)]
+        self.in_use = []
+    
+    def acquire(self):
+        if self.available:
+            obj = self.available.pop()
+        else:
+            obj = self.object_class()
+        self.in_use.append(obj)
+        return obj
+    
+    def release(self, obj):
+        if obj in self.in_use:
+            self.in_use.remove(obj)
+            self.available.append(obj)
+
+class Connection:
+    def __init__(self):
+        self.data = None
+
+pool = ObjectPool(Connection, 5)
+conn = pool.acquire()
+pool.release(conn)
+
+
+CONTEXT MANAGERS FOR RESOURCE CLEANUP:
+--------------------------------------
+
+class ResourceManager:
+    def __init__(self, resource_name):
+        self.resource_name = resource_name
+    
+    def __enter__(self):
+        print(f"Acquiring {self.resource_name}")
+        return self
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        print(f"Releasing {self.resource_name}")
+        return False
+
+with ResourceManager("Database") as rm:
+    print("Using resource")
+# Resource automatically released
+
+
+================================================================================
+6. DEBUGGING MEMORY ISSUES
+================================================================================
+
+FINDING MEMORY LEAKS:
+---------------------
+
+import tracemalloc
+
+# Start tracing
+tracemalloc.start()
+
+# Create objects
+my_list = [i for i in range(1000000)]
+my_dict = {i: i**2 for i in range(100000)}
+
+# Get current memory usage
+current, peak = tracemalloc.get_traced_memory()
+print(f"Current: {current / 1024 / 1024:.2f} MB")
+print(f"Peak: {peak / 1024 / 1024:.2f} MB")
+
+# Get top memory allocations
+snapshot = tracemalloc.take_snapshot()
+top_stats = snapshot.statistics('lineno')
+
+for stat in top_stats[:3]:
+    print(stat)
+
+tracemalloc.stop()
+
+
+OBJECT TRACKING:
+----------------
+
+import gc
+import sys
+
+def get_object_info(obj):
+    print(f"Type: {type(obj)}")
+    print(f"Size: {sys.getsizeof(obj)} bytes")
+    print(f"Reference count: {sys.getrefcount(obj)}")
+    print(f"ID: {id(obj)}")
+
+my_list = [1, 2, 3, 4, 5]
+get_object_info(my_list)
+
+
+================================================================================
+7. ADVANCED CONCEPTS
+================================================================================
+
+MEMORY VIEWS:
+-------------
+
+# Memory views provide efficient access to bytes
+data = bytearray(b"Hello")
+view = memoryview(data)
+
+print(view[0])  # Output: 72 (ASCII code for 'H')
+print(view[1:3])  # Output: <memory at 0x...>
+
+# Modify through memory view
+view[0] = 74  # Change 'H' to 'J'
+print(bytes(data))  # Output: b'Jello'
+
+
+WEAK REFERENCES:
+----------------
+
+import weakref
+
+class MyClass:
+    pass
+
+obj = MyClass()
+weak_ref = weakref.ref(obj)
+
+print(weak_ref())  # Output: <MyClass object>
+
+del obj
+print(weak_ref())  # Output: None (object was garbage collected)
+
+
+OBJECT FINALIZATION:
+--------------------
+
+class MyClass:
+    def __init__(self, name):
+        self.name = name
+    
+    def __del__(self):
+        print(f"Finalizing {self.name}")
+
+obj = MyClass("Test")
+del obj  # Output: Finalizing Test
+
+
+================================================================================
+8. REAL-WORLD EXAMPLES
+================================================================================
+
+EXAMPLE 1: MEMORY EFFICIENT FILE PROCESSING
+--------------------------------------------
+
+def process_large_file(filename, chunk_size=8192):
+    with open(filename, 'rb') as file:
+        while True:
+            chunk = file.read(chunk_size)
+            if not chunk:
+                break
+            yield chunk
+
+# Process file without loading entire file into memory
+for chunk in process_large_file("large_file.bin"):
+    process_chunk(chunk)
+
+
+EXAMPLE 2: CACHE WITH SIZE LIMIT
+---------------------------------
+
+from collections import OrderedDict
+
+class LRUCache:
+    def __init__(self, max_size=100):
+        self.cache = OrderedDict()
+        self.max_size = max_size
+    
+    def get(self, key):
+        if key in self.cache:
+            self.cache.move_to_end(key)
+            return self.cache[key]
+        return None
+    
+    def put(self, key, value):
+        if key in self.cache:
+            self.cache.move_to_end(key)
+        self.cache[key] = value
+        if len(self.cache) > self.max_size:
+            self.cache.popitem(last=False)
+
+cache = LRUCache(max_size=100)
+cache.put("key1", "value1")
+print(cache.get("key1"))
+
+
+================================================================================
+KEY TAKEAWAYS
+================================================================================
+
+1. Stack stores small data types, heap stores objects
+2. Reference counting tracks object references
+3. Garbage collection handles circular references
+4. Use __slots__ to reduce memory usage in classes
+5. Generators are more memory efficient than lists
+6. Use context managers for automatic resource cleanup
+7. Monitor memory usage with tracemalloc
+8. Weak references can break circular references
+9. Object pooling reduces allocation overhead
+10. Understand memory layout for performance optimization
+
+================================================================================

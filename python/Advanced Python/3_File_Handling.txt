@@ -1,0 +1,572 @@
+================================================================================
+FILE HANDLING IN PYTHON
+================================================================================
+
+TABLE OF CONTENTS:
+1. Introduction to File Handling
+2. Reading Files
+3. Writing Files
+4. File Modes
+5. Working with CSV Files
+6. Working with JSON Files
+7. File Operations and Management
+8. Best Practices
+9. Real-world Examples
+
+================================================================================
+1. INTRODUCTION TO FILE HANDLING
+================================================================================
+
+File handling is essential for reading, writing, and manipulating files.
+Python provides built-in functions and modules for file operations.
+
+Key Concepts:
+- Opening files
+- Reading/Writing content
+- Closing files
+- Using context managers
+- Working with different file formats
+
+
+================================================================================
+2. READING FILES
+================================================================================
+
+BASIC FILE READING:
+-------------------
+
+# Method 1: read() - Read entire file
+with open("data.txt", "r") as file:
+    content = file.read()
+    print(content)
+
+# Method 2: readline() - Read one line at a time
+with open("data.txt", "r") as file:
+    line = file.readline()
+    while line:
+        print(line.strip())
+        line = file.readline()
+
+# Method 3: readlines() - Read all lines as a list
+with open("data.txt", "r") as file:
+    lines = file.readlines()
+    for line in lines:
+        print(line.strip())
+
+# Method 4: Iterate directly
+with open("data.txt", "r") as file:
+    for line in file:
+        print(line.strip())
+
+
+READING SPECIFIC LINES:
+-----------------------
+
+def read_specific_lines(filename, start_line, end_line):
+    with open(filename, "r") as file:
+        lines = file.readlines()
+        return lines[start_line-1:end_line]
+
+# Read lines 5 to 10
+result = read_specific_lines("data.txt", 5, 10)
+for line in result:
+    print(line.strip())
+
+
+READING WITH ENCODING:
+----------------------
+
+# Handle different encodings
+with open("data.txt", "r", encoding="utf-8") as file:
+    content = file.read()
+
+# Handle encoding errors
+with open("data.txt", "r", encoding="utf-8", errors="ignore") as file:
+    content = file.read()
+
+
+READING LARGE FILES:
+--------------------
+
+def read_large_file(filename, chunk_size=1024):
+    with open(filename, "rb") as file:
+        while True:
+            chunk = file.read(chunk_size)
+            if not chunk:
+                break
+            yield chunk
+
+# Usage
+for chunk in read_large_file("large_file.bin"):
+    process_chunk(chunk)
+
+
+================================================================================
+3. WRITING FILES
+================================================================================
+
+BASIC FILE WRITING:
+-------------------
+
+# Method 1: write() - Write string
+with open("output.txt", "w") as file:
+    file.write("Hello, World!\n")
+    file.write("This is a test file.\n")
+
+# Method 2: writelines() - Write list of strings
+lines = ["Line 1\n", "Line 2\n", "Line 3\n"]
+with open("output.txt", "w") as file:
+    file.writelines(lines)
+
+# Method 3: Using print() function
+with open("output.txt", "w") as file:
+    print("Hello, World!", file=file)
+    print("This is a test file.", file=file)
+
+
+APPENDING TO FILES:
+-------------------
+
+# Append mode
+with open("output.txt", "a") as file:
+    file.write("New line appended\n")
+
+
+WRITING WITH FORMATTING:
+------------------------
+
+data = [
+    {"name": "Alice", "age": 30},
+    {"name": "Bob", "age": 25},
+    {"name": "Charlie", "age": 35}
+]
+
+with open("output.txt", "w") as file:
+    for person in data:
+        file.write(f"Name: {person['name']}, Age: {person['age']}\n")
+
+
+WRITING BINARY DATA:
+--------------------
+
+# Write binary data
+with open("image.bin", "wb") as file:
+    file.write(b"\x89PNG\r\n\x1a\n")
+
+# Read binary data
+with open("image.bin", "rb") as file:
+    data = file.read()
+
+
+================================================================================
+4. FILE MODES
+================================================================================
+
+File modes determine how a file is opened:
+
+'r'   - Read (default). File must exist.
+'w'   - Write. Creates new file or truncates existing.
+'a'   - Append. Creates file if it doesn't exist.
+'x'   - Create. Fails if file exists.
+'b'   - Binary mode (combine with other modes: 'rb', 'wb')
+'t'   - Text mode (default, combine with other modes: 'rt', 'wt')
+'+'   - Read and write (combine: 'r+', 'w+', 'a+')
+
+
+EXAMPLES:
+---------
+
+# Read mode
+with open("file.txt", "r") as f:
+    content = f.read()
+
+# Write mode (overwrites)
+with open("file.txt", "w") as f:
+    f.write("New content")
+
+# Append mode
+with open("file.txt", "a") as f:
+    f.write("Appended content")
+
+# Create mode (fails if exists)
+try:
+    with open("new_file.txt", "x") as f:
+        f.write("New file content")
+except FileExistsError:
+    print("File already exists")
+
+# Read and write
+with open("file.txt", "r+") as f:
+    content = f.read()
+    f.write("New content")
+
+# Binary read
+with open("image.png", "rb") as f:
+    binary_data = f.read()
+
+
+================================================================================
+5. WORKING WITH CSV FILES
+================================================================================
+
+BASIC CSV READING:
+------------------
+
+import csv
+
+# Read CSV file
+with open("data.csv", "r") as file:
+    reader = csv.reader(file)
+    for row in reader:
+        print(row)
+
+# Read with specific delimiter
+with open("data.csv", "r") as file:
+    reader = csv.reader(file, delimiter=";")
+    for row in reader:
+        print(row)
+
+
+CSV READING WITH DICTREADER:
+-----------------------------
+
+import csv
+
+# Read CSV with headers as keys
+with open("data.csv", "r") as file:
+    reader = csv.DictReader(file)
+    for row in reader:
+        print(row)
+        # Access by column name: row["name"], row["age"]
+
+
+WRITING CSV FILES:
+------------------
+
+import csv
+
+# Write CSV file
+data = [
+    ["Name", "Age", "City"],
+    ["Alice", "30", "New York"],
+    ["Bob", "25", "Los Angeles"],
+    ["Charlie", "35", "Chicago"]
+]
+
+with open("output.csv", "w", newline="") as file:
+    writer = csv.writer(file)
+    writer.writerows(data)
+
+
+WRITING CSV WITH DICTWRITER:
+-----------------------------
+
+import csv
+
+data = [
+    {"name": "Alice", "age": 30, "city": "New York"},
+    {"name": "Bob", "age": 25, "city": "Los Angeles"},
+    {"name": "Charlie", "age": 35, "city": "Chicago"}
+]
+
+with open("output.csv", "w", newline="") as file:
+    fieldnames = ["name", "age", "city"]
+    writer = csv.DictWriter(file, fieldnames=fieldnames)
+    writer.writeheader()
+    writer.writerows(data)
+
+
+================================================================================
+6. WORKING WITH JSON FILES
+================================================================================
+
+BASIC JSON READING:
+-------------------
+
+import json
+
+# Read JSON file
+with open("data.json", "r") as file:
+    data = json.load(file)
+    print(data)
+
+# Read JSON string
+json_string = '{"name": "Alice", "age": 30}'
+data = json.loads(json_string)
+print(data)
+
+
+BASIC JSON WRITING:
+-------------------
+
+import json
+
+data = {
+    "name": "Alice",
+    "age": 30,
+    "city": "New York",
+    "hobbies": ["reading", "coding", "gaming"]
+}
+
+# Write to file
+with open("output.json", "w") as file:
+    json.dump(data, file, indent=2)
+
+# Convert to string
+json_string = json.dumps(data, indent=2)
+print(json_string)
+
+
+WORKING WITH NESTED JSON:
+-------------------------
+
+import json
+
+data = {
+    "users": [
+        {
+            "id": 1,
+            "name": "Alice",
+            "address": {
+                "street": "123 Main St",
+                "city": "New York",
+                "zip": "10001"
+            }
+        },
+        {
+            "id": 2,
+            "name": "Bob",
+            "address": {
+                "street": "456 Oak Ave",
+                "city": "Los Angeles",
+                "zip": "90001"
+            }
+        }
+    ]
+}
+
+with open("users.json", "w") as file:
+    json.dump(data, file, indent=2)
+
+# Read and access nested data
+with open("users.json", "r") as file:
+    data = json.load(file)
+    for user in data["users"]:
+        print(f"{user['name']} lives in {user['address']['city']}")
+
+
+================================================================================
+7. FILE OPERATIONS AND MANAGEMENT
+================================================================================
+
+CHECKING FILE EXISTENCE:
+------------------------
+
+import os
+
+filename = "data.txt"
+
+if os.path.exists(filename):
+    print(f"{filename} exists")
+else:
+    print(f"{filename} does not exist")
+
+# Check if it's a file
+if os.path.isfile(filename):
+    print(f"{filename} is a file")
+
+# Check if it's a directory
+if os.path.isdir(filename):
+    print(f"{filename} is a directory")
+
+
+FILE INFORMATION:
+-----------------
+
+import os
+
+filename = "data.txt"
+
+# Get file size
+size = os.path.getsize(filename)
+print(f"File size: {size} bytes")
+
+# Get file modification time
+import time
+mod_time = os.path.getmtime(filename)
+print(f"Last modified: {time.ctime(mod_time)}")
+
+# Get absolute path
+abs_path = os.path.abspath(filename)
+print(f"Absolute path: {abs_path}")
+
+
+LISTING DIRECTORY CONTENTS:
+---------------------------
+
+import os
+
+# List all files in directory
+files = os.listdir(".")
+for file in files:
+    print(file)
+
+# List only files (not directories)
+files = [f for f in os.listdir(".") if os.path.isfile(f)]
+for file in files:
+    print(file)
+
+# List only directories
+dirs = [d for d in os.listdir(".") if os.path.isdir(d)]
+for dir in dirs:
+    print(dir)
+
+
+COPYING, MOVING, DELETING FILES:
+---------------------------------
+
+import shutil
+import os
+
+# Copy file
+shutil.copy("source.txt", "destination.txt")
+
+# Copy with metadata
+shutil.copy2("source.txt", "destination.txt")
+
+# Move/rename file
+shutil.move("old_name.txt", "new_name.txt")
+
+# Delete file
+os.remove("file_to_delete.txt")
+
+# Delete directory
+shutil.rmtree("directory_to_delete")
+
+
+================================================================================
+8. BEST PRACTICES
+================================================================================
+
+PRACTICE 1: ALWAYS USE CONTEXT MANAGERS
+----------------------------------------
+
+# Bad
+file = open("data.txt", "r")
+content = file.read()
+file.close()
+
+# Good
+with open("data.txt", "r") as file:
+    content = file.read()
+
+
+PRACTICE 2: SPECIFY ENCODING EXPLICITLY
+---------------------------------------
+
+# Bad
+with open("data.txt", "r") as file:
+    content = file.read()
+
+# Good
+with open("data.txt", "r", encoding="utf-8") as file:
+    content = file.read()
+
+
+PRACTICE 3: USE PATHLIB FOR PATH OPERATIONS
+--------------------------------------------
+
+# Bad
+import os
+path = os.path.join("folder", "subfolder", "file.txt")
+
+# Good
+from pathlib import Path
+path = Path("folder") / "subfolder" / "file.txt"
+
+
+PRACTICE 4: HANDLE FILE ERRORS
+-------------------------------
+
+try:
+    with open("data.txt", "r") as file:
+        content = file.read()
+except FileNotFoundError:
+    print("File not found")
+except IOError as e:
+    print(f"IO Error: {e}")
+
+
+================================================================================
+9. REAL-WORLD EXAMPLES
+================================================================================
+
+EXAMPLE 1: LOG FILE ANALYZER
+-----------------------------
+
+def analyze_log_file(filename):
+    error_count = 0
+    warning_count = 0
+    
+    try:
+        with open(filename, "r") as file:
+            for line_num, line in enumerate(file, 1):
+                if "ERROR" in line:
+                    error_count += 1
+                    print(f"Line {line_num}: {line.strip()}")
+                elif "WARNING" in line:
+                    warning_count += 1
+        
+        print(f"\nTotal errors: {error_count}")
+        print(f"Total warnings: {warning_count}")
+    
+    except FileNotFoundError:
+        print(f"Log file '{filename}' not found")
+
+analyze_log_file("app.log")
+
+
+EXAMPLE 2: DATA MIGRATION FROM CSV TO JSON
+-------------------------------------------
+
+import csv
+import json
+
+def csv_to_json(csv_file, json_file):
+    data = []
+    
+    try:
+        with open(csv_file, "r") as file:
+            reader = csv.DictReader(file)
+            for row in reader:
+                data.append(row)
+        
+        with open(json_file, "w") as file:
+            json.dump(data, file, indent=2)
+        
+        print(f"Successfully converted {csv_file} to {json_file}")
+    
+    except FileNotFoundError as e:
+        print(f"Error: {e}")
+    except Exception as e:
+        print(f"Unexpected error: {e}")
+
+csv_to_json("data.csv", "data.json")
+
+
+================================================================================
+KEY TAKEAWAYS
+================================================================================
+
+1. Always use context managers (with statement) for file operations
+2. Specify encoding explicitly (usually utf-8)
+3. Use pathlib for modern path operations
+4. Handle file not found and IO errors appropriately
+5. Use csv module for CSV files, json module for JSON files
+6. Use DictReader/DictWriter for CSV with headers
+7. Use json.load/dump for file operations, loads/dumps for strings
+8. Always use newline="" when writing CSV files
+9. Close files properly or use context managers
+10. Test file operations with various edge cases
+
+================================================================================

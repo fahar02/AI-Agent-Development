@@ -1,0 +1,243 @@
+WHAT IS A STRING?
+
+A string is a sequence of characters enclosed in quotes.
+
+Examples:
+"Hello"
+'Python'
+"123"
+
+Strings are:
+
+Immutable (cannot be changed after creation)
+Ordered (indexing is allowed)
+CREATING STRINGS
+
+s1 = "Hello"
+s2 = 'World'
+s3 = """Multi-line string"""
+
+STRING INDEXING
+
+Each character has an index.
+
+Example:
+s = "Python"
+
+Indexes:
+P y t h o n
+0 1 2 3 4 5
+
+Access:
+s[0] → 'P'
+s[3] → 'h'
+
+Negative indexing:
+s[-1] → 'n'
+s[-2] → 'o'
+
+STRING SLICING
+
+Syntax:
+string[start:end:step]
+
+Example:
+s = "Python"
+
+s[0:4] → "Pyth"
+s[::2] → "Pto"
+s[::-1] → "nohtyP" (reverse)
+
+STRING IMMUTABILITY
+
+Strings cannot be modified.
+
+Example:
+s = "hello"
+s[0] = "H" ❌ Error
+
+Correct way:
+s = "H" + s[1:]
+
+COMMON STRING METHODS (BEGINNER)
+
+6.1 Changing Case
+
+s.lower() → lowercase
+s.upper() → uppercase
+s.title() → Title Case
+s.capitalize() → First letter capital
+
+6.2 Removing Spaces
+
+s.strip() → remove spaces both sides
+s.lstrip() → left side
+s.rstrip() → right side
+
+6.3 Searching
+
+s.find("a") → returns index
+s.index("a") → error if not found
+s.count("a") → number of occurrences
+
+6.4 Checking
+
+s.startswith("Py")
+s.endswith("on")
+s.isalpha()
+s.isdigit()
+s.isalnum()
+s.isspace()
+
+STRING SPLIT & JOIN
+
+7.1 Split
+
+s = "a,b,c"
+s.split(",") → ['a', 'b', 'c']
+
+7.2 Join
+
+words = ['a', 'b', 'c']
+",".join(words) → "a,b,c"
+
+REPLACE
+
+s.replace("old", "new")
+
+Example:
+"hello world".replace("world", "Python")
+
+ADVANCED STRING METHODS
+
+9.1 Formatting helpers
+
+s.zfill(5) → pad with zeros
+s.center(10)
+s.ljust(10)
+s.rjust(10)
+
+9.2 Partition
+
+s.partition(" ")
+
+Splits into 3 parts:
+(before, separator, after)
+
+9.3 Encoding / Decoding
+
+s.encode() → converts to bytes
+bytes.decode() → back to string
+
+STRING ITERATION
+
+for char in "Python":
+print(char)
+
+STRING COMPARISON
+
+"abc" == "abc" → True
+"abc" < "bcd" → True (lexicographic)
+
+STRING FORMATTING
+
+Used to insert values into strings.
+
+OLD STYLE (% formatting)
+
+name = "Fahar"
+age = 22
+
+"Name: %s Age: %d" % (name, age)
+
+format() METHOD
+
+"Name: {} Age: {}".format(name, age)
+
+With index:
+"{0} {1}".format("Hello", "World")
+
+With named:
+"{name} is {age}".format(name="Fahar", age=22)
+
+F-STRINGS (MODERN & BEST)
+
+Introduced in Python 3.6
+
+Syntax:
+f"string {variable}"
+
+Example:
+name = "Fahar"
+age = 22
+
+f"My name is {name} and I am {age}"
+
+EXPRESSIONS IN F-STRINGS
+
+f"{2+3}" → "5"
+
+f"{name.upper()}"
+
+FORMATTING NUMBERS
+
+price = 12.3456
+
+f"{price:.2f}" → "12.35"
+
+ALIGNMENT
+
+f"{text:<10}" → left align
+f"{text:>10}" → right align
+f"{text:^10}" → center
+
+PADDING
+
+f"{num:05}" → adds leading zeros
+
+STRING INTERNING (ADVANCED)
+
+Python may reuse string objects to save memory.
+
+Example:
+a = "hello"
+b = "hello"
+
+a is b → True (sometimes)
+
+MEMORY OPTIMIZATION
+Strings are immutable → safe sharing
+Efficient for repeated usage
+PERFORMANCE TIPS
+
+Avoid:
+s = ""
+for i in range(1000):
+s += "a" ❌ slow
+
+Use:
+"".join(list_of_strings) ✔ faster
+
+ESCAPE CHARACTERS – DEEP UNDERSTANDING
+
+Escape characters are used to represent special characters inside strings that cannot be written directly.
+
+Core Idea:
+Backslash "" acts as an escape prefix.
+
+Common Escape Sequences:
+
+    \n → New line
+    \t → Horizontal tab
+
+    \" → Double quote 
+    \' → Single quote 
+    \r → Carriage return 
+    \b → Backspace
+    \f → Form feed 
+    \v → Vertical tab --- 
+23.1 INTERNAL WORKING When Python reads a string: - 
+    It parses escape sequences at compile time - Converts them into actual characters in memory Example:
+     s = "Hello\nWorld" Memory representation:
+      "Hello" + newline + "World" Length: len(s) = 11 (Newline counts as 1 character) --- 
+23.2 EDGE CASES Invalid escape sequences: s = "\x" → May raise warning or error Unicode escapes: \u0041 → 'A' \U0001F600 → 😀 --- 23.3 MULTI-LINE VS ESCAPE Using \n: "line1\nline2" Using triple quotes: """line1 line2""" Difference: - \n gives explicit control - Triple quotes preserve formatting --- 24. RAW STRINGS – ADVANCED CONCEPT Raw strings ignore escape sequence processing. Syntax: r"string" Example: r"c:\new\text" Without raw string: "C:\\new\\text" --- 24.1 INTERNAL BEHAVIOR In raw strings: - Backslashes are treated as literal characters - No escape sequence conversion happens Important Limitation: Raw strings cannot end with a single backslash Invalid: r"abc\" → SyntaxError --- 24.2 REAL USE CASE – REGEX Regex heavily uses backslashes. Without raw string: "\\d+" With raw string: r"\d+" Result: Cleaner and less error-prone --- 24.3 FILE PATH HANDLING Windows paths: Without raw string: "C:\\Users\\Name" Better: r"C:\Users\Name" --- 25. REAL-WORLD USE CASES – PRACTICAL VIEW --- 25.1 API RESPONSE PARSING Extract values from JSON-like responses: ids = [item["id"] for item in response] String usage: - Cleaning keys - Formatting output - Validation --- 25.2 DATA CLEANING PIPELINE Example: raw_data = " Hello, World! " cleaned = raw_data.strip().lower().replace(",", "") Used in: - Machine Learning pipelines - ETL systems --- 25.3 LOG PROCESSING Logs are strings. Example: "ERROR 2026-04-05 User failed login" Common operations: - split() - Regex - Pattern matching --- 25.4 USER INPUT VALIDATION email = input() if "@" in email and "." in email: print("Valid") Advanced: - Regex validation - Sanitization --- 25.5 FILE HANDLING Reading files: with open("file.txt") as f: data = f.read() Processing: - Splitting lines - Parsing tokens --- 25.6 TEMPLATE GENERATION Using f-strings: f"Hello {name}, your order {id} is confirmed" Used in: - Emails - Notifications - Reports --- 26. INTERVIEW INSIGHTS – ADVANCED LEVEL --- 26.1 STRING IMMUTABILITY (IMPORTANT) Strings cannot be changed in-place. Why? - Memory optimization - Thread safety - Hashability (used as dictionary keys) --- 26.2 find() vs index() find(): - Returns -1 if not found index(): - Raises ValueError if not found Usage: - find() → safer - index() → strict validation --- 26.3 "+" vs join() Bad approach: s = "" for i in words: s += i Problems: - Creates a new string each time - Time complexity → O(n²) Good approach: "".join(words) Benefits: - Allocates memory once - Time complexity → O(n) --- 26.4 F-STRINGS VS format() f-strings: - Faster - More readable - Evaluated at runtime format(): - More flexible for dynamic templates --- 26.5 SLICING TRICKS Reverse string: s[::-1] Every second character: s[::2] Last 3 characters: s[-3:] --- 26.6 STRING INTERNING (IMPORTANT) Python may reuse string objects to optimize memory. Example: a = "hello" b = "hello" a is b → True (sometimes) Note: Not guaranteed for all strings --- 26.7 MEMORY MODEL Each string: - Stored as an object - Contains metadata (length, hash, encoding) Immutability enables: - Safe sharing - Faster comparisons --- 26.8 TIME COMPLEXITY Indexing → O(1) Slicing → O(n) Concatenation → O(n) Join → O(n) --- 27. FINAL SUMMARY – ADVANCED VIEW Strings are: - Immutable - Ordered - Internally optimized objects Key advanced skills: - Efficient concatenation using join() - Safe formatting using f-strings - Using raw strings with regex - Understanding memory behavior --- GOLDEN RULES 1. Use f-strings for formatting 2. Use join() instead of "+" in loops 3. Use raw strings for regex and file paths 4. Avoid unnecessary string copies 5. Understand immutability deeply --- REAL ADVANCED UNDERSTANDING A string is not just text. It is: - A memory-managed object - Uses encoding (UTF-8 / Unicode) - Optimized for performance - Designed for safe concurrent usage --- If you want next level: - CPython string internals - Unicode & encoding deep dive - Regex mastery - Interview problem set - System design with string-heavy workloads Just tell me 👍

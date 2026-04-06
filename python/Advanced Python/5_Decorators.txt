@@ -1,0 +1,674 @@
+================================================================================
+DECORATORS IN PYTHON
+================================================================================
+
+TABLE OF CONTENTS:
+1. Introduction to Decorators
+2. Function Decorators
+3. Decorator with Arguments
+4. Class Decorators
+5. Built-in Decorators
+6. Real-world Use Cases
+7. Advanced Decorator Concepts
+8. Practical Examples
+
+================================================================================
+1. INTRODUCTION TO DECORATORS
+================================================================================
+
+A decorator is a function that modifies or enhances another function or class
+without permanently changing its source code. It wraps a function and extends
+its behavior.
+
+KEY CONCEPTS:
+- Decorators are higher-order functions
+- They take a function as input and return a modified function
+- They use the @ symbol for convenient syntax
+- They can be stacked (multiple decorators on one function)
+
+
+BASIC CONCEPT:
+--------------
+
+def my_decorator(func):
+    def wrapper():
+        print("Something before the function")
+        func()
+        print("Something after the function")
+    return wrapper
+
+@my_decorator
+def say_hello():
+    print("Hello!")
+
+say_hello()
+# Output:
+# Something before the function
+# Hello!
+# Something after the function
+
+
+EQUIVALENT WITHOUT @ SYNTAX:
+----------------------------
+
+def my_decorator(func):
+    def wrapper():
+        print("Something before the function")
+        func()
+        print("Something after the function")
+    return wrapper
+
+def say_hello():
+    print("Hello!")
+
+say_hello = my_decorator(say_hello)
+say_hello()
+
+
+================================================================================
+2. FUNCTION DECORATORS
+================================================================================
+
+DECORATOR WITH ARGUMENTS:
+-------------------------
+
+def my_decorator(func):
+    def wrapper(*args, **kwargs):
+        print(f"Calling function: {func.__name__}")
+        result = func(*args, **kwargs)
+        print(f"Function returned: {result}")
+        return result
+    return wrapper
+
+@my_decorator
+def add(a, b):
+    return a + b
+
+@my_decorator
+def greet(name):
+    return f"Hello, {name}!"
+
+print(add(5, 3))  # Output: Calling function: add, Function returned: 8
+print(greet("Alice"))  # Output: Calling function: greet, Function returned: Hello, Alice!
+
+
+PRESERVING FUNCTION METADATA:
+-----------------------------
+
+import functools
+
+def my_decorator(func):
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        print(f"Calling {func.__name__}")
+        return func(*args, **kwargs)
+    return wrapper
+
+@my_decorator
+def example_function():
+    """This is an example function"""
+    pass
+
+print(example_function.__name__)  # Output: example_function
+print(example_function.__doc__)  # Output: This is an example function
+
+
+TIMING DECORATOR:
+-----------------
+
+import functools
+import time
+
+def timer_decorator(func):
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        start_time = time.time()
+        result = func(*args, **kwargs)
+        end_time = time.time()
+        print(f"{func.__name__} took {end_time - start_time:.4f} seconds")
+        return result
+    return wrapper
+
+@timer_decorator
+def slow_function():
+    time.sleep(1)
+    return "Done"
+
+slow_function()  # Output: slow_function took 1.0001 seconds
+
+
+LOGGING DECORATOR:
+------------------
+
+import functools
+import logging
+
+logging.basicConfig(level=logging.INFO)
+
+def log_decorator(func):
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        logging.info(f"Calling {func.__name__} with args={args}, kwargs={kwargs}")
+        try:
+            result = func(*args, **kwargs)
+            logging.info(f"{func.__name__} returned {result}")
+            return result
+        except Exception as e:
+            logging.error(f"{func.__name__} raised {type(e).__name__}: {e}")
+            raise
+    return wrapper
+
+@log_decorator
+def divide(a, b):
+    return a / b
+
+divide(10, 2)  # Logs the call and result
+divide(10, 0)  # Logs the exception
+
+
+VALIDATION DECORATOR:
+---------------------
+
+import functools
+
+def validate_positive(func):
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        for arg in args:
+            if isinstance(arg, (int, float)) and arg < 0:
+                raise ValueError(f"Argument {arg} is negative")
+        return func(*args, **kwargs)
+    return wrapper
+
+@validate_positive
+def square_root(x):
+    return x ** 0.5
+
+print(square_root(16))  # Output: 4.0
+# square_root(-4)  # Raises ValueError
+
+
+RETRY DECORATOR:
+----------------
+
+import functools
+import time
+
+def retry(max_attempts=3, delay=1):
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            for attempt in range(max_attempts):
+                try:
+                    return func(*args, **kwargs)
+                except Exception as e:
+                    if attempt == max_attempts - 1:
+                        raise
+                    print(f"Attempt {attempt + 1} failed, retrying in {delay}s...")
+                    time.sleep(delay)
+        return wrapper
+    return decorator
+
+@retry(max_attempts=3, delay=1)
+def unstable_function():
+    import random
+    if random.random() < 0.7:
+        raise ConnectionError("Connection failed")
+    return "Success"
+
+print(unstable_function())
+
+
+================================================================================
+3. DECORATOR WITH ARGUMENTS
+================================================================================
+
+BASIC DECORATOR WITH ARGUMENTS:
+-------------------------------
+
+def repeat(times):
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            results = []
+            for _ in range(times):
+                results.append(func(*args, **kwargs))
+            return results
+        return wrapper
+    return decorator
+
+@repeat(times=3)
+def greet(name):
+    return f"Hello, {name}!"
+
+print(greet("Alice"))
+# Output: ['Hello, Alice!', 'Hello, Alice!', 'Hello, Alice!']
+
+
+DECORATOR WITH OPTIONAL ARGUMENTS:
+----------------------------------
+
+import functools
+
+def rate_limit(calls_per_second=1):
+    def decorator(func):
+        last_called = [0.0]
+        min_interval = 1.0 / calls_per_second
+        
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            elapsed = time.time() - last_called[0]
+            if elapsed < min_interval:
+                time.sleep(min_interval - elapsed)
+            result = func(*args, **kwargs)
+            last_called[0] = time.time()
+            return result
+        return wrapper
+    return decorator
+
+@rate_limit(calls_per_second=2)
+def api_call():
+    print("API called")
+    return "Response"
+
+
+DECORATOR WITH CONFIGURATION:
+------------------------------
+
+import functools
+
+def format_output(prefix="", suffix=""):
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            result = func(*args, **kwargs)
+            return f"{prefix}{result}{suffix}"
+        return wrapper
+    return decorator
+
+@format_output(prefix=">>> ", suffix=" <<<")
+def get_message():
+    return "Hello, World!"
+
+print(get_message())  # Output: >>> Hello, World! <<<
+
+
+================================================================================
+4. CLASS DECORATORS
+================================================================================
+
+BASIC CLASS DECORATOR:
+----------------------
+
+def add_repr(cls):
+    def __repr__(self):
+        attrs = ", ".join(f"{k}={v}" for k, v in self.__dict__.items())
+        return f"{cls.__name__}({attrs})"
+    cls.__repr__ = __repr__
+    return cls
+
+@add_repr
+class Person:
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+
+person = Person("Alice", 30)
+print(person)  # Output: Person(name=Alice, age=30)
+
+
+SINGLETON DECORATOR:
+--------------------
+
+import functools
+
+def singleton(cls):
+    instances = {}
+    
+    @functools.wraps(cls)
+    def get_instance(*args, **kwargs):
+        if cls not in instances:
+            instances[cls] = cls(*args, **kwargs)
+        return instances[cls]
+    
+    return get_instance
+
+@singleton
+class Database:
+    def __init__(self, connection_string):
+        self.connection_string = connection_string
+
+db1 = Database("localhost")
+db2 = Database("localhost")
+print(db1 is db2)  # Output: True
+
+
+================================================================================
+5. BUILT-IN DECORATORS
+================================================================================
+
+@property DECORATOR:
+--------------------
+
+class Circle:
+    def __init__(self, radius):
+        self._radius = radius
+    
+    @property
+    def radius(self):
+        return self._radius
+    
+    @radius.setter
+    def radius(self, value):
+        if value < 0:
+            raise ValueError("Radius cannot be negative")
+        self._radius = value
+    
+    @property
+    def area(self):
+        return 3.14 * self._radius ** 2
+
+circle = Circle(5)
+print(circle.area)  # Output: 78.5
+circle.radius = 10
+print(circle.area)  # Output: 314.0
+
+
+@staticmethod DECORATOR:
+------------------------
+
+class MathOperations:
+    @staticmethod
+    def add(a, b):
+        return a + b
+    
+    @staticmethod
+    def multiply(a, b):
+        return a * b
+
+print(MathOperations.add(5, 3))  # Output: 8
+print(MathOperations.multiply(5, 3))  # Output: 15
+
+
+@classmethod DECORATOR:
+-----------------------
+
+class Person:
+    count = 0
+    
+    def __init__(self, name):
+        self.name = name
+        Person.count += 1
+    
+    @classmethod
+    def from_birth_year(cls, name, birth_year):
+        age = 2024 - birth_year
+        return cls(name)
+    
+    @classmethod
+    def get_count(cls):
+        return f"Total persons: {cls.count}"
+
+p1 = Person("Alice")
+p2 = Person.from_birth_year("Bob", 1990)
+print(Person.get_count())  # Output: Total persons: 2
+
+
+================================================================================
+6. REAL-WORLD USE CASES
+================================================================================
+
+AUTHENTICATION DECORATOR:
+-------------------------
+
+import functools
+
+def require_auth(func):
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        # Simulate checking authentication
+        is_authenticated = True  # In real app, check session/token
+        if not is_authenticated:
+            raise PermissionError("User not authenticated")
+        return func(*args, **kwargs)
+    return wrapper
+
+@require_auth
+def delete_user(user_id):
+    return f"User {user_id} deleted"
+
+print(delete_user(123))  # Output: User 123 deleted
+
+
+CACHING DECORATOR:
+------------------
+
+import functools
+
+def cache(func):
+    cached_results = {}
+    
+    @functools.wraps(func)
+    def wrapper(*args):
+        if args in cached_results:
+            print(f"Returning cached result for {args}")
+            return cached_results[args]
+        result = func(*args)
+        cached_results[args] = result
+        return result
+    
+    return wrapper
+
+@cache
+def expensive_computation(n):
+    print(f"Computing for {n}")
+    return n ** 2
+
+print(expensive_computation(5))  # Computing for 5, Output: 25
+print(expensive_computation(5))  # Returning cached result for (5,), Output: 25
+
+
+DEPRECATION DECORATOR:
+----------------------
+
+import functools
+import warnings
+
+def deprecated(func):
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        warnings.warn(
+            f"{func.__name__} is deprecated",
+            category=DeprecationWarning,
+            stacklevel=2
+        )
+        return func(*args, **kwargs)
+    return wrapper
+
+@deprecated
+def old_function():
+    return "This function is deprecated"
+
+old_function()  # Issues a deprecation warning
+
+
+================================================================================
+7. ADVANCED DECORATOR CONCEPTS
+================================================================================
+
+STACKING DECORATORS:
+--------------------
+
+def decorator1(func):
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        print("Decorator 1 - Before")
+        result = func(*args, **kwargs)
+        print("Decorator 1 - After")
+        return result
+    return wrapper
+
+def decorator2(func):
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        print("Decorator 2 - Before")
+        result = func(*args, **kwargs)
+        print("Decorator 2 - After")
+        return result
+    return wrapper
+
+@decorator1
+@decorator2
+def my_function():
+    print("Function execution")
+
+my_function()
+# Output:
+# Decorator 1 - Before
+# Decorator 2 - Before
+# Function execution
+# Decorator 2 - After
+# Decorator 1 - After
+
+
+DECORATOR FACTORY:
+------------------
+
+def decorator_factory(param):
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            print(f"Decorator parameter: {param}")
+            return func(*args, **kwargs)
+        return wrapper
+    return decorator
+
+@decorator_factory(param="test")
+def my_function():
+    return "Result"
+
+my_function()  # Output: Decorator parameter: test
+
+
+CONDITIONAL DECORATOR:
+----------------------
+
+import functools
+
+def conditional_decorator(condition, decorator):
+    def actual_decorator(func):
+        if condition:
+            return decorator(func)
+        return func
+    return actual_decorator
+
+def my_decorator(func):
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        print("Decorator applied")
+        return func(*args, **kwargs)
+    return wrapper
+
+DEBUG = True
+
+@conditional_decorator(DEBUG, my_decorator)
+def my_function():
+    return "Result"
+
+my_function()  # Output: Decorator applied (if DEBUG=True)
+
+
+================================================================================
+8. PRACTICAL EXAMPLES
+================================================================================
+
+EXAMPLE 1: PERFORMANCE MONITORING
+----------------------------------
+
+import functools
+import time
+
+def monitor_performance(func):
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        start = time.time()
+        result = func(*args, **kwargs)
+        duration = time.time() - start
+        print(f"{func.__name__} took {duration:.4f}s")
+        return result
+    return wrapper
+
+@monitor_performance
+def process_data(data):
+    time.sleep(0.5)
+    return len(data)
+
+process_data([1, 2, 3, 4, 5])
+
+
+EXAMPLE 2: INPUT VALIDATION
+----------------------------
+
+import functools
+
+def validate_types(**type_checks):
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            for arg_name, arg_type in type_checks.items():
+                if arg_name in kwargs:
+                    if not isinstance(kwargs[arg_name], arg_type):
+                        raise TypeError(f"{arg_name} must be {arg_type}")
+            return func(*args, **kwargs)
+        return wrapper
+    return decorator
+
+@validate_types(name=str, age=int)
+def create_user(name, age):
+    return f"User: {name}, Age: {age}"
+
+print(create_user(name="Alice", age=30))
+
+
+EXAMPLE 3: MEMOIZATION
+-----------------------
+
+import functools
+
+def memoize(func):
+    cache = {}
+    
+    @functools.wraps(func)
+    def wrapper(*args):
+        if args not in cache:
+            cache[args] = func(*args)
+        return cache[args]
+    
+    wrapper.cache = cache
+    return wrapper
+
+@memoize
+def fibonacci(n):
+    if n < 2:
+        return n
+    return fibonacci(n-1) + fibonacci(n-2)
+
+print(fibonacci(10))  # Much faster due to memoization
+
+
+================================================================================
+KEY TAKEAWAYS
+================================================================================
+
+1. Decorators are functions that modify other functions or classes
+2. Use @functools.wraps to preserve function metadata
+3. Decorators can accept arguments using nested functions
+4. Multiple decorators can be stacked on one function
+5. Class decorators can modify class behavior
+6. Built-in decorators: @property, @staticmethod, @classmethod
+7. Common use cases: logging, timing, caching, validation, authentication
+8. Decorators are applied bottom-to-top when stacked
+9. Use conditional decorators for optional behavior
+10. Decorators enable clean, reusable code enhancement
+
+================================================================================

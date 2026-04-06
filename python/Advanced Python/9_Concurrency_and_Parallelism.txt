@@ -1,0 +1,769 @@
+================================================================================
+CONCURRENCY AND PARALLELISM IN PYTHON
+================================================================================
+
+TABLE OF CONTENTS:
+1. Introduction to Concurrency and Parallelism
+2. Threading
+3. Multiprocessing
+4. Async/Await
+5. Asyncio
+6. Comparison and Use Cases
+7. Advanced Concepts
+8. Real-world Examples
+
+================================================================================
+1. INTRODUCTION TO CONCURRENCY AND PARALLELISM
+================================================================================
+
+CONCURRENCY VS PARALLELISM:
+---------------------------
+
+Concurrency:
+- Multiple tasks appear to run simultaneously
+- Actually interleave execution on single core
+- Useful for I/O-bound tasks
+- Lower overhead
+
+Parallelism:
+- Multiple tasks run simultaneously on multiple cores
+- True parallel execution
+- Useful for CPU-bound tasks
+- Higher overhead
+
+WHEN TO USE EACH:
+-----------------
+
+Concurrency (Threading/Asyncio):
+- I/O-bound tasks (network, file, database)
+- Many lightweight tasks
+- Responsive user interfaces
+- Server handling multiple clients
+
+Parallelism (Multiprocessing):
+- CPU-bound tasks (calculations, processing)
+- Heavy computational work
+- Data processing pipelines
+- Scientific computing
+
+
+================================================================================
+2. THREADING
+================================================================================
+
+BASIC THREADING:
+----------------
+
+import threading
+import time
+
+def worker(name, duration):
+    print(f"Worker {name} started")
+    time.sleep(duration)
+    print(f"Worker {name} finished")
+
+# Create threads
+threads = []
+for i in range(3):
+    t = threading.Thread(target=worker, args=(f"Thread-{i}", 1))
+    threads.append(t)
+    t.start()
+
+# Wait for all threads
+for t in threads:
+    t.join()
+
+print("All threads completed")
+
+
+THREAD CLASS:
+-------------
+
+import threading
+import time
+
+class WorkerThread(threading.Thread):
+    def __init__(self, name, duration):
+        super().__init__()
+        self.name = name
+        self.duration = duration
+    
+    def run(self):
+        print(f"{self.name} started")
+        time.sleep(self.duration)
+        print(f"{self.name} finished")
+
+# Create and start threads
+threads = []
+for i in range(3):
+    t = WorkerThread(f"Worker-{i}", 1)
+    threads.append(t)
+    t.start()
+
+# Wait for completion
+for t in threads:
+    t.join()
+
+
+THREAD SYNCHRONIZATION:
+-----------------------
+
+import threading
+
+counter = 0
+lock = threading.Lock()
+
+def increment():
+    global counter
+    for _ in range(100000):
+        with lock:
+            counter += 1
+
+threads = [threading.Thread(target=increment) for _ in range(5)]
+for t in threads:
+    t.start()
+for t in threads:
+    t.join()
+
+print(f"Counter: {counter}")  # Output: 500000
+
+
+THREAD-SAFE QUEUE:
+------------------
+
+import threading
+import queue
+import time
+
+def producer(q):
+    for i in range(5):
+        q.put(f"Item {i}")
+        time.sleep(0.1)
+
+def consumer(q):
+    while True:
+        item = q.get()
+        if item is None:
+            break
+        print(f"Consumed: {item}")
+        q.task_done()
+
+q = queue.Queue()
+
+# Create producer and consumer threads
+prod_thread = threading.Thread(target=producer, args=(q,))
+cons_thread = threading.Thread(target=consumer, args=(q,))
+
+prod_thread.start()
+cons_thread.start()
+
+prod_thread.join()
+q.put(None)  # Signal consumer to stop
+cons_thread.join()
+
+
+THREAD POOL:
+------------
+
+from concurrent.futures import ThreadPoolExecutor
+import time
+
+def task(n):
+    time.sleep(1)
+    return n ** 2
+
+# Using thread pool
+with ThreadPoolExecutor(max_workers=3) as executor:
+    results = executor.map(task, range(5))
+    for result in results:
+        print(result)
+
+
+================================================================================
+3. MULTIPROCESSING
+================================================================================
+
+BASIC MULTIPROCESSING:
+----------------------
+
+import multiprocessing
+import time
+
+def worker(name, duration):
+    print(f"Worker {name} started")
+    time.sleep(duration)
+    print(f"Worker {name} finished")
+
+if __name__ == "__main__":
+    processes = []
+    for i in range(3):
+        p = multiprocessing.Process(target=worker, args=(f"Process-{i}", 1))
+        processes.append(p)
+        p.start()
+    
+    for p in processes:
+        p.join()
+    
+    print("All processes completed")
+
+
+PROCESS CLASS:
+--------------
+
+import multiprocessing
+
+class WorkerProcess(multiprocessing.Process):
+    def __init__(self, name, value):
+        super().__init__()
+        self.name = name
+        self.value = value
+    
+    def run(self):
+        print(f"{self.name}: {self.value ** 2}")
+
+if __name__ == "__main__":
+    processes = []
+    for i in range(3):
+        p = WorkerProcess(f"Process-{i}", i + 1)
+        processes.append(p)
+        p.start()
+    
+    for p in processes:
+        p.join()
+
+
+PROCESS POOL:
+-------------
+
+import multiprocessing
+
+def square(x):
+    return x ** 2
+
+if __name__ == "__main__":
+    with multiprocessing.Pool(processes=4) as pool:
+        results = pool.map(square, range(10))
+        print(results)
+
+
+INTER-PROCESS COMMUNICATION:
+----------------------------
+
+import multiprocessing
+
+def producer(queue):
+    for i in range(5):
+        queue.put(f"Item {i}")
+
+def consumer(queue):
+    while True:
+        item = queue.get()
+        if item is None:
+            break
+        print(f"Received: {item}")
+
+if __name__ == "__main__":
+    q = multiprocessing.Queue()
+    
+    p1 = multiprocessing.Process(target=producer, args=(q,))
+    p2 = multiprocessing.Process(target=consumer, args=(q,))
+    
+    p1.start()
+    p2.start()
+    
+    p1.join()
+    q.put(None)
+    p2.join()
+
+
+SHARED DATA:
+------------
+
+import multiprocessing
+
+def worker(shared_list, index, value):
+    shared_list[index] = value
+
+if __name__ == "__main__":
+    shared_list = multiprocessing.Manager().list([0] * 5)
+    
+    processes = []
+    for i in range(5):
+        p = multiprocessing.Process(target=worker, args=(shared_list, i, i*2))
+        processes.append(p)
+        p.start()
+    
+    for p in processes:
+        p.join()
+    
+    print(list(shared_list))
+
+
+================================================================================
+4. ASYNC/AWAIT
+================================================================================
+
+BASIC ASYNC/AWAIT:
+------------------
+
+import asyncio
+
+async def greet(name):
+    print(f"Hello {name}")
+    await asyncio.sleep(1)
+    print(f"Goodbye {name}")
+
+async def main():
+    await greet("Alice")
+    await greet("Bob")
+
+asyncio.run(main())
+
+
+CONCURRENT EXECUTION:
+---------------------
+
+import asyncio
+
+async def task(name, duration):
+    print(f"Task {name} started")
+    await asyncio.sleep(duration)
+    print(f"Task {name} finished")
+    return f"Result from {name}"
+
+async def main():
+    # Run tasks concurrently
+    results = await asyncio.gather(
+        task("A", 1),
+        task("B", 2),
+        task("C", 1.5)
+    )
+    print(results)
+
+asyncio.run(main())
+
+
+ASYNC CONTEXT MANAGER:
+----------------------
+
+import asyncio
+
+class AsyncResource:
+    async def __aenter__(self):
+        print("Acquiring resource")
+        await asyncio.sleep(0.1)
+        return self
+    
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        print("Releasing resource")
+        await asyncio.sleep(0.1)
+    
+    async def do_work(self):
+        print("Doing work")
+        await asyncio.sleep(0.5)
+
+async def main():
+    async with AsyncResource() as resource:
+        await resource.do_work()
+
+asyncio.run(main())
+
+
+ASYNC ITERATOR:
+---------------
+
+import asyncio
+
+class AsyncCounter:
+    def __init__(self, max):
+        self.max = max
+        self.current = 0
+    
+    def __aiter__(self):
+        return self
+    
+    async def __anext__(self):
+        if self.current < self.max:
+            self.current += 1
+            await asyncio.sleep(0.1)
+            return self.current
+        raise StopAsyncIteration
+
+async def main():
+    async for num in AsyncCounter(5):
+        print(num)
+
+asyncio.run(main())
+
+
+================================================================================
+5. ASYNCIO
+================================================================================
+
+EVENT LOOP:
+-----------
+
+import asyncio
+
+async def task1():
+    print("Task 1 started")
+    await asyncio.sleep(1)
+    print("Task 1 finished")
+
+async def task2():
+    print("Task 2 started")
+    await asyncio.sleep(0.5)
+    print("Task 2 finished")
+
+async def main():
+    # Create tasks
+    t1 = asyncio.create_task(task1())
+    t2 = asyncio.create_task(task2())
+    
+    # Wait for all tasks
+    await asyncio.gather(t1, t2)
+
+asyncio.run(main())
+
+
+ASYNCIO QUEUE:
+--------------
+
+import asyncio
+
+async def producer(queue):
+    for i in range(5):
+        await queue.put(f"Item {i}")
+        await asyncio.sleep(0.1)
+
+async def consumer(queue):
+    while True:
+        item = await queue.get()
+        print(f"Consumed: {item}")
+        queue.task_done()
+
+async def main():
+    queue = asyncio.Queue()
+    
+    prod_task = asyncio.create_task(producer(queue))
+    cons_task = asyncio.create_task(consumer(queue))
+    
+    await prod_task
+    await queue.join()
+    cons_task.cancel()
+
+asyncio.run(main())
+
+
+ASYNCIO LOCK:
+-------------
+
+import asyncio
+
+counter = 0
+lock = asyncio.Lock()
+
+async def increment():
+    global counter
+    for _ in range(100):
+        async with lock:
+            counter += 1
+
+async def main():
+    await asyncio.gather(increment(), increment(), increment())
+    print(f"Counter: {counter}")
+
+asyncio.run(main())
+
+
+ASYNCIO SEMAPHORE:
+------------------
+
+import asyncio
+
+async def task(semaphore, task_id):
+    async with semaphore:
+        print(f"Task {task_id} started")
+        await asyncio.sleep(1)
+        print(f"Task {task_id} finished")
+
+async def main():
+    semaphore = asyncio.Semaphore(2)  # Max 2 concurrent tasks
+    
+    tasks = [task(semaphore, i) for i in range(5)]
+    await asyncio.gather(*tasks)
+
+asyncio.run(main())
+
+
+================================================================================
+6. COMPARISON AND USE CASES
+================================================================================
+
+THREADING VS MULTIPROCESSING VS ASYNCIO:
+----------------------------------------
+
+Use Threading when:
+- I/O-bound tasks (network, file, database)
+- Need shared memory
+- Want simple implementation
+- Have moderate number of concurrent tasks
+
+Use Multiprocessing when:
+- CPU-bound tasks (calculations, processing)
+- Need true parallelism
+- Can afford process overhead
+- Tasks are independent
+
+Use Asyncio when:
+- Many I/O-bound tasks (1000+)
+- Need minimal overhead
+- Can use async/await syntax
+- Single-threaded is acceptable
+
+
+PERFORMANCE COMPARISON:
+-----------------------
+
+import threading
+import multiprocessing
+import asyncio
+import time
+
+def cpu_task(n):
+    total = 0
+    for i in range(n):
+        total += i
+    return total
+
+async def io_task():
+    await asyncio.sleep(0.1)
+    return "done"
+
+# CPU-bound: Multiprocessing wins
+# I/O-bound: Asyncio wins
+# Shared state: Threading wins
+
+
+================================================================================
+7. ADVANCED CONCEPTS
+================================================================================
+
+TASK CANCELLATION:
+------------------
+
+import asyncio
+
+async def long_task():
+    try:
+        for i in range(10):
+            print(f"Step {i}")
+            await asyncio.sleep(1)
+    except asyncio.CancelledError:
+        print("Task cancelled")
+        raise
+
+async def main():
+    task = asyncio.create_task(long_task())
+    
+    await asyncio.sleep(3)
+    task.cancel()
+    
+    try:
+        await task
+    except asyncio.CancelledError:
+        print("Task was cancelled")
+
+asyncio.run(main())
+
+
+TIMEOUT:
+--------
+
+import asyncio
+
+async def slow_task():
+    await asyncio.sleep(5)
+    return "Done"
+
+async def main():
+    try:
+        result = await asyncio.wait_for(slow_task(), timeout=2)
+    except asyncio.TimeoutError:
+        print("Task timed out")
+
+asyncio.run(main())
+
+
+EXCEPTION HANDLING:
+-------------------
+
+import asyncio
+
+async def failing_task():
+    await asyncio.sleep(0.1)
+    raise ValueError("Task failed")
+
+async def main():
+    try:
+        await failing_task()
+    except ValueError as e:
+        print(f"Caught exception: {e}")
+
+asyncio.run(main())
+
+
+================================================================================
+8. REAL-WORLD EXAMPLES
+================================================================================
+
+EXAMPLE 1: WEB SCRAPER WITH ASYNCIO
+------------------------------------
+
+import asyncio
+
+async def fetch_url(url):
+    # Simulate async HTTP request
+    await asyncio.sleep(0.5)
+    return f"Data from {url}"
+
+async def scrape_urls(urls):
+    tasks = [fetch_url(url) for url in urls]
+    results = await asyncio.gather(*tasks)
+    return results
+
+# Usage
+# urls = ["http://example.com", "http://example.org"]
+# results = asyncio.run(scrape_urls(urls))
+
+
+EXAMPLE 2: PRODUCER-CONSUMER WITH MULTIPROCESSING
+--------------------------------------------------
+
+import multiprocessing
+import time
+
+def producer(queue):
+    for i in range(10):
+        queue.put(f"Item {i}")
+        time.sleep(0.1)
+
+def consumer(queue):
+    while True:
+        item = queue.get()
+        if item is None:
+            break
+        print(f"Processing: {item}")
+        time.sleep(0.2)
+
+if __name__ == "__main__":
+    queue = multiprocessing.Queue()
+    
+    p1 = multiprocessing.Process(target=producer, args=(queue,))
+    p2 = multiprocessing.Process(target=consumer, args=(queue,))
+    
+    p1.start()
+    p2.start()
+    
+    p1.join()
+    queue.put(None)
+    p2.join()
+
+
+EXAMPLE 3: THREAD POOL FOR BATCH PROCESSING
+---------------------------------------------
+
+from concurrent.futures import ThreadPoolExecutor
+import time
+
+def process_item(item):
+    time.sleep(0.1)
+    return item ** 2
+
+items = range(100)
+
+with ThreadPoolExecutor(max_workers=10) as executor:
+    results = executor.map(process_item, items)
+    for result in results:
+        print(result)
+
+
+EXAMPLE 4: ASYNC WEB SERVER
+----------------------------
+
+import asyncio
+
+async def handle_client(reader, writer):
+    data = await reader.read(100)
+    message = data.decode()
+    
+    response = f"Echo: {message}"
+    writer.write(response.encode())
+    await writer.drain()
+    
+    writer.close()
+    await writer.wait_closed()
+
+async def main():
+    server = await asyncio.start_server(handle_client, '127.0.0.1', 8888)
+    
+    async with server:
+        await server.serve_forever()
+
+# asyncio.run(main())
+
+
+EXAMPLE 5: RATE LIMITER WITH ASYNCIO
+-------------------------------------
+
+import asyncio
+from datetime import datetime, timedelta
+
+class RateLimiter:
+    def __init__(self, max_calls, time_window):
+        self.max_calls = max_calls
+        self.time_window = time_window
+        self.calls = []
+    
+    async def acquire(self):
+        now = datetime.now()
+        # Remove old calls outside time window
+        self.calls = [call for call in self.calls 
+                     if now - call < timedelta(seconds=self.time_window)]
+        
+        if len(self.calls) >= self.max_calls:
+            sleep_time = (self.calls[0] + timedelta(seconds=self.time_window) - now).total_seconds()
+            await asyncio.sleep(sleep_time)
+            return await self.acquire()
+        
+        self.calls.append(now)
+
+async def api_call(limiter):
+    await limiter.acquire()
+    print(f"API call at {datetime.now()}")
+
+async def main():
+    limiter = RateLimiter(max_calls=3, time_window=1)
+    
+    tasks = [api_call(limiter) for _ in range(10)]
+    await asyncio.gather(*tasks)
+
+# asyncio.run(main())
+
+
+================================================================================
+KEY TAKEAWAYS
+================================================================================
+
+1. Use threading for I/O-bound tasks with shared state
+2. Use multiprocessing for CPU-bound tasks
+3. Use asyncio for many concurrent I/O operations
+4. Threading has lower overhead than multiprocessing
+5. Asyncio is more efficient than threading for many tasks
+6. Always use thread/process pools for better resource management
+7. Use thread-safe data structures (Queue) for inter-thread communication
+8. Use asyncio.gather() to run multiple coroutines concurrently
+9. Handle exceptions properly in concurrent code
+10. Choose the right concurrency model based on task type and requirements
+
+================================================================================

@@ -1,0 +1,2333 @@
+# PYTHON FUNCTIONS
+
+## TABLE OF CONTENTS
+1. [Basic Concepts](#basic-concepts)
+2. [Why Functions Matter](#why-functions-matter)
+3. [Function Definition](#function-definition)
+4. [Function Execution Model](#function-execution-model)
+5. [Types of Functions](#types-of-functions)
+6. [Function Arguments](#function-arguments)
+7. [Return Values](#return-values)
+8. [Parameter Passing](#parameter-passing)
+9. [Lambda Functions](#lambda-functions)
+10. [Recursion](#recursion)
+11. [Higher-Order Functions](#higher-order-functions)
+12. [Closures](#closures)
+13. [Decorators](#decorators)
+14. [Function Annotations](#function-annotations)
+15. [Memory and Performance](#memory-and-performance)
+16. [Best Practices](#best-practices)
+17. [Common Mistakes](#common-mistakes)
+18. [Interview Preparation](#interview-preparation)
+19. [Advanced Patterns](#advanced-patterns)
+20. [Real-World Examples](#real-world-examples)
+
+---
+
+## BASIC CONCEPTS
+
+### What is a Function?
+
+A function is a reusable block of code designed to perform a specific task.
+
+**Simple Definition**: Function = Named block of code that can be called multiple times
+
+**Core Idea**: Write once, use many times
+
+### Basic Example
+
+```python
+def greet():
+    """This function prints a greeting message."""
+    print("Hello, World!")
+
+# Call the function
+greet()  # Output: Hello, World!
+greet()  # Output: Hello, World!
+```
+
+---
+
+## WHY FUNCTIONS MATTER
+
+### 1. Code Reusability
+```python
+# Without function - repetitive code
+print("Calculating area for rectangle 1")
+length1, width1 = 5, 3
+area1 = length1 * width1
+print(f"Area: {area1}")
+
+print("Calculating area for rectangle 2")
+length2, width2 = 10, 4
+area2 = length2 * width2
+print(f"Area: {area2}")
+
+# With function - reusable
+def calculate_rectangle_area(length, width):
+    """Calculate area of a rectangle."""
+    return length * width
+
+area1 = calculate_rectangle_area(5, 3)
+area2 = calculate_rectangle_area(10, 4)
+```
+
+### 2. Better Organization
+```python
+def validate_email(email):
+    """Validate email format."""
+    return "@" in email and "." in email
+
+def send_email(to, subject, body):
+    """Send an email."""
+    if validate_email(to):
+        print(f"Sending '{subject}' to {to}")
+        print(f"Body: {body}")
+    else:
+        print("Invalid email address!")
+
+def main():
+    """Main program logic."""
+    email = "user@example.com"
+    send_email(email, "Welcome!", "Thank you for joining!")
+
+main()
+```
+
+### 3. Easier Testing
+```python
+def add_numbers(a, b):
+    """Add two numbers."""
+    return a + b
+
+# Test the function
+assert add_numbers(2, 3) == 5
+assert add_numbers(-1, 1) == 0
+assert add_numbers(0, 0) == 0
+print("All tests passed!")
+```
+
+### 4. Improved Readability
+```python
+def process_user_data(name, age, email):
+    """Process and validate user data."""
+    if not name or len(name) < 2:
+        return "Invalid name"
+    
+    if age < 0 or age > 120:
+        return "Invalid age"
+    
+    if "@" not in email:
+        return "Invalid email"
+    
+    return "User data is valid"
+
+# Much clearer than inline validation
+```
+
+---
+
+## FUNCTION DEFINITION
+
+### Basic Syntax
+
+```python
+def function_name(parameter1, parameter2):
+    """Optional docstring explaining the function."""
+    # Function body
+    result = parameter1 + parameter2
+    return result
+```
+
+### Complete Example
+
+```python
+def calculate_discount(original_price, discount_percentage):
+    """
+    Calculate discounted price.
+    
+    Args:
+        original_price (float): Original price of the item
+        discount_percentage (float): Discount percentage (0-100)
+    
+    Returns:
+        float: Discounted price
+    
+    Raises:
+        ValueError: If inputs are invalid
+    """
+    # Input validation
+    if original_price < 0:
+        raise ValueError("Price cannot be negative")
+    
+    if discount_percentage < 0 or discount_percentage > 100:
+        raise ValueError("Discount must be between 0 and 100")
+    
+    # Calculate discount
+    discount_amount = original_price * (discount_percentage / 100)
+    final_price = original_price - discount_amount
+    
+    return final_price
+
+# Usage
+discounted = calculate_discount(100, 20)  # Returns 80.0
+```
+
+### Function Components
+
+1. **def keyword**: Starts function definition
+2. **Function name**: Following naming conventions (snake_case)
+3. **Parameters**: Input values (optional)
+4. **Colon**: Ends function header
+5. **Docstring**: Documentation (optional but recommended)
+6. **Function body**: Indented code block
+7. **Return statement**: Output value (optional)
+
+---
+
+## FUNCTION EXECUTION MODEL
+
+### The Call Stack
+
+When a function is called, Python uses a call stack to manage execution:
+
+```python
+def function_c():
+    print("Function C started")
+    print("Function C finished")
+
+def function_b():
+    print("Function B started")
+    function_c()
+    print("Function B finished")
+
+def function_a():
+    print("Function A started")
+    function_b()
+    print("Function A finished")
+
+function_a()
+```
+
+**Execution Flow**:
+1. `function_a()` called → Stack frame A created
+2. `function_b()` called → Stack frame B created  
+3. `function_c()` called → Stack frame C created
+4. `function_c()` finishes → Stack frame C removed
+5. `function_b()` finishes → Stack frame B removed
+6. `function_a()` finishes → Stack frame A removed
+
+### Stack Overflow Example
+
+```python
+def recursive_function():
+    """This will cause a stack overflow."""
+    recursive_function()  # No base case!
+
+# Uncomment to see the error
+# recursive_function()  # RecursionError: maximum recursion depth exceeded
+```
+
+### Memory Management
+
+```python
+def demonstrate_scope():
+    """Demonstrate variable scope and memory."""
+    local_var = "I'm local"
+    print(local_var)  # Accessible here
+    
+# Outside the function
+# print(local_var)  # NameError: name 'local_var' is not defined
+
+# Memory is freed when function ends
+```
+
+---
+
+## TYPES OF FUNCTIONS
+
+### 1. Built-in Functions
+
+```python
+# Mathematical functions
+result = abs(-5)        # 5
+result = round(3.14159, 2)  # 3.14
+result = max([1, 5, 3])     # 5
+result = min([1, 5, 3])     # 1
+
+# String functions
+text = "Hello World"
+result = len(text)          # 11
+result = text.upper()       # "HELLO WORLD"
+result = text.lower()       # "hello world"
+
+# Type conversion
+result = str(123)           # "123"
+result = int("456")         # 456
+result = float("3.14")      # 3.14
+```
+
+### 2. User-Defined Functions
+
+```python
+def calculate_bmi(weight_kg, height_m):
+    """Calculate Body Mass Index."""
+    bmi = weight_kg / (height_m ** 2)
+    return round(bmi, 2)
+
+def get_bmi_category(bmi):
+    """Get BMI category."""
+    if bmi < 18.5:
+        return "Underweight"
+    elif bmi < 25:
+        return "Normal weight"
+    elif bmi < 30:
+        return "Overweight"
+    else:
+        return "Obese"
+
+# Usage
+bmi = calculate_bmi(70, 1.75)  # 22.86
+category = get_bmi_category(bmi)  # "Normal weight"
+```
+
+### 3. Anonymous Functions (Lambda)
+
+```python
+# Simple lambda
+square = lambda x: x * x
+print(square(5))  # 25
+
+# Lambda with multiple parameters
+add = lambda x, y: x + y
+print(add(3, 4))  # 7
+
+# Lambda in built-in functions
+numbers = [1, 2, 3, 4, 5]
+squared = list(map(lambda x: x ** 2, numbers))
+print(squared)  # [1, 4, 9, 16, 25]
+
+# Lambda for sorting
+people = [{'name': 'Alice', 'age': 30}, {'name': 'Bob', 'age': 25}]
+sorted_people = sorted(people, key=lambda person: person['age'])
+```
+
+### 4. Recursive Functions
+
+```python
+def factorial(n):
+    """Calculate factorial recursively."""
+    if n <= 1:
+        return 1
+    return n * factorial(n - 1)
+
+def fibonacci(n):
+    """Calculate nth Fibonacci number."""
+    if n <= 1:
+        return n
+    return fibonacci(n - 1) + fibonacci(n - 2)
+
+# Usage
+print(factorial(5))     # 120
+print(fibonacci(10))    # 55
+```
+
+---
+
+## FUNCTION ARGUMENTS
+
+### 1. Positional Arguments
+
+Arguments are assigned based on position:
+
+```python
+def create_profile(name, age, city):
+    """Create user profile."""
+    return f"{name}, {age} years old, from {city}"
+
+# Position matters
+profile1 = create_profile("Alice", 30, "New York")  # Correct
+profile2 = create_profile(30, "Alice", "New York")   # Wrong meaning
+```
+
+### 2. Keyword Arguments
+
+Arguments are passed using parameter names:
+
+```python
+def create_profile(name, age, city):
+    """Create user profile."""
+    return f"{name}, {age} years old, from {city}"
+
+# Order doesn't matter
+profile1 = create_profile(name="Alice", age=30, city="New York")
+profile2 = create_profile(age=30, city="New York", name="Alice")
+```
+
+### 3. Default Arguments
+
+Parameters can have default values:
+
+```python
+def greet(name, greeting="Hello"):
+    """Greet someone with a customizable greeting."""
+    return f"{greeting}, {name}!"
+
+print(greet("Alice"))                    # Hello, Alice!
+print(greet("Bob", "Good morning"))     # Good morning, Bob!
+
+def calculate_price(quantity, price_per_item=10, tax_rate=0.1):
+    """Calculate total price with tax."""
+    subtotal = quantity * price_per_item
+    total = subtotal * (1 + tax_rate)
+    return total
+
+print(calculate_price(5))               # Uses defaults
+print(calculate_price(5, 15, 0.15))     # Overrides defaults
+```
+
+### 4. *args (Variable Positional Arguments)
+
+Accept any number of positional arguments:
+
+```python
+def sum_all(*numbers):
+    """Sum all provided numbers."""
+    total = 0
+    for num in numbers:
+        total += num
+    return total
+
+print(sum_all(1, 2, 3))        # 6
+print(sum_all(1, 2, 3, 4, 5))  # 15
+print(sum_all())                # 0
+
+def create_list(*items):
+    """Create a list from provided items."""
+    return list(items)
+
+print(create_list(1, 2, 3))           # [1, 2, 3]
+print(create_list("a", "b", "c"))     # ['a', 'b', 'c']
+```
+
+### 5. **kwargs (Variable Keyword Arguments)
+
+Accept any number of keyword arguments:
+
+```python
+def create_user_profile(**kwargs):
+    """Create user profile from keyword arguments."""
+    profile = {}
+    for key, value in kwargs.items():
+        profile[key] = value
+    return profile
+
+user1 = create_user_profile(name="Alice", age=30, city="NYC")
+user2 = create_user_profile(name="Bob", email="bob@example.com", role="admin")
+
+print(user1)  # {'name': 'Alice', 'age': 30, 'city': 'NYC'}
+print(user2)  # {'name': 'Bob', 'email': 'bob@example.com', 'role': 'admin'}
+
+def format_message(**kwargs):
+    """Format message with provided details."""
+    message = "User Information:\n"
+    for key, value in kwargs.items():
+        message += f"  {key.title()}: {value}\n"
+    return message
+
+print(format_message(name="Alice", age=30, active=True))
+```
+
+### 6. Combining All Argument Types
+
+Order is important: positional → *args → default → **kwargs
+
+```python
+def complex_function(a, b, *args, c=10, d=20, **kwargs):
+    """Demonstrate all argument types."""
+    print(f"Positional: a={a}, b={b}")
+    print(f"*args: {args}")
+    print(f"Defaults: c={c}, d={d}")
+    print(f"**kwargs: {kwargs}")
+
+complex_function(1, 2, 3, 4, 5, c=100, x=1, y=2)
+# Output:
+# Positional: a=1, b=2
+# *args: (3, 4, 5)
+# Defaults: c=100, d=20
+# **kwargs: {'x': 1, 'y': 2}
+```
+
+### 7. Argument Unpacking
+
+```python
+def calculate_total(price, tax, shipping):
+    """Calculate total cost."""
+    return price + tax + shipping
+
+# Unpack list/tuple
+values = [100, 8, 12]
+total = calculate_total(*values)  # 120
+
+# Unpack dictionary
+order = {"price": 100, "tax": 8, "shipping": 12}
+total = calculate_total(**order)  # 120
+
+# Partial unpacking
+def process_data(name, age, **other_info):
+    print(f"Name: {name}, Age: {age}")
+    print(f"Other info: {other_info}")
+
+data = {"name": "Alice", "age": 30, "city": "NYC", "email": "alice@example.com"}
+process_data(**data)
+```
+
+---
+
+## RETURN VALUES
+
+### Single Return Value
+
+```python
+def add(a, b):
+    """Add two numbers."""
+    return a + b
+
+result = add(5, 3)  # 8
+```
+
+### Multiple Return Values
+
+```python
+def get_coordinates():
+    """Return x and y coordinates."""
+    x = 10
+    y = 20
+    return x, y  # Returns tuple (10, 20)
+
+# Unpack return values
+x_coord, y_coord = get_coordinates()
+print(f"X: {x_coord}, Y: {y_coord}")
+
+# Return as tuple
+coords = get_coordinates()
+print(coords)  # (10, 20)
+print(coords[0])  # 10
+```
+
+### Conditional Returns
+
+```python
+def get_grade(score):
+    """Get letter grade based on score."""
+    if score >= 90:
+        return "A"
+    elif score >= 80:
+        return "B"
+    elif score >= 70:
+        return "C"
+    elif score >= 60:
+        return "D"
+    else:
+        return "F"
+
+print(get_grade(85))  # B
+print(get_grade(95))  # A
+```
+
+### Early Returns
+
+```python
+def validate_user(username, password):
+    """Validate user credentials."""
+    # Early return for invalid username
+    if not username or len(username) < 3:
+        return False, "Username too short"
+    
+    # Early return for invalid password
+    if not password or len(password) < 8:
+        return False, "Password too short"
+    
+    # If we get here, everything is valid
+    return True, "User is valid"
+
+is_valid, message = validate_user("alice", "password123")
+print(f"Valid: {is_valid}, Message: {message}")
+```
+
+### No Explicit Return
+
+```python
+def print_message(message):
+    """Print a message (no return value)."""
+    print(message)
+    # Implicit return None
+
+result = print_message("Hello")
+print(f"Return value: {result}")  # Return value: None
+```
+
+### Returning Functions (Higher-Order)
+
+```python
+def create_multiplier(factor):
+    """Create a multiplier function."""
+    def multiplier(number):
+        return number * factor
+    return multiplier
+
+double = create_multiplier(2)
+triple = create_multiplier(3)
+
+print(double(5))   # 10
+print(triple(5))   # 15
+```
+
+---
+
+## PARAMETER PASSING
+
+### Pass by Object Reference
+
+Python uses "pass by object reference" - not pass by value or pass by reference:
+
+```python
+def modify_list(my_list):
+    """Modify a list passed as argument."""
+    my_list.append(4)
+    print(f"Inside function: {my_list}")
+
+def modify_string(my_string):
+    """Modify a string passed as argument."""
+    my_string = my_string.upper()
+    print(f"Inside function: {my_string}")
+
+# List (mutable)
+numbers = [1, 2, 3]
+modify_list(numbers)
+print(f"Outside function: {numbers}")  # [1, 2, 3, 4] - Modified!
+
+# String (immutable)
+text = "hello"
+modify_string(text)
+print(f"Outside function: {text}")  # "hello" - Not modified!
+```
+
+### Mutable vs Immutable Objects
+
+```python
+def demonstrate_mutation():
+    """Show how mutable and immutable objects behave."""
+    
+    # Immutable objects (int, str, tuple, etc.)
+    x = 10
+    def change_int(num):
+        num = 20  # Creates new local variable
+    
+    change_int(x)
+    print(f"x after function: {x}")  # Still 10
+    
+    # Mutable objects (list, dict, set, etc.)
+    my_list = [1, 2, 3]
+    def change_list(lst):
+        lst.append(4)  # Modifies original list
+    
+    change_list(my_list)
+    print(f"list after function: {my_list}")  # [1, 2, 3, 4]
+
+demonstrate_mutation()
+```
+
+### Copying to Avoid Mutation
+
+```python
+import copy
+
+def process_safely(original_list):
+    """Process list without modifying original."""
+    # Create a copy
+    working_list = original_list.copy()
+    working_list.append(4)
+    return working_list
+
+original = [1, 2, 3]
+result = process_safely(original)
+print(f"Original: {original}")  # [1, 2, 3]
+print(f"Result: {result}")     # [1, 2, 3, 4]
+
+# Deep copy for nested structures
+def process_nested(original_dict):
+    """Process nested dictionary safely."""
+    working_dict = copy.deepcopy(original_dict)
+    working_dict['nested']['value'] = 999
+    return working_dict
+
+nested_original = {'nested': {'value': 42}}
+nested_result = process_nested(nested_original)
+print(f"Original: {nested_original}")  # {'nested': {'value': 42}}
+print(f"Result: {nested_result}")     # {'nested': {'value': 999}}
+```
+
+---
+
+## LAMBDA FUNCTIONS
+
+### Basic Lambda
+
+```python
+# Regular function
+def square(x):
+    return x * x
+
+# Lambda equivalent
+square_lambda = lambda x: x * x
+
+print(square(5))          # 25
+print(square_lambda(5))   # 25
+```
+
+### Lambda with Multiple Parameters
+
+```python
+add = lambda x, y: x + y
+multiply = lambda x, y: x * y
+
+print(add(3, 4))        # 7
+print(multiply(3, 4))   # 12
+```
+
+### Lambda in Built-in Functions
+
+```python
+numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+
+# Map: Apply function to each item
+squared = list(map(lambda x: x ** 2, numbers))
+print(squared)  # [1, 4, 9, 16, 25, 36, 49, 64, 81, 100]
+
+# Filter: Select items that meet condition
+evens = list(filter(lambda x: x % 2 == 0, numbers))
+print(evens)  # [2, 4, 6, 8, 10]
+
+# Sorted: Custom sorting key
+words = ["apple", "banana", "cherry", "date"]
+sorted_by_length = sorted(words, key=lambda word: len(word))
+print(sorted_by_length)  # ['apple', 'date', 'banana', 'cherry']
+```
+
+### Lambda Limitations
+
+```python
+# Lambda can only contain one expression
+# This is valid:
+simple_lambda = lambda x: x * 2
+
+# This is NOT valid:
+# complex_lambda = lambda x:
+#     if x > 0:
+#         return x * 2
+#     else:
+#         return x * 3
+
+# Use regular function for complex logic
+def complex_function(x):
+    if x > 0:
+        return x * 2
+    else:
+        return x * 3
+```
+
+### Practical Lambda Examples
+
+```python
+# Data processing
+people = [
+    {'name': 'Alice', 'age': 30, 'salary': 50000},
+    {'name': 'Bob', 'age': 25, 'salary': 45000},
+    {'name': 'Charlie', 'age': 35, 'salary': 60000}
+]
+
+# Sort by age
+sorted_by_age = sorted(people, key=lambda p: p['age'])
+
+# Sort by salary (descending)
+sorted_by_salary = sorted(people, key=lambda p: p['salary'], reverse=True)
+
+# Extract names
+names = list(map(lambda p: p['name'], people))
+
+# Calculate average salary
+total_salary = sum(map(lambda p: p['salary'], people))
+avg_salary = total_salary / len(people)
+```
+
+---
+
+## RECURSION
+
+### Basic Recursion Structure
+
+```python
+def recursive_function(parameters):
+    """Basic recursive function structure."""
+    # Base case: when to stop
+    if base_condition:
+        return base_value
+    
+    # Recursive case: call function with modified parameters
+    return recursive_function(modified_parameters)
+```
+
+### Factorial Example
+
+```python
+def factorial(n):
+    """Calculate factorial recursively."""
+    # Base case
+    if n <= 1:
+        return 1
+    
+    # Recursive case
+    return n * factorial(n - 1)
+
+# Trace factorial(3):
+# factorial(3) = 3 * factorial(2)
+# factorial(2) = 2 * factorial(1)
+# factorial(1) = 1 (base case)
+# Result: 3 * 2 * 1 = 6
+
+print(factorial(5))  # 120
+```
+
+### Fibonacci Sequence
+
+```python
+def fibonacci(n):
+    """Calculate nth Fibonacci number."""
+    # Base cases
+    if n <= 0:
+        return 0
+    elif n == 1:
+        return 1
+    
+    # Recursive case
+    return fibonacci(n - 1) + fibonacci(n - 2)
+
+# This is inefficient due to repeated calculations
+print(fibonacci(10))  # 55
+```
+
+### Optimized Fibonacci (Memoization)
+
+```python
+def fibonacci_memo(n, memo={}):
+    """Calculate Fibonacci with memoization."""
+    # Check if already calculated
+    if n in memo:
+        return memo[n]
+    
+    # Base cases
+    if n <= 0:
+        return 0
+    elif n == 1:
+        return 1
+    
+    # Calculate and store
+    result = fibonacci_memo(n - 1, memo) + fibonacci_memo(n - 2, memo)
+    memo[n] = result
+    return result
+
+print(fibonacci_memo(100))  # Much faster!
+```
+
+### Directory Traversal Example
+
+```python
+import os
+
+def list_files(directory, prefix=""):
+    """Recursively list all files in directory."""
+    try:
+        items = os.listdir(directory)
+        for item in items:
+            full_path = os.path.join(directory, item)
+            if os.path.isdir(full_path):
+                print(f"{prefix}📁 {item}/")
+                list_files(full_path, prefix + "  ")
+            else:
+                print(f"{prefix}📄 {item}")
+    except PermissionError:
+        print(f"{prefix}🔒 Access denied")
+
+# Usage (be careful with this!)
+# list_files("/path/to/directory")
+```
+
+### Recursion vs Iteration
+
+```python
+# Recursive approach
+def sum_recursive(numbers):
+    """Sum numbers recursively."""
+    if not numbers:
+        return 0
+    return numbers[0] + sum_recursive(numbers[1:])
+
+# Iterative approach
+def sum_iterative(numbers):
+    """Sum numbers iteratively."""
+    total = 0
+    for number in numbers:
+        total += number
+    return total
+
+# Test
+numbers = [1, 2, 3, 4, 5]
+print(sum_recursive(numbers))  # 15
+print(sum_iterative(numbers))  # 15
+```
+
+### Tail Recursion (Note: Python doesn't optimize tail recursion)
+
+```python
+def tail_factorial(n, accumulator=1):
+    """Tail recursive factorial."""
+    if n <= 1:
+        return accumulator
+    return tail_factorial(n - 1, n * accumulator)
+
+print(tail_factorial(5))  # 120
+```
+
+---
+
+## HIGHER-ORDER FUNCTIONS
+
+### Functions as Arguments
+
+```python
+def apply_operation(numbers, operation):
+    """Apply operation to all numbers."""
+    result = []
+    for num in numbers:
+        result.append(operation(num))
+    return result
+
+def square(x):
+    """Square a number."""
+    return x * x
+
+def cube(x):
+    """Cube a number."""
+    return x * x * x
+
+numbers = [1, 2, 3, 4, 5]
+
+squared = apply_operation(numbers, square)
+cubed = apply_operation(numbers, cube)
+
+print(squared)  # [1, 4, 9, 16, 25]
+print(cubed)    # [1, 8, 27, 64, 125]
+```
+
+### Functions as Return Values
+
+```python
+def create_power_function(power):
+    """Create a function that raises to a given power."""
+    def power_function(x):
+        return x ** power
+    return power_function
+
+square = create_power_function(2)
+cube = create_power_function(3)
+fourth_power = create_power_function(4)
+
+print(square(3))      # 9
+print(cube(3))        # 27
+print(fourth_power(3)) # 81
+```
+
+### Function Composition
+
+```python
+def compose(f, g):
+    """Compose two functions: f(g(x))."""
+    return lambda x: f(g(x))
+
+def add_one(x):
+    """Add one to x."""
+    return x + 1
+
+def multiply_by_two(x):
+    """Multiply x by two."""
+    return x * 2
+
+# Create composed function
+add_then_multiply = compose(multiply_by_two, add_one)
+multiply_then_add = compose(add_one, multiply_by_two)
+
+print(add_then_multiply(5))    # (5 + 1) * 2 = 12
+print(multiply_then_add(5))    # (5 * 2) + 1 = 11
+```
+
+### Map and Filter Implementation
+
+```python
+def my_map(function, iterable):
+    """Custom implementation of map."""
+    result = []
+    for item in iterable:
+        result.append(function(item))
+    return result
+
+def my_filter(function, iterable):
+    """Custom implementation of filter."""
+    result = []
+    for item in iterable:
+        if function(item):
+            result.append(item)
+    return result
+
+# Usage
+numbers = [1, 2, 3, 4, 5]
+squared = my_map(lambda x: x * x, numbers)
+evens = my_filter(lambda x: x % 2 == 0, numbers)
+
+print(squared)  # [1, 4, 9, 16, 25]
+print(evens)    # [2, 4]
+```
+
+---
+
+## CLOSURES
+
+### What is a Closure?
+
+A closure is a function that remembers variables from its enclosing scope even after the outer function has finished executing.
+
+```python
+def outer_function(x):
+    """Outer function that creates a closure."""
+    
+    def inner_function(y):
+        """Inner function that accesses outer variable."""
+        return x + y  # x is "closed over"
+    
+    return inner_function
+
+# Create closure
+add_five = outer_function(5)
+add_ten = outer_function(10)
+
+print(add_five(3))   # 8 (5 + 3)
+print(add_ten(3))    # 13 (10 + 3)
+```
+
+### Practical Closure Example
+
+```python
+def create_counter():
+    """Create a counter function."""
+    count = 0
+    
+    def increment():
+        nonlocal count  # Use nonlocal to modify outer variable
+        count += 1
+        return count
+    
+    return increment
+
+# Create independent counters
+counter1 = create_counter()
+counter2 = create_counter()
+
+print(counter1())  # 1
+print(counter1())  # 2
+print(counter2())  # 1 (independent)
+print(counter1())  # 3
+```
+
+### Closure with Configuration
+
+```python
+def create_multiplier(multiplier):
+    """Create a multiplier with preset factor."""
+    
+    def multiply(number):
+        return number * multiplier
+    
+    return multiply
+
+double = create_multiplier(2)
+triple = create_multiplier(3)
+
+print(double(10))  # 20
+print(triple(10))  # 30
+```
+
+### Closure for Data Privacy
+
+```python
+def create_bank_account(initial_balance):
+    """Create a bank account with private balance."""
+    
+    def get_balance():
+        return initial_balance
+    
+    def deposit(amount):
+        nonlocal initial_balance
+        if amount > 0:
+            initial_balance += amount
+            return True
+        return False
+    
+    def withdraw(amount):
+        nonlocal initial_balance
+        if 0 < amount <= initial_balance:
+            initial_balance -= amount
+            return True
+        return False
+    
+    return {'get_balance': get_balance, 'deposit': deposit, 'withdraw': withdraw}
+
+# Usage
+account = create_bank_account(100)
+print(account['get_balance']())  # 100
+account['deposit'](50)           # True
+print(account['get_balance']())  # 150
+account['withdraw'](75)          # True
+print(account['get_balance']())  # 75
+```
+
+---
+
+## DECORATORS
+
+### Basic Decorator Concept
+
+A decorator is a function that modifies another function's behavior.
+
+```python
+def simple_decorator(func):
+    """A simple decorator."""
+    def wrapper():
+        print("Something is happening before the function is called.")
+        func()
+        print("Something is happening after the function is called.")
+    return wrapper
+
+@simple_decorator
+def say_hello():
+    """Function that says hello."""
+    print("Hello!")
+
+say_hello()
+# Output:
+# Something is happening before the function is called.
+# Hello!
+# Something is happening after the function is called.
+```
+
+### Decorator with Arguments
+
+```python
+def timing_decorator(func):
+    """Decorator that times function execution."""
+    import time
+    
+    def wrapper(*args, **kwargs):
+        start_time = time.time()
+        result = func(*args, **kwargs)
+        end_time = time.time()
+        print(f"{func.__name__} took {end_time - start_time:.4f} seconds")
+        return result
+    
+    return wrapper
+
+@timing_decorator
+def slow_function():
+    """A function that takes some time."""
+    import time
+    time.sleep(0.1)
+    return "Done"
+
+result = slow_function()
+# Output: slow_function took 0.1001 seconds
+```
+
+### Decorator with Parameters
+
+```python
+def repeat_decorator(times):
+    """Decorator that repeats function call."""
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+            results = []
+            for _ in range(times):
+                result = func(*args, **kwargs)
+                results.append(result)
+            return results
+        return wrapper
+    return decorator
+
+@repeat_decorator(3)
+def greet(name):
+    """Greet someone."""
+    return f"Hello, {name}!"
+
+results = greet("Alice")
+print(results)  # ['Hello, Alice!', 'Hello, Alice!', 'Hello, Alice!']
+```
+
+### Practical Decorator Examples
+
+#### Logging Decorator
+```python
+def log_decorator(func):
+    """Decorator that logs function calls."""
+    def wrapper(*args, **kwargs):
+        print(f"Calling {func.__name__} with args={args}, kwargs={kwargs}")
+        result = func(*args, **kwargs)
+        print(f"{func.__name__} returned {result}")
+        return result
+    return wrapper
+
+@log_decorator
+def add(a, b):
+    """Add two numbers."""
+    return a + b
+
+add(3, 5)
+# Output:
+# Calling add with args=(3, 5), kwargs={}
+# add returned 8
+```
+
+#### Authentication Decorator
+```python
+def require_auth(func):
+    """Decorator that requires authentication."""
+    def wrapper(*args, **kwargs):
+        # Simulate authentication check
+        user_authenticated = True  # In real app, check session/token
+        
+        if not user_authenticated:
+            return "Authentication required!"
+        
+        return func(*args, **kwargs)
+    return wrapper
+
+@require_auth
+def get_sensitive_data():
+    """Get sensitive user data."""
+    return "Sensitive data here"
+
+print(get_sensitive_data())  # "Sensitive data here"
+```
+
+#### Cache Decorator
+```python
+def cache_decorator(func):
+    """Decorator that caches function results."""
+    cache = {}
+    
+    def wrapper(*args):
+        if args in cache:
+            print(f"Returning cached result for {args}")
+            return cache[args]
+        
+        result = func(*args)
+        cache[args] = result
+        print(f"Caching result for {args}")
+        return result
+    
+    return wrapper
+
+@cache_decorator
+def expensive_calculation(x):
+    """Simulate expensive calculation."""
+    import time
+    time.sleep(0.1)  # Simulate work
+    return x * x
+
+print(expensive_calculation(5))  # Calculates and caches
+print(expensive_calculation(5))  # Returns cached
+print(expensive_calculation(10)) # Calculates and caches
+```
+
+### Class Decorators
+
+```python
+def class_decorator(cls):
+    """Decorator that adds methods to a class."""
+    
+    def new_method(self):
+        return "This is a dynamically added method!"
+    
+    cls.new_method = new_method
+    return cls
+
+@class_decorator
+class MyClass:
+    """A simple class."""
+    
+    def existing_method(self):
+        return "Existing method"
+
+obj = MyClass()
+print(obj.existing_method())  # "Existing method"
+print(obj.new_method())      # "This is a dynamically added method!"
+```
+
+---
+
+## FUNCTION ANNOTATIONS
+
+### Type Hints
+
+```python
+def add_numbers(a: int, b: int) -> int:
+    """Add two integers."""
+    return a + b
+
+def process_text(text: str, uppercase: bool = False) -> str:
+    """Process text with optional uppercase conversion."""
+    if uppercase:
+        return text.upper()
+    return text
+
+def get_user_info(user_id: int) -> dict[str, str]:
+    """Get user information as dictionary."""
+    # Simulate database lookup
+    users = {
+        1: {"name": "Alice", "email": "alice@example.com"},
+        2: {"name": "Bob", "email": "bob@example.com"}
+    }
+    return users.get(user_id, {})
+```
+
+### Complex Type Hints
+
+```python
+from typing import List, Dict, Optional, Union, Callable, Any
+
+def process_numbers(numbers: List[int]) -> List[int]:
+    """Process a list of integers."""
+    return [num * 2 for num in numbers]
+
+def find_user(users: Dict[int, str], user_id: int) -> Optional[str]:
+    """Find user by ID, return None if not found."""
+    return users.get(user_id)
+
+def calculate(operation: str, a: float, b: float) -> Union[float, str]:
+    """Perform calculation or return error message."""
+    if operation == "add":
+        return a + b
+    elif operation == "subtract":
+        return a - b
+    else:
+        return "Unknown operation"
+
+def apply_function(func: Callable[[int], int], value: int) -> int:
+    """Apply a function to a value."""
+    return func(value)
+
+def flexible_function(data: Any) -> Any:
+    """Function that accepts any type."""
+    return data
+```
+
+### Generic Type Hints
+
+```python
+from typing import TypeVar, Generic
+
+T = TypeVar('T')
+
+class Stack(Generic[T]):
+    """Generic stack implementation."""
+    
+    def __init__(self):
+        self._items: List[T] = []
+    
+    def push(self, item: T) -> None:
+        """Push item onto stack."""
+        self._items.append(item)
+    
+    def pop(self) -> T:
+        """Pop item from stack."""
+        return self._items.pop()
+    
+    def is_empty(self) -> bool:
+        """Check if stack is empty."""
+        return len(self._items) == 0
+
+# Usage
+int_stack = Stack[int]()
+str_stack = Stack[str]()
+
+int_stack.push(1)
+int_stack.push(2)
+print(int_stack.pop())  # 2
+
+str_stack.push("hello")
+str_stack.push("world")
+print(str_stack.pop())  # "world"
+```
+
+### Runtime Type Checking
+
+```python
+from typing import get_type_hints
+
+def typed_function(x: int, y: str) -> bool:
+    """Function with type hints."""
+    return str(x) in y
+
+# Get type hints at runtime
+hints = get_type_hints(typed_function)
+print(hints)  # {'x': <class 'int'>, 'y': <class 'str'>, 'return': <class 'bool'>}
+
+# Simple type checker
+def check_types(func, *args, **kwargs):
+    """Check if arguments match function type hints."""
+    hints = get_type_hints(func)
+    
+    # Check positional arguments
+    for i, (arg_name, arg_value) in enumerate(zip(hints.keys(), args)):
+        expected_type = hints[arg_name]
+        if not isinstance(arg_value, expected_type):
+            raise TypeError(f"Argument {arg_name} should be {expected_type}, got {type(arg_value)}")
+    
+    return func(*args, **kwargs)
+
+# Usage
+check_types(typed_function, 5, "hello world")  # Works
+# check_types(typed_function, "hello", "world")  # TypeError
+```
+
+---
+
+## MEMORY AND PERFORMANCE
+
+### Function Objects in Memory
+
+```python
+def demonstrate_function_objects():
+    """Show that functions are objects."""
+    
+    def my_function():
+        return "Hello"
+    
+    # Functions are objects
+    print(f"Function type: {type(my_function)}")
+    print(f"Function name: {my_function.__name__}")
+    print(f"Function doc: {my_function.__doc__}")
+    
+    # Functions have attributes
+    my_function.custom_attribute = "Custom value"
+    print(f"Custom attribute: {my_function.custom_attribute}")
+    
+    # Functions can be stored in data structures
+    function_list = [my_function, len, str]
+    print(f"First function result: {function_list[0]()}")
+
+demonstrate_function_objects()
+```
+
+### Memory Usage with Recursion
+
+```python
+import sys
+
+def recursion_depth_test(depth=0):
+    """Test recursion depth and memory usage."""
+    if depth >= 10:  # Limit to prevent stack overflow
+        return depth
+    
+    # Show memory usage
+    frame_count = len(sys._current_frames())
+    print(f"Depth: {depth}, Active frames: {frame_count}")
+    
+    return recursion_depth_test(depth + 1)
+
+recursion_depth_test()
+```
+
+### Performance Comparison
+
+```python
+import timeit
+
+def recursive_sum(n):
+    """Sum numbers recursively."""
+    if n <= 0:
+        return 0
+    return n + recursive_sum(n - 1)
+
+def iterative_sum(n):
+    """Sum numbers iteratively."""
+    total = 0
+    for i in range(n + 1):
+        total += i
+    return total
+
+def builtin_sum(n):
+    """Sum using built-in function."""
+    return sum(range(n + 1))
+
+# Performance test
+n = 1000
+
+recursive_time = timeit.timeit(lambda: recursive_sum(n), number=100)
+iterative_time = timeit.timeit(lambda: iterative_sum(n), number=100)
+builtin_time = timeit.timeit(lambda: builtin_sum(n), number=100)
+
+print(f"Recursive: {recursive_time:.6f} seconds")
+print(f"Iterative: {iterative_time:.6f} seconds")
+print(f"Built-in: {builtin_time:.6f} seconds")
+```
+
+### Function Call Overhead
+
+```python
+def direct_calculation():
+    """Direct calculation without function calls."""
+    result = 0
+    for i in range(1000):
+        result += i * i
+    return result
+
+def square(x):
+    """Square a number."""
+    return x * x
+
+def function_call_calculation():
+    """Calculation with function calls."""
+    result = 0
+    for i in range(1000):
+        result += square(i)
+    return result
+
+# Compare performance
+direct_time = timeit.timeit(direct_calculation, number=1000)
+function_time = timeit.timeit(function_call_calculation, number=1000)
+
+print(f"Direct: {direct_time:.6f} seconds")
+print(f"Function calls: {function_time:.6f} seconds")
+print(f"Overhead: {(function_time / direct_time - 1) * 100:.2f}%")
+```
+
+### Memory Optimization with Generators
+
+```python
+def list_processing():
+    """Process using list (loads all in memory)."""
+    numbers = [i * i for i in range(1000000)]
+    return sum(numbers)
+
+def generator_processing():
+    """Process using generator (memory efficient)."""
+    numbers = (i * i for i in range(1000000))
+    return sum(numbers)
+
+# Both produce same result, but generator uses less memory
+result1 = list_processing()
+result2 = generator_processing()
+
+print(f"List result: {result1}")
+print(f"Generator result: {result2}")
+print(f"Same result: {result1 == result2}")
+```
+
+---
+
+## BEST PRACTICES
+
+### 1. Function Naming
+
+```python
+# Good: Descriptive, snake_case
+def calculate_monthly_interest(principal, rate, months):
+    """Calculate monthly compound interest."""
+    return principal * (1 + rate/12) ** months
+
+# Bad: Vague or camelCase
+def calc(p, r, m):
+    pass
+
+def calculateMonthlyInterest(principal, rate, months):
+    pass
+```
+
+### 2. Single Responsibility Principle
+
+```python
+# Good: Each function does one thing
+def validate_email(email):
+    """Validate email format."""
+    import re
+    pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    return re.match(pattern, email) is not None
+
+def save_user_to_database(user_data):
+    """Save user data to database."""
+    # Database logic here
+    pass
+
+def register_user(email, password):
+    """Register new user."""
+    if validate_email(email):
+        user_data = {'email': email, 'password': password}
+        save_user_to_database(user_data)
+        return True
+    return False
+
+# Bad: Function does too many things
+def register_user_bad(email, password):
+    """Bad example - does everything."""
+    import re
+    # Validation
+    pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    if not re.match(pattern, email):
+        return False
+    
+    # Database logic
+    user_data = {'email': email, 'password': password}
+    # ... database code ...
+    return True
+```
+
+### 3. Function Length
+
+```python
+# Good: Short and focused
+def calculate_discounted_price(original_price, discount_percent):
+    """Calculate discounted price."""
+    if original_price < 0 or discount_percent < 0 or discount_percent > 100:
+        raise ValueError("Invalid input values")
+    
+    discount_amount = original_price * (discount_percent / 100)
+    return original_price - discount_amount
+
+# Bad: Too long and complex
+def process_order_complex(order_data, customer_data, inventory_data):
+    """Bad example - too long and complex."""
+    # 50+ lines of validation, processing, database calls, etc.
+    pass
+```
+
+### 4. Documentation
+
+```python
+def calculate_bmi(weight_kg, height_m):
+    """
+    Calculate Body Mass Index (BMI).
+    
+    BMI is a measure of body fat based on height and weight.
+    Formula: BMI = weight (kg) / height² (m)
+    
+    Args:
+        weight_kg (float): Weight in kilograms. Must be positive.
+        height_m (float): Height in meters. Must be positive.
+    
+    Returns:
+        float: BMI value rounded to 2 decimal places.
+    
+    Raises:
+        ValueError: If weight or height is not positive.
+    
+    Examples:
+        >>> calculate_bmi(70, 1.75)
+        22.86
+        >>> calculate_bmi(80, 1.80)
+        24.69
+    """
+    if weight_kg <= 0 or height_m <= 0:
+        raise ValueError("Weight and height must be positive values")
+    
+    bmi = weight_kg / (height_m ** 2)
+    return round(bmi, 2)
+```
+
+### 5. Error Handling
+
+```python
+def safe_divide(a, b):
+    """Safely divide two numbers."""
+    try:
+        return a / b
+    except ZeroDivisionError:
+        return float('inf')
+    except TypeError:
+        raise ValueError("Both arguments must be numbers")
+
+def read_config_file(file_path):
+    """Read configuration file safely."""
+    try:
+        with open(file_path, 'r') as file:
+            return file.read()
+    except FileNotFoundError:
+        print(f"Config file {file_path} not found, using defaults")
+        return "{}"
+    except PermissionError:
+        raise PermissionError(f"No permission to read {file_path}")
+```
+
+### 6. Default Arguments Best Practices
+
+```python
+# Good: Use None for mutable defaults
+def process_items(items=None):
+    """Process items safely."""
+    if items is None:
+        items = []
+    # Process items
+    return len(items)
+
+# Bad: Mutable default argument
+def process_items_bad(items=[]):
+    """Bad example - mutable default."""
+    items.append(1)  # This modifies the default list!
+    return len(items)
+```
+
+### 7. Type Hints
+
+```python
+# Good: Clear type hints
+def filter_numbers(numbers: list[int], threshold: int) -> list[int]:
+    """Filter numbers greater than threshold."""
+    return [num for num in numbers if num > threshold]
+
+# Also good: Using typing module
+from typing import List
+
+def filter_numbers_typed(numbers: List[int], threshold: int) -> List[int]:
+    """Filter numbers greater than threshold."""
+    return [num for num in numbers if num > threshold]
+```
+
+---
+
+## COMMON MISTAKES
+
+### 1. Mutable Default Arguments
+
+```python
+# Bad: Mutable default argument
+def add_item_bad(item, items=[]):
+    """Bad example - shared list across calls."""
+    items.append(item)
+    return items
+
+print(add_item_bad(1))  # [1]
+print(add_item_bad(2))  # [1, 2] - Unexpected!
+
+# Good: Use None as default
+def add_item_good(item, items=None):
+    """Good example - fresh list each call."""
+    if items is None:
+        items = []
+    items.append(item)
+    return items
+
+print(add_item_good(1))  # [1]
+print(add_item_good(2))  # [2] - Expected!
+```
+
+### 2. Variable Scope Issues
+
+```python
+# Bad: Modifying global variables
+balance = 100
+
+def withdraw_bad(amount):
+    """Bad example - modifies global variable."""
+    global balance
+    balance -= amount
+    return balance
+
+# Good: Pass values as parameters
+def withdraw_good(current_balance, amount):
+    """Good example - pure function."""
+    return current_balance - amount
+
+new_balance = withdraw_good(balance, 50)
+```
+
+### 3. Missing Return Statements
+
+```python
+# Bad: Implicit return None
+def calculate_discount_bad(price, discount):
+    """Bad example - missing return in some cases."""
+    if discount > 50:
+        return "Discount too high"
+    # Missing return here!
+
+# Good: Always return a value
+def calculate_discount_good(price, discount):
+    """Good example - always returns something."""
+    if discount > 50:
+        return "Discount too high"
+    return price * (1 - discount/100)
+```
+
+### 4. Infinite Recursion
+
+```python
+# Bad: No base case
+def factorial_bad(n):
+    """Bad example - infinite recursion."""
+    return n * factorial_bad(n - 1)
+
+# Good: Proper base case
+def factorial_good(n):
+    """Good example - with base case."""
+    if n <= 1:
+        return 1
+    return n * factorial_good(n - 1)
+```
+
+### 5. Modifying Input Parameters
+
+```python
+# Bad: Modifies input list
+def remove_duplicates_bad(items):
+    """Bad example - modifies original list."""
+    items = list(set(items))  # Creates new list but doesn't modify original
+    return len(items)
+
+# Good: Don't modify inputs (or be explicit)
+def remove_duplicates_good(items):
+    """Good example - doesn't modify original."""
+    unique_items = list(set(items))
+    return unique_items
+
+# Or be explicit about modification
+def remove_duplicates_inplace(items):
+    """Explicitly modifies the list in place."""
+    items[:] = list(set(items))
+```
+
+### 6. Catching Too Broad Exceptions
+
+```python
+# Bad: Catches everything
+def divide_bad(a, b):
+    """Bad example - catches all exceptions."""
+    try:
+        return a / b
+    except:  # Too broad!
+        return None
+
+# Good: Specific exceptions
+def divide_good(a, b):
+    """Good example - specific exception handling."""
+    try:
+        return a / b
+    except ZeroDivisionError:
+        return float('inf')
+    except TypeError:
+        raise ValueError("Both arguments must be numbers")
+```
+
+---
+
+## INTERVIEW PREPARATION
+
+### Key Interview Topics
+
+#### 1. Function vs Method
+```python
+# Function: Standalone
+def greet_function(name):
+    return f"Hello, {name}!"
+
+# Method: Belongs to class
+class Person:
+    def greet_method(self):
+        return f"Hello, I'm {self.name}!"
+```
+
+#### 2. *args vs **kwargs
+```python
+def demonstrate_args_kwargs(*args, **kwargs):
+    """Show difference between *args and **kwargs."""
+    print(f"*args: {args}")      # Tuple of positional args
+    print(f"**kwargs: {kwargs}")  # Dict of keyword args
+
+demonstrate_args_kwargs(1, 2, 3, name="Alice", age=30)
+```
+
+#### 3. Closures
+```python
+def create_counter():
+    """Closure example - common interview question."""
+    count = 0
+    
+    def increment():
+        nonlocal count
+        count += 1
+        return count
+    
+    return increment
+```
+
+#### 4. Decorators
+```python
+def timing_decorator(func):
+    """Basic decorator implementation."""
+    import time
+    
+    def wrapper(*args, **kwargs):
+        start = time.time()
+        result = func(*args, **kwargs)
+        end = time.time()
+        print(f"{func.__name__} took {end - start:.4f} seconds")
+        return result
+    
+    return wrapper
+```
+
+### Practice Questions
+
+#### Question 1: What gets printed?
+```python
+def func(x, y=[]):
+    y.append(x)
+    return y
+
+print(func(1))
+print(func(2))
+print(func(3, []))
+print(func(4))
+```
+
+#### Question 2: Fix the closure
+```python
+def create_multipliers():
+    """Create multiplier functions."""
+    multipliers = []
+    for i in range(1, 4):
+        multipliers.append(lambda x: x * i)  # Bug here!
+    return multipliers
+
+# How to fix this?
+```
+
+#### Question 3: Implement map function
+```python
+def my_map(func, iterable):
+    """Implement your own map function."""
+    # Your code here
+    pass
+```
+
+#### Question 4: Decorator with arguments
+```python
+def repeat(n):
+    """Decorator that repeats function n times."""
+    # Your code here
+    pass
+
+@repeat(3)
+def greet(name):
+    print(f"Hello, {name}!")
+
+# greet("Alice") should print "Hello, Alice!" 3 times
+```
+
+---
+
+## ADVANCED PATTERNS
+
+### 1. Function Factory
+
+```python
+def create_validator(min_value, max_value):
+    """Create a validator function for a range."""
+    def validator(value):
+        if min_value <= value <= max_value:
+            return True
+        return False
+    return validator
+
+# Create specific validators
+age_validator = create_validator(0, 120)
+temperature_validator = create_validator(-50, 50)
+
+print(age_validator(25))        # True
+print(age_validator(150))       # False
+print(temperature_validator(20)) # True
+```
+
+### 2. Memoization Decorator
+
+```python
+def memoize(func):
+    """General memoization decorator."""
+    cache = {}
+    
+    def wrapper(*args):
+        if args in cache:
+            return cache[args]
+        
+        result = func(*args)
+        cache[args] = result
+        return result
+    
+    return wrapper
+
+@memoize
+def fibonacci(n):
+    """Memoized Fibonacci."""
+    if n <= 1:
+        return n
+    return fibonacci(n - 1) + fibonacci(n - 2)
+
+print(fibonacci(100))  # Fast!
+```
+
+### 3. Function Chaining
+
+```python
+class FunctionChain:
+    """Chain multiple functions together."""
+    
+    def __init__(self):
+        self.functions = []
+    
+    def add(self, func):
+        """Add function to chain."""
+        self.functions.append(func)
+        return self
+    
+    def execute(self, data):
+        """Execute all functions in chain."""
+        result = data
+        for func in self.functions:
+            result = func(result)
+        return result
+
+# Usage
+chain = FunctionChain()
+chain.add(lambda x: x * 2)
+chain.add(lambda x: x + 1)
+chain.add(lambda x: x ** 2)
+
+result = chain.execute(5)  # ((5 * 2) + 1) ** 2 = 121
+print(result)
+```
+
+### 4. Partial Function Application
+
+```python
+from functools import partial
+
+def power(base, exponent):
+    """Calculate base to the power of exponent."""
+    return base ** exponent
+
+# Create partial functions
+square = partial(power, exponent=2)
+cube = partial(power, exponent=3)
+
+print(square(5))  # 25
+print(cube(5))    # 125
+
+# Practical example
+def greet(greeting, name, punctuation="!"):
+    """Greet someone."""
+    return f"{greeting}, {name}{punctuation}"
+
+say_hello = partial(greet, "Hello")
+say_goodbye = partial(greet, "Goodbye")
+
+print(say_hello("Alice"))           # "Hello, Alice!"
+print(say_goodbye("Bob", "."))      # "Goodbye, Bob."
+```
+
+### 5. Function Composition
+
+```python
+def compose(*functions):
+    """Compose multiple functions."""
+    def composed(x):
+        result = x
+        for func in reversed(functions):
+            result = func(result)
+        return result
+    return composed
+
+def add_one(x):
+    return x + 1
+
+def multiply_by_two(x):
+    return x * 2
+
+def square(x):
+    return x ** 2
+
+# Create composed function
+pipeline = compose(square, multiply_by_two, add_one)
+
+result = pipeline(3)  # ((3 + 1) * 2) ** 2 = 64
+print(result)
+```
+
+---
+
+## REAL-WORLD EXAMPLES
+
+### 1. Data Processing Pipeline
+
+```python
+def create_data_pipeline():
+    """Create a data processing pipeline."""
+    
+    def extract_data(file_path):
+        """Extract data from file."""
+        # Simulate data extraction
+        return [{"name": f"Item{i}", "value": i * 10} for i in range(1, 6)]
+    
+    def transform_data(data):
+        """Transform the data."""
+        return [{"name": item["name"].upper(), 
+                "value": item["value"] * 2} for item in data]
+    
+    def validate_data(data):
+        """Validate transformed data."""
+        valid_items = []
+        for item in data:
+            if item["value"] > 0:
+                valid_items.append(item)
+        return valid_items
+    
+    def load_data(data):
+        """Load data to destination."""
+        # Simulate loading
+        return f"Loaded {len(data)} valid items"
+    
+    return extract_data, transform_data, validate_data, load_data
+
+# Usage
+extract, transform, validate, load = create_data_pipeline()
+
+data = extract_data("data.csv")
+transformed = transform_data(data)
+validated = validate_data(transformed)
+result = load_data(validated)
+
+print(result)  # "Loaded 5 valid items"
+```
+
+### 2. API Client with Retry Logic
+
+```python
+import time
+import random
+
+def create_api_client():
+    """Create an API client with retry logic."""
+    
+    def make_request(endpoint, max_retries=3):
+        """Make API request with retries."""
+        for attempt in range(max_retries):
+            try:
+                # Simulate API call
+                if random.random() > 0.7:  # 30% success rate
+                    return {"status": "success", "data": f"Data from {endpoint}"}
+                else:
+                    raise ConnectionError("API unavailable")
+            
+            except ConnectionError as e:
+                if attempt == max_retries - 1:
+                    return {"status": "error", "message": str(e)}
+                
+                wait_time = 2 ** attempt  # Exponential backoff
+                print(f"Attempt {attempt + 1} failed, retrying in {wait_time}s...")
+                time.sleep(wait_time)
+    
+    return make_request
+
+# Usage
+api_client = create_api_client()
+result = api_client("/users")
+print(result)
+```
+
+### 3. Configuration Manager
+
+```python
+def create_config_manager():
+    """Create a configuration manager."""
+    
+    config = {
+        "database_url": "localhost:5432",
+        "debug": False,
+        "max_connections": 10
+    }
+    
+    def get_config(key, default=None):
+        """Get configuration value."""
+        return config.get(key, default)
+    
+    def set_config(key, value):
+        """Set configuration value."""
+        config[key] = value
+    
+    def update_config(updates):
+        """Update multiple configuration values."""
+        config.update(updates)
+    
+    def reset_config():
+        """Reset to default configuration."""
+        config.clear()
+        config.update({
+            "database_url": "localhost:5432",
+            "debug": False,
+            "max_connections": 10
+        })
+    
+    return {
+        "get": get_config,
+        "set": set_config,
+        "update": update_config,
+        "reset": reset_config,
+        "all": lambda: config.copy()
+    }
+
+# Usage
+config = create_config_manager()
+print(config["get"]("database_url"))  # "localhost:5432"
+config["set"]("debug", True)
+config["update"]({"max_connections": 20, "timeout": 30})
+print(config["all"]())
+```
+
+### 4. Logger with Multiple Levels
+
+```python
+def create_logger(name="APP"):
+    """Create a configurable logger."""
+    
+    import datetime
+    
+    log_levels = {
+        "DEBUG": 0,
+        "INFO": 1,
+        "WARNING": 2,
+        "ERROR": 3,
+        "CRITICAL": 4
+    }
+    
+    current_level = "INFO"
+    
+    def set_level(level):
+        """Set logging level."""
+        nonlocal current_level
+        if level in log_levels:
+            current_level = level
+    
+    def log(level, message):
+        """Log message if level is enabled."""
+        if log_levels[level] >= log_levels[current_level]:
+            timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            print(f"[{timestamp}] {name} - {level}: {message}")
+    
+    def debug(message):
+        log("DEBUG", message)
+    
+    def info(message):
+        log("INFO", message)
+    
+    def warning(message):
+        log("WARNING", message)
+    
+    def error(message):
+        log("ERROR", message)
+    
+    def critical(message):
+        log("CRITICAL", message)
+    
+    return {
+        "set_level": set_level,
+        "debug": debug,
+        "info": info,
+        "warning": warning,
+        "error": error,
+        "critical": critical
+    }
+
+# Usage
+logger = create_logger("MyApp")
+logger["info"]("Application starting")
+logger["set_level"]("DEBUG")
+logger["debug"]("Debug information")
+```
+
+---
+
+## FINAL SUMMARY
+
+### Functions Are First-Class Objects
+
+- Can be assigned to variables
+- Can be passed as arguments
+- Can be returned from other functions
+- Can be stored in data structures
+
+### Key Concepts to Master
+
+1. **Function Definition**: Syntax and structure
+2. **Arguments**: Positional, keyword, *args, **kwargs
+3. **Return Values**: Single and multiple returns
+4. **Scope**: Local vs global variables
+5. **Closures**: Functions that remember their environment
+6. **Decorators**: Functions that modify other functions
+7. **Recursion**: Functions that call themselves
+8. **Higher-Order Functions**: Functions that operate on functions
+
+### Golden Rules
+
+1. **Single Responsibility**: Each function should do one thing well
+2. **Descriptive Names**: Use clear, meaningful function names
+3. **Documentation**: Always document your functions
+4. **Type Hints**: Use type hints for better code clarity
+5. **Error Handling**: Handle errors gracefully
+6. **Avoid Side Effects**: Prefer pure functions when possible
+7. **Test Your Functions**: Write tests for all functions
+
+### Quick Reference
+
+```python
+# Function definition
+def function_name(param1: type, param2: type = default) -> return_type:
+    """Docstring explaining the function."""
+    # Function body
+    return result
+
+# Argument types
+def all_args(pos1, pos2, *args, kw1=default, kw2=default, **kwargs):
+    pass
+
+# Lambda
+lambda x: x * 2
+
+# Decorator
+@decorator
+def func():
+    pass
+
+# Closure
+def outer():
+    x = 10
+    def inner():
+        return x
+    return inner
+```
+
+**Remember**: Functions are the building blocks of Python programming. Master them, and you'll master Python!

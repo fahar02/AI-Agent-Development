@@ -1,0 +1,779 @@
+================================================================================
+NETWORKING IN PYTHON
+================================================================================
+
+TABLE OF CONTENTS:
+1. Introduction to Networking
+2. Sockets
+3. Socket Programming
+4. HTTP Requests
+5. Web Servers
+6. Socket Servers and Clients
+7. Advanced Networking
+8. Real-world Examples
+
+================================================================================
+1. INTRODUCTION TO NETWORKING
+================================================================================
+
+Networking allows Python programs to communicate over networks. Key concepts:
+
+- Socket: Endpoint for network communication
+- Protocol: Rules for communication (TCP, UDP, HTTP)
+- Port: Logical endpoint for communication
+- IP Address: Unique identifier for a device
+- DNS: Domain Name System for resolving hostnames
+
+NETWORK LAYERS:
+---------------
+
+OSI Model:
+1. Physical Layer: Hardware (cables, signals)
+2. Data Link Layer: MAC addresses, switches
+3. Network Layer: IP addresses, routing
+4. Transport Layer: TCP, UDP
+5. Session Layer: Session management
+6. Presentation Layer: Encryption, compression
+7. Application Layer: HTTP, FTP, SMTP
+
+Python typically works at Transport and Application layers.
+
+
+TCP VS UDP:
+-----------
+
+TCP (Transmission Control Protocol):
+- Connection-oriented
+- Reliable delivery
+- Ordered delivery
+- Slower but guaranteed
+- Used for: HTTP, HTTPS, FTP, SMTP
+
+UDP (User Datagram Protocol):
+- Connectionless
+- Unreliable delivery
+- No ordering guarantee
+- Faster but no guarantee
+- Used for: DNS, Video streaming, Online games
+
+
+================================================================================
+2. SOCKETS
+================================================================================
+
+SOCKET BASICS:
+--------------
+
+A socket is an endpoint for network communication. It's like a virtual "plug"
+for network connections.
+
+Socket Types:
+- SOCK_STREAM: TCP (reliable, ordered)
+- SOCK_DGRAM: UDP (unreliable, fast)
+
+Address Families:
+- AF_INET: IPv4
+- AF_INET6: IPv6
+- AF_UNIX: Unix domain sockets
+
+
+SOCKET CREATION:
+----------------
+
+import socket
+
+# Create a TCP socket
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+# Create a UDP socket
+sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+# Close socket
+sock.close()
+
+
+SOCKET METHODS:
+---------------
+
+bind(address)      - Bind socket to address
+listen(backlog)    - Listen for connections
+accept()           - Accept incoming connection
+connect(address)   - Connect to remote address
+send(data)         - Send data
+recv(bufsize)      - Receive data
+close()            - Close socket
+settimeout(timeout)- Set timeout
+setsockopt()       - Set socket options
+
+
+================================================================================
+3. SOCKET PROGRAMMING
+================================================================================
+
+TCP SERVER:
+-----------
+
+import socket
+
+def start_server(host='localhost', port=5000):
+    # Create socket
+    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    
+    # Bind to address
+    server_socket.bind((host, port))
+    
+    # Listen for connections
+    server_socket.listen(5)
+    print(f"Server listening on {host}:{port}")
+    
+    try:
+        while True:
+            # Accept connection
+            client_socket, client_address = server_socket.accept()
+            print(f"Connection from {client_address}")
+            
+            # Receive data
+            data = client_socket.recv(1024).decode()
+            print(f"Received: {data}")
+            
+            # Send response
+            response = f"Echo: {data}"
+            client_socket.send(response.encode())
+            
+            # Close client socket
+            client_socket.close()
+    finally:
+        server_socket.close()
+
+# start_server()
+
+
+TCP CLIENT:
+-----------
+
+import socket
+
+def connect_to_server(host='localhost', port=5000):
+    # Create socket
+    client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    
+    try:
+        # Connect to server
+        client_socket.connect((host, port))
+        print(f"Connected to {host}:{port}")
+        
+        # Send data
+        message = "Hello, Server!"
+        client_socket.send(message.encode())
+        
+        # Receive response
+        response = client_socket.recv(1024).decode()
+        print(f"Response: {response}")
+    finally:
+        client_socket.close()
+
+# connect_to_server()
+
+
+UDP SERVER:
+-----------
+
+import socket
+
+def start_udp_server(host='localhost', port=5000):
+    # Create UDP socket
+    server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    
+    # Bind to address
+    server_socket.bind((host, port))
+    print(f"UDP Server listening on {host}:{port}")
+    
+    try:
+        while True:
+            # Receive data
+            data, client_address = server_socket.recvfrom(1024)
+            print(f"Received from {client_address}: {data.decode()}")
+            
+            # Send response
+            response = f"Echo: {data.decode()}"
+            server_socket.sendto(response.encode(), client_address)
+    finally:
+        server_socket.close()
+
+# start_udp_server()
+
+
+UDP CLIENT:
+-----------
+
+import socket
+
+def send_udp_message(host='localhost', port=5000, message="Hello"):
+    # Create UDP socket
+    client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    
+    try:
+        # Send data
+        client_socket.sendto(message.encode(), (host, port))
+        
+        # Receive response
+        response, server_address = client_socket.recvfrom(1024)
+        print(f"Response: {response.decode()}")
+    finally:
+        client_socket.close()
+
+# send_udp_message()
+
+
+SOCKET TIMEOUTS:
+----------------
+
+import socket
+
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+# Set timeout to 5 seconds
+sock.settimeout(5)
+
+try:
+    sock.connect(('example.com', 80))
+except socket.timeout:
+    print("Connection timed out")
+finally:
+    sock.close()
+
+
+================================================================================
+4. HTTP REQUESTS
+================================================================================
+
+BASIC HTTP REQUEST WITH URLLIB:
+-------------------------------
+
+import urllib.request
+import urllib.error
+
+url = "https://api.example.com/data"
+
+try:
+    response = urllib.request.urlopen(url)
+    data = response.read().decode()
+    print(data)
+except urllib.error.URLError as e:
+    print(f"Error: {e}")
+
+
+REQUESTS LIBRARY (RECOMMENDED):
+-------------------------------
+
+import requests
+
+# GET request
+response = requests.get("https://api.example.com/data")
+print(response.status_code)
+print(response.json())
+
+# POST request
+data = {"key": "value"}
+response = requests.post("https://api.example.com/data", json=data)
+print(response.status_code)
+
+# PUT request
+response = requests.put("https://api.example.com/data/1", json=data)
+
+# DELETE request
+response = requests.delete("https://api.example.com/data/1")
+
+
+REQUEST WITH HEADERS:
+---------------------
+
+import requests
+
+headers = {
+    "User-Agent": "Mozilla/5.0",
+    "Authorization": "Bearer token123"
+}
+
+response = requests.get("https://api.example.com/data", headers=headers)
+print(response.json())
+
+
+REQUEST WITH PARAMETERS:
+------------------------
+
+import requests
+
+params = {
+    "page": 1,
+    "limit": 10,
+    "sort": "name"
+}
+
+response = requests.get("https://api.example.com/data", params=params)
+print(response.json())
+
+
+REQUEST WITH TIMEOUT:
+---------------------
+
+import requests
+
+try:
+    response = requests.get("https://api.example.com/data", timeout=5)
+    print(response.json())
+except requests.Timeout:
+    print("Request timed out")
+except requests.RequestException as e:
+    print(f"Error: {e}")
+
+
+SESSION FOR MULTIPLE REQUESTS:
+------------------------------
+
+import requests
+
+# Create session for connection pooling
+session = requests.Session()
+
+# Set default headers
+session.headers.update({"Authorization": "Bearer token123"})
+
+# Make multiple requests
+response1 = session.get("https://api.example.com/data/1")
+response2 = session.get("https://api.example.com/data/2")
+response3 = session.get("https://api.example.com/data/3")
+
+session.close()
+
+
+================================================================================
+5. WEB SERVERS
+================================================================================
+
+SIMPLE HTTP SERVER:
+-------------------
+
+import http.server
+import socketserver
+
+PORT = 8000
+
+class MyRequestHandler(http.server.SimpleHTTPRequestHandler):
+    def do_GET(self):
+        if self.path == '/':
+            self.send_response(200)
+            self.send_header('Content-type', 'text/html')
+            self.end_headers()
+            self.wfile.write(b"<h1>Hello, World!</h1>")
+        else:
+            self.send_response(404)
+            self.end_headers()
+
+with socketserver.TCPServer(("", PORT), MyRequestHandler) as httpd:
+    print(f"Server running on port {PORT}")
+    httpd.serve_forever()
+
+
+FLASK WEB SERVER:
+-----------------
+
+from flask import Flask, request, jsonify
+
+app = Flask(__name__)
+
+@app.route('/', methods=['GET'])
+def home():
+    return "Hello, World!"
+
+@app.route('/api/data', methods=['GET'])
+def get_data():
+    return jsonify({"key": "value"})
+
+@app.route('/api/data', methods=['POST'])
+def post_data():
+    data = request.json
+    return jsonify({"received": data}), 201
+
+if __name__ == '__main__':
+    app.run(debug=True, port=5000)
+
+
+DJANGO WEB SERVER:
+------------------
+
+# Create Django project
+# django-admin startproject myproject
+# python manage.py startapp myapp
+
+# In myapp/views.py:
+from django.http import JsonResponse
+
+def api_view(request):
+    if request.method == 'GET':
+        return JsonResponse({"key": "value"})
+    elif request.method == 'POST':
+        data = request.POST
+        return JsonResponse({"received": data})
+
+
+================================================================================
+6. SOCKET SERVERS AND CLIENTS
+================================================================================
+
+MULTI-CLIENT SERVER:
+--------------------
+
+import socket
+import threading
+
+def handle_client(client_socket, client_address):
+    print(f"Connected: {client_address}")
+    try:
+        while True:
+            data = client_socket.recv(1024).decode()
+            if not data:
+                break
+            print(f"Received from {client_address}: {data}")
+            response = f"Echo: {data}"
+            client_socket.send(response.encode())
+    finally:
+        client_socket.close()
+        print(f"Disconnected: {client_address}")
+
+def start_server(host='localhost', port=5000):
+    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server_socket.bind((host, port))
+    server_socket.listen(5)
+    print(f"Server listening on {host}:{port}")
+    
+    try:
+        while True:
+            client_socket, client_address = server_socket.accept()
+            # Handle each client in a separate thread
+            thread = threading.Thread(
+                target=handle_client,
+                args=(client_socket, client_address)
+            )
+            thread.daemon = True
+            thread.start()
+    finally:
+        server_socket.close()
+
+# start_server()
+
+
+ASYNC SOCKET SERVER:
+--------------------
+
+import asyncio
+
+async def handle_client(reader, writer):
+    addr = writer.get_extra_info('peername')
+    print(f"Connected: {addr}")
+    
+    try:
+        while True:
+            data = await reader.read(1024)
+            if not data:
+                break
+            
+            message = data.decode()
+            print(f"Received from {addr}: {message}")
+            
+            response = f"Echo: {message}"
+            writer.write(response.encode())
+            await writer.drain()
+    finally:
+        writer.close()
+        await writer.wait_closed()
+        print(f"Disconnected: {addr}")
+
+async def start_async_server(host='localhost', port=5000):
+    server = await asyncio.start_server(handle_client, host, port)
+    
+    async with server:
+        print(f"Server listening on {host}:{port}")
+        await server.serve_forever()
+
+# asyncio.run(start_async_server())
+
+
+================================================================================
+7. ADVANCED NETWORKING
+================================================================================
+
+DNS RESOLUTION:
+---------------
+
+import socket
+
+# Get IP address from hostname
+hostname = "example.com"
+ip_address = socket.gethostbyname(hostname)
+print(f"{hostname} -> {ip_address}")
+
+# Get hostname from IP address
+ip = "8.8.8.8"
+hostname = socket.gethostbyaddr(ip)
+print(f"{ip} -> {hostname}")
+
+# Get all addresses
+addresses = socket.getaddrinfo("example.com", 80)
+for addr in addresses:
+    print(addr)
+
+
+SSL/TLS CONNECTIONS:
+--------------------
+
+import socket
+import ssl
+
+def secure_connection(host='example.com', port=443):
+    # Create socket
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    
+    # Wrap with SSL
+    context = ssl.create_default_context()
+    with context.wrap_socket(sock, server_hostname=host) as ssock:
+        ssock.connect((host, port))
+        print(f"Connected to {host}:{port} (SSL)")
+        
+        # Send request
+        ssock.send(b"GET / HTTP/1.1\r\nHost: example.com\r\n\r\n")
+        
+        # Receive response
+        response = ssock.recv(1024).decode()
+        print(response[:100])
+
+
+PROXY SUPPORT:
+--------------
+
+import requests
+
+proxies = {
+    'http': 'http://proxy.example.com:8080',
+    'https': 'https://proxy.example.com:8080',
+}
+
+response = requests.get('https://api.example.com/data', proxies=proxies)
+print(response.json())
+
+
+WEBSOCKETS:
+-----------
+
+# Using websocket-client library
+import websocket
+
+def on_message(ws, message):
+    print(f"Received: {message}")
+
+def on_error(ws, error):
+    print(f"Error: {error}")
+
+def on_close(ws, close_status_code, close_msg):
+    print("Connection closed")
+
+def on_open(ws):
+    ws.send("Hello Server")
+
+ws = websocket.WebSocketApp(
+    "ws://echo.websocket.org/",
+    on_message=on_message,
+    on_error=on_error,
+    on_close=on_close,
+    on_open=on_open
+)
+
+# ws.run_forever()
+
+
+================================================================================
+8. REAL-WORLD EXAMPLES
+================================================================================
+
+EXAMPLE 1: REST API CLIENT
+---------------------------
+
+import requests
+import json
+
+class APIClient:
+    def __init__(self, base_url, api_key=None):
+        self.base_url = base_url
+        self.headers = {}
+        if api_key:
+            self.headers['Authorization'] = f'Bearer {api_key}'
+    
+    def get(self, endpoint, params=None):
+        url = f"{self.base_url}/{endpoint}"
+        response = requests.get(url, headers=self.headers, params=params)
+        return response.json()
+    
+    def post(self, endpoint, data):
+        url = f"{self.base_url}/{endpoint}"
+        response = requests.post(url, headers=self.headers, json=data)
+        return response.json()
+    
+    def put(self, endpoint, data):
+        url = f"{self.base_url}/{endpoint}"
+        response = requests.put(url, headers=self.headers, json=data)
+        return response.json()
+    
+    def delete(self, endpoint):
+        url = f"{self.base_url}/{endpoint}"
+        response = requests.delete(url, headers=self.headers)
+        return response.status_code
+
+# Usage
+# client = APIClient("https://api.example.com", api_key="token123")
+# data = client.get("users")
+# new_user = client.post("users", {"name": "Alice", "email": "alice@example.com"})
+
+
+EXAMPLE 2: WEB SCRAPER
+----------------------
+
+import requests
+from bs4 import BeautifulSoup
+
+def scrape_website(url):
+    try:
+        response = requests.get(url, timeout=5)
+        response.raise_for_status()
+        
+        soup = BeautifulSoup(response.content, 'html.parser')
+        
+        # Extract data
+        titles = [h1.text for h1 in soup.find_all('h1')]
+        links = [a['href'] for a in soup.find_all('a', href=True)]
+        
+        return {
+            'titles': titles,
+            'links': links
+        }
+    except requests.RequestException as e:
+        print(f"Error: {e}")
+        return None
+
+# data = scrape_website("https://example.com")
+
+
+EXAMPLE 3: DOWNLOAD FILE
+------------------------
+
+import requests
+
+def download_file(url, filename):
+    try:
+        response = requests.get(url, stream=True)
+        response.raise_for_status()
+        
+        with open(filename, 'wb') as f:
+            for chunk in response.iter_content(chunk_size=8192):
+                if chunk:
+                    f.write(chunk)
+        
+        print(f"Downloaded: {filename}")
+    except requests.RequestException as e:
+        print(f"Error: {e}")
+
+# download_file("https://example.com/file.zip", "file.zip")
+
+
+EXAMPLE 4: CONCURRENT HTTP REQUESTS
+------------------------------------
+
+import asyncio
+
+async def fetch_url(url):
+    # Simulate async HTTP request
+    await asyncio.sleep(0.5)
+    return f"Data from {url}"
+
+async def fetch_multiple_urls(urls):
+    tasks = [fetch_url(url) for url in urls]
+    results = await asyncio.gather(*tasks)
+    return results
+
+# urls = ["https://api.example.com/1", "https://api.example.com/2"]
+# results = asyncio.run(fetch_multiple_urls(urls))
+
+
+EXAMPLE 5: CHAT APPLICATION
+----------------------------
+
+import socket
+import threading
+
+class ChatServer:
+    def __init__(self, host='localhost', port=5000):
+        self.host = host
+        self.port = port
+        self.clients = []
+        self.lock = threading.Lock()
+    
+    def handle_client(self, client_socket, client_address):
+        print(f"Client connected: {client_address}")
+        
+        try:
+            while True:
+                data = client_socket.recv(1024).decode()
+                if not data:
+                    break
+                
+                # Broadcast message to all clients
+                with self.lock:
+                    for client in self.clients:
+                        if client != client_socket:
+                            client.send(f"{client_address}: {data}".encode())
+        finally:
+            with self.lock:
+                self.clients.remove(client_socket)
+            client_socket.close()
+            print(f"Client disconnected: {client_address}")
+    
+    def start(self):
+        server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        server_socket.bind((self.host, self.port))
+        server_socket.listen(5)
+        print(f"Chat server listening on {self.host}:{self.port}")
+        
+        try:
+            while True:
+                client_socket, client_address = server_socket.accept()
+                with self.lock:
+                    self.clients.append(client_socket)
+                
+                thread = threading.Thread(
+                    target=self.handle_client,
+                    args=(client_socket, client_address)
+                )
+                thread.daemon = True
+                thread.start()
+        finally:
+            server_socket.close()
+
+# server = ChatServer()
+# server.start()
+
+
+================================================================================
+KEY TAKEAWAYS
+================================================================================
+
+1. Sockets are endpoints for network communication
+2. TCP is reliable and ordered, UDP is fast but unreliable
+3. Use requests library for HTTP operations
+4. Always handle timeouts and exceptions in network code
+5. Use sessions for multiple HTTP requests
+6. Use threading or asyncio for handling multiple clients
+7. Always close sockets and connections properly
+8. Use SSL/TLS for secure connections
+9. DNS resolution converts hostnames to IP addresses
+10. Test network code with proper error handling
+
+================================================================================
